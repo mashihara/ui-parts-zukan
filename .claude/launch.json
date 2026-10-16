@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "ui-knobs-static", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "4319", "--directory", "out"], "port": 4319 }
+  ]
+}
