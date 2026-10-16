@@ -193,7 +193,8 @@ span.spot { display: inline-flex; }
 .flash { position: fixed; left: 50%; bottom: calc(var(--dock-h) + 16px); transform: translateX(-50%); z-index: 60; background: var(--y); color: var(--bp-ink); font-weight: 700; padding: 8px 16px; border-radius: 3px; font-size: 13.5px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); }
 
 /* ---- 狭い画面 ---- */
-@media (max-width: 1180px) {
+/* 1400px 未満では項目を図面の下へ回し、図面の幅を確保して引き出し線を出す */
+@media (max-width: 1400px) {
   .studio { grid-template-columns: minmax(0, 1fr); }
   .entry { position: static; max-height: none; }
 }

@@ -19,6 +19,16 @@ test.describe("図面", () => {
     await expect(page).toHaveURL(/part=toggle/);
   });
 
+  test("よくあるノートPCの幅（1280px）でも引き出し線が出る", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/");
+    await expect(page.locator(".drawing.is-wide")).toBeVisible();
+    // 名前を押すと、下に回した説明へ移る
+    await page.locator(".callout", { hasText: "アラート" }).click();
+    await expect(page.locator(".entry h2")).toHaveText("アラート");
+    await expect(page.locator(".entry h2")).toBeInViewport();
+  });
+
   test("見本の画面に部品の見た目が効いている", async ({ page }) => {
     await page.goto("/");
     // 変数が流れていないと背景が透明になる（2026-10-16 に一度起きた）

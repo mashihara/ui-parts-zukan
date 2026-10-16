@@ -74,7 +74,7 @@ export default function Dictionary() {
     <>
       <div className="studio">
         <main className="board" aria-label="図面">
-          <ScreenMap onPick={(id) => open(id, typeof window !== "undefined" && window.innerWidth < 1180)} selected={s.part} />
+          <ScreenMap onPick={(id) => open(id, typeof window !== "undefined" && window.innerWidth <= 1400)} selected={s.part} />
           <p className="board-note">
             モーダル・ダイアログ・ドロワーなど、<b>画面に重なって出る窓</b>は図面の外です。下の「部品の名前」から開けます。
           </p>
