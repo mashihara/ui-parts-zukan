@@ -1,0 +1,42 @@
+# main へ push したら、静的書き出しを GitHub Pages に公開する
+name: GitHub Pages に公開
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          # サブパス（/リポジトリ名）で配信するための設定と、llms.txt に書く絶対URL
+          NEXT_PUBLIC_BASE_PATH: /ui-parts-zukan
+          # 共有画像の絶対URLの土台。Next.js がサブパスを足すので、ここはドメインだけにする
+          NEXT_PUBLIC_SITE_URL: https://mashihara.github.io
+          SITE_URL: https://mashihara.github.io/ui-parts-zukan
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

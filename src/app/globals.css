@@ -29,8 +29,10 @@ a { color: inherit; }
 /* ---- 上の帯 ---- */
 .top { display: flex; align-items: center; justify-content: space-between; height: 64px; border-bottom: 1px solid var(--ln-weak); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
-.brand-mark { width: 26px; height: 26px; border: 2px solid #fff; border-radius: 99px; position: relative; }
-.brand-mark::after { content: ""; position: absolute; left: 10px; top: 2px; width: 2px; height: 9px; background: var(--y); transform-origin: 1px 10px; transform: rotate(40deg); }
+/* 印：部品に打った点から引き出し線を伸ばした形 */
+.brand-mark { width: 30px; height: 22px; position: relative; flex: none; margin-right: 4px; }
+.brand-mark::before { content: ""; position: absolute; left: 0; bottom: 0; width: 9px; height: 9px; border-radius: 99px; background: var(--y); }
+.brand-mark::after { content: ""; position: absolute; left: 6px; bottom: 6px; width: 13px; height: 14px; border-top: 2px solid #fff; border-left: 2px solid #fff; transform: skewX(-35deg); transform-origin: left bottom; }
 .top-links { display: flex; gap: 24px; font-size: 14px; }
 .top-links a { text-decoration: none; opacity: 0.85; }
 .top-links a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }

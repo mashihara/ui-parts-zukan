@@ -2,13 +2,8 @@
 
 ## 公開の残り作業
 
-1. サイト名を決める（「つまみ」は調整機能の名残。2026-10-16 に調整機能を廃止したので見直す）
-2. GitHub にリポジトリを作って push する
-3. 公開先を決めてビルドする
-   - Vercel: そのまま `npm run build`（出力は `out/`）。`SITE_URL` に公開URLを入れる
-   - GitHub Pages: `NEXT_PUBLIC_BASE_PATH=/<リポジトリ名> SITE_URL=https://<ユーザー名>.github.io/<リポジトリ名> npm run build`
-4. 公開URLを下の記事の `{URL}` に入れる。スキルの導入コマンド（`npx skills add <ユーザー名>/<リポジトリ名>`）もリポジトリ名が決まってから書く
-5. `web-seo-setup` スキルで Search Console に登録する
+- 公開先: GitHub Pages（リポジトリ mashihara/ui-parts-zukan）。main へ push すると `.github/workflows/pages.yml` が自動でビルドして公開する
+- 残り: `web-seo-setup` スキルで Search Console に登録する
 
 ## X の記事（長文）の下書き
 

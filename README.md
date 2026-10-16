@@ -1,4 +1,4 @@
-# UIつまみ
+# UI部品図鑑
 
 **その部品、なんて呼ぶ？** UI部品の正式な名前が分かる、図面の形をした辞書です。
 
@@ -16,7 +16,7 @@
 | `/llms.txt` | サイトの説明・全部品の名前・まぎらわしい名前 |
 | `/api/v1/catalog.json` | 同じ内容の機械向けデータ |
 | `/api/v1/parts/<id>.txt` | 部品ごとの説明と頼み方の例 |
-| `skills/ui-knobs/SKILL.md` | Claude Code・Codex 用のスキル |
+| `skills/ui-parts-zukan/SKILL.md` | Claude Code・Codex 用のスキル |
 
 リンクの形: `?pick=modal,toast&part=modal`（pick＝選んだ部品、part＝開く部品）
 
@@ -32,7 +32,7 @@ npx playwright test
 ```
 
 - 名前・意味・頼み方の例の正本は `src/lib/parts.ts`。見本は `src/components/previews.tsx` と `kit.css`、図面は `ScreenMap.tsx`。
-- サブパスで公開するときは `NEXT_PUBLIC_BASE_PATH=/ui-knobs`、`llms.txt` に絶対URLを書くときは `SITE_URL=https://…` を付けてビルドする。
+- サブパスで公開するときは `NEXT_PUBLIC_BASE_PATH=/ui-parts-zukan`、`llms.txt` に絶対URLを書くときは `SITE_URL=https://…` を付けてビルドする。
 
 ## ライセンス
 

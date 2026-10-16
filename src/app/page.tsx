@@ -7,7 +7,7 @@ export default function Page() {
       <header className="top">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true" />
-          <span className="brand-name">UIつまみ</span>
+          <span className="brand-name">UI部品図鑑</span>
         </div>
         <nav className="top-links">
           <a href="#names">部品の名前</a>

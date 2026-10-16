@@ -10,7 +10,7 @@ import { CATEGORIES, CONFUSIONS, PARTS, shortEn } from "../src/lib/parts.ts";
 import { SITE_NAME } from "../src/lib/prompt.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-// 公開先のURL（例: https://example.com/ui-knobs）。無ければ相対パスで書く
+// 公開先のURL（例: https://example.com/ui-parts-zukan）。無ければ相対パスで書く
 const site = (process.env.SITE_URL ?? "").replace(/\/$/, "");
 const url = (path: string) => (site ? `${site}/${path}` : path);
 const out = (rel: string, body: string) => {

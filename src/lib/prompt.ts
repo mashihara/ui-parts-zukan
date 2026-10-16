@@ -1,7 +1,7 @@
 // AIに渡す文を組み立てる。目的は「部品を正式な名前で呼び合えるようにする」こと。
 import { PART_MAP, shortEn } from "./parts.ts";
 
-export const SITE_NAME = "UIつまみ";
+export const SITE_NAME = "UI部品図鑑";
 
 export function buildPrompt(picks: string[], link: string): string {
   const out: string[] = [];
