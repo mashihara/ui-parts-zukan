@@ -1,87 +1,114 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const SHOT = process.env.SHOT_DIR;
-const shot = async (page: import("@playwright/test").Page, name: string) => {
-  if (SHOT) await page.screenshot({ path: `${SHOT}/${name}.png`, fullPage: false });
+const shot = async (page: Page, name: string) => {
+  if (SHOT) await page.screenshot({ path: `${SHOT}/${name}.png` });
 };
+const entryName = (page: Page) => page.locator(".entry h2");
 
-test.describe("画面の地図", () => {
-  test("乗せると名前が出て、押すとその部品へ進む", async ({ page }) => {
+test.describe("図面", () => {
+  test("引き出し線の名前を押すと、その部品の説明が出る", async ({ page }) => {
     await page.goto("/");
-    const header = page.locator(".map .spot.map-header").first();
-    await header.locator(".k-logo").hover();
-    await expect(header.locator(":scope > .spot-tag")).toHaveText("ヘッダー");
-    await expect(header.locator(":scope > .spot-tag")).toHaveCSS("opacity", "1");
-    await shot(page, "map-hover");
-    // 入れ子：ヘッダーの中のナビを押すとグローバルナビが選ばれる
-    await page.locator(".map .k-gnav a", { hasText: "予約" }).click();
-    await expect(page.locator(".part-head h2")).toHaveText("グローバルナビ");
-  });
-
-  test("ラジオボタンを押しても選択は変わらず名前が分かる", async ({ page }) => {
-    await page.goto("/");
-    await page.locator(".map .k-radio", { hasText: "持ち帰り" }).click();
-    await expect(page.locator(".part-head h2")).toHaveText("ラジオボタン");
-  });
-
-  test("名前を全部出す", async ({ page }) => {
-    await page.goto("/");
-    await page.getByLabel("名前を全部出す").check();
-    const visible = await page.locator(".map .spot.show-tag > .spot-tag").count();
-    expect(visible).toBeGreaterThanOrEqual(20);
+    await expect(page.locator(".drawing.is-wide")).toBeVisible();
     await page.waitForTimeout(300);
-    await page.locator(".map-kit").screenshot({ path: SHOT ? `${SHOT}/map-all.png` : undefined });
+    await shot(page, "pc-top");
+    const n = await page.locator(".callout").count();
+    expect(n).toBe(await page.locator(".sheet [data-part]").count());
+    await page.locator(".callout", { hasText: "トグルスイッチ" }).click();
+    await expect(entryName(page)).toHaveText("トグルスイッチ");
+    await expect(page).toHaveURL(/part=toggle/);
+  });
+
+  test("見本の画面に部品の見た目が効いている", async ({ page }) => {
+    await page.goto("/");
+    // 変数が流れていないと背景が透明になる（2026-10-16 に一度起きた）
+    const bg = await page.locator(".sheet .k-btn").evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(bg).toBe("rgb(37, 99, 235)");
+    const card = await page.locator(".sheet .k-card").evaluate((el) => getComputedStyle(el).borderTopLeftRadius);
+    expect(card).toBe("12px");
+  });
+
+  test("画面の部品そのものを押しても名前が分かる（入れ子は内側を優先）", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".sheet .k-check").click();
+    await expect(entryName(page)).toHaveText("チェックボックス");
+    await page.locator(".sheet .k-gnav a", { hasText: "予約" }).click();
+    await expect(entryName(page)).toHaveText("グローバルナビ");
+  });
+
+  test("部品に乗せると、対応する名前と線が光る", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".sheet .k-search").hover();
+    await expect(page.locator(".callout.hot", { hasText: "検索バー" })).toBeVisible();
+  });
+
+  test("名前どうしが重ならず、画面からはみ出さない", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForTimeout(300);
+    const boxes = await page.locator(".callout").evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, s: e.textContent }; }));
+    const vw = page.viewportSize()!.width;
+    for (const b of boxes) {
+      expect(b.l, `${b.s} が左にはみ出す`).toBeGreaterThanOrEqual(0);
+      expect(b.r, `${b.s} が右にはみ出す`).toBeLessThanOrEqual(vw);
+    }
+    for (let i = 0; i < boxes.length; i++)
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], c = boxes[j];
+        const hit = a.l < c.r && c.l < a.r && a.t < c.b && c.t < a.b;
+        expect(hit, `${a.s} と ${c.s} が重なる`).toBe(false);
+      }
   });
 });
 
-test("つまみ→指示に入れる→指示文とURLに反映", async ({ page }) => {
+test("一覧から窓の部品を開くと、見本と頼み方の例が出る", async ({ page }) => {
   await page.goto("/");
-  await page.locator(".index-item", { hasText: "ボタン" }).filter({ hasText: "Button" }).first().click();
-  await expect(page.locator(".part-head h2")).toHaveText("ボタン");
-  const variant = page.getByRole("radiogroup", { name: "種類" });
-  await variant.getByRole("radio", { name: /枠線/ }).click();
-  await expect(page.locator(".preview .k-btn").first()).toHaveClass(/v-outline/);
-  await page.getByRole("button", { name: "AIへの指示に入れる" }).click();
-  await expect(page.locator(".dock-chip")).toHaveCount(1);
-  await expect(page).toHaveURL(/pick=button/);
-  await expect(page).toHaveURL(/button=variant:outline/);
-  await shot(page, "part-button");
-  await page.getByRole("button", { name: "AIへの指示文を見る" }).click();
-  const text = page.locator(".ps-text");
-  await expect(text).toContainText("ボタン（Button）");
-  await expect(text).toContainText("枠線ボタン（Outlined / Secondary button）");
-  await expect(text).toContainText("--accent: #2563eb;");
-  await expect(text).toContainText("pick=button");
-  await shot(page, "prompt");
+  await page.locator(".name-card", { hasText: "モーダル" }).first().click();
+  await expect(entryName(page)).toHaveText("モーダル");
+  await expect(page.locator(".entry-preview .k-modal")).toBeVisible();
+  await expect(page.locator(".entry .ask")).toContainText("モーダルで出して");
+  await expect(page.locator(".entry-confuse").first()).toContainText("ダイアログ");
 });
 
-test("ふんいきボタンで全部のつまみが動く", async ({ page }) => {
-  await page.goto("/?part=button");
-  await page.locator(".moods button", { hasText: "元気" }).click();
-  await expect(page).toHaveURL(/radius=999/);
-  const r = await page.locator(".preview .k-btn").first().evaluate((el) => parseFloat(getComputedStyle(el).borderTopLeftRadius));
-  expect(r).toBeGreaterThanOrEqual(20);
-  const fw = await page.locator(".preview .k-btn").first().evaluate((el) => getComputedStyle(el).fontWeight);
-  expect(fw).toBe("900");
-  await expect(page.locator(".moods button.is-on")).toHaveText(/元気/);
-});
-
-test("共有リンクを開くと同じ状態になる", async ({ page }) => {
-  await page.goto("/?radius=0&theme=dark&pick=modal,toast&modal=size:lg;backdrop:dark");
-  await expect(page.locator(".part-head h2")).toHaveText("モーダル");
-  await expect(page.getByRole("radiogroup", { name: "幅" }).getByRole("radio", { checked: true })).toHaveText(/大/);
+test("名前を選んでAIに渡す文にする", async ({ page }) => {
+  await page.goto("/?part=modal");
+  await expect(page.locator(".dock-go")).toBeDisabled();
+  await page.getByRole("button", { name: "AIに渡す名前に入れる" }).click();
+  await page.locator(".name-card", { hasText: "トースト" }).click();
+  await page.getByRole("button", { name: "AIに渡す名前に入れる" }).click();
   await expect(page.locator(".dock-chip")).toHaveCount(2);
-  const w = await page.locator(".preview .k-modal").evaluate((el) => el.style.width);
-  expect(w).toContain("720px");
-  await page.waitForTimeout(500);
-  await shot(page, "modal-dark");
-  await page.getByRole("button", { name: "AIへの指示文を見る" }).click();
+  await expect(page).toHaveURL(/pick=modal,toast/);
+  await page.getByRole("button", { name: "AIに渡す文を見る" }).click();
   const text = page.locator(".ps-text");
-  await expect(text).toContainText("幅 720px");
-  await expect(text).toContainText("黒の不透明度0.7");
-  await expect(text).toContainText("角の丸さ: 角ばる");
-  await expect(text).toContainText("暗い画面（ダークモード）");
-  await expect(text).toContainText("2. トースト");
+  await expect(text).toContainText("1. モーダル（Modal）");
+  await expect(text).toContainText("2. トースト（Toast）");
+  await expect(text).toContainText("頼み方の例:");
+  await expect(text).toContainText("?pick=modal,toast");
+  // 調整機能は廃止したので、数値やCSS変数は入らない
+  await expect(text).not.toContainText("px");
+  await expect(text).not.toContainText("--accent");
+  await shot(page, "pc-sheet");
+});
+
+test("共有リンクを開くと同じ選択になる", async ({ page }) => {
+  await page.goto("/?pick=modal,toast&part=dialog");
+  await expect(entryName(page)).toHaveText("ダイアログ");
+  await expect(page.locator(".dock-chip")).toHaveCount(2);
+});
+
+test("ことばで探せる", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("部品を探す").fill("窓");
+  await expect(page.locator(".name-card", { hasText: "モーダル" })).toBeVisible();
+  await expect(page.locator(".name-card", { hasText: "ヘッダー" })).toHaveCount(0);
+  await page.getByLabel("部品を探す").fill("zzz");
+  await expect(page.locator(".none")).toBeVisible();
+});
+
+test("調整のつまみは出ない", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("全体の雰囲気")).toHaveCount(0);
+  await expect(page.getByText("角の丸さ")).toHaveCount(0);
+  await expect(page.locator(".moods, .stops")).toHaveCount(0);
 });
 
 test("全部の部品の見本がエラーなく出る", async ({ page }) => {
@@ -89,26 +116,34 @@ test("全部の部品の見本がエラーなく出る", async ({ page }) => {
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   await page.goto("/");
-  const items = page.locator(".index-item");
-  const n = await items.count();
+  const cards = page.locator(".name-card");
+  const n = await cards.count();
   expect(n).toBe(43);
   for (let i = 0; i < n; i++) {
-    await items.nth(i).click();
-    const name = (await page.locator(".part-head h2").textContent()) ?? "";
-    const box = await page.locator(".preview").evaluate((el) => (el.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0);
-    expect(box, `${name} の見本が空`).toBeGreaterThan(10);
+    await cards.nth(i).click();
+    const name = (await entryName(page).textContent()) ?? "";
+    const h = await page.locator(".entry-preview").evaluate((el) => (el.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0);
+    expect(h, `${name} の見本が空`).toBeGreaterThan(10);
   }
   expect(errors).toEqual([]);
 });
 
-test("スマホ幅で横にはみ出さない @mobile", async ({ page }) => {
+test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @mobile", async ({ page }) => {
   await page.goto("/");
-  await shot(page, "mobile-top");
-  const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  expect(over).toBeLessThanOrEqual(0);
-  await page.goto("/?part=dialog");
-  await page.waitForTimeout(500);
-  const over2 = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  expect(over2).toBeLessThanOrEqual(0);
-  await page.locator(".part-view").screenshot({ path: SHOT ? `${SHOT}/mobile-dialog.png` : undefined });
+  await expect(page.locator(".drawing.is-narrow")).toBeVisible();
+  await expect(page.locator(".spot-tag", { hasText: "ラジオボタン" })).toBeVisible();
+  // 紙の上端にある部品の札も切れずに見える
+  const tag = await page.locator(".spot[data-part=header] > .spot-tag").boundingBox();
+  const sheet = await page.locator(".sheet").boundingBox();
+  expect(tag!.y).toBeLessThan(sheet!.y);
+  // 右端のアバターが画面に収まる
+  const av = await page.locator(".spot[data-part=avatar]").boundingBox();
+  expect(av!.x + av!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  await shot(page, "sp-top");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  await page.locator(".sheet .k-toggle").click();
+  await expect(entryName(page)).toHaveText("トグルスイッチ");
+  await page.waitForTimeout(800);
+  await shot(page, "sp-entry");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 });

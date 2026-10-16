@@ -1,45 +1,43 @@
-import Studio from "@/components/Studio";
-import { CONFUSIONS, PARTS, PART_MAP } from "@/lib/parts";
+import Dictionary from "@/components/Dictionary";
+import { CONFUSIONS, PARTS, PART_MAP, shortEn } from "@/lib/parts";
 
 export default function Page() {
   return (
     <div className="site">
       <header className="top">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true"><span /></span>
+          <span className="brand-mark" aria-hidden="true" />
           <span className="brand-name">UIつまみ</span>
-          <span className="brand-en">UI Knobs</span>
         </div>
         <nav className="top-links">
-          <a href="#names">見分け方</a>
+          <a href="#names">部品の名前</a>
+          <a href="#confuse">見分け方</a>
           <a href="#ai">AIへの渡し方</a>
-          <a href="llms.txt">llms.txt</a>
         </nav>
       </header>
 
       <section className="intro">
         <h1>
-          <span>部品の名前が分かれば、</span>
-          <span>AIのデザインは</span>
-          <span>見違える。</span>
+          <span>その部品、</span>
+          <em>なんて呼ぶ？</em>
         </h1>
         <p>
-          「上の帯」「出てくる窓」ではAIに伝わりません。画面の部品を押せば正式な名前が分かり、角の丸さや余白は言葉のつまみで決められます。
-          決めた見た目は、名前と数値の入った指示文になって、そのままAIに渡せます。
+          「上の帯」「出てくる窓」では、AIに伝わりません。画面に図面のように名前を書き込みました。
+          名前を押すと、意味と使いどころ、そのまま使えるAIへの頼み方が分かります。
         </p>
       </section>
 
-      <Studio />
+      <Dictionary />
 
-      <section className="info" id="names">
+      <section className="info" id="confuse">
         <h2>まぎらわしい名前の見分け方</h2>
-        <p className="info-lead">AIへの指示でよく取り違えられる名前です。名前を正しく書くだけで、出てくる物がぐっと狙いに近づきます。</p>
+        <p className="info-lead">AIへの頼みごとで特に取り違えやすい名前です。名前を正しく書くだけで、出てくる画面がぐっと狙いに近づきます。</p>
         <div className="confuse-grid">
           {CONFUSIONS.map((c) => (
             <article key={c.title} className="confuse">
               <h3>{c.title}</h3>
               <p>{c.rule}</p>
-              <p className="confuse-names">{c.parts.map((id) => `${PART_MAP[id].ja}（${PART_MAP[id].en.replace(/ \(.+\)$/, "")}）`).join(" ／ ")}</p>
+              <p className="confuse-names">{c.parts.map((id) => `${PART_MAP[id].ja}（${shortEn(PART_MAP[id])}）`).join(" ／ ")}</p>
             </article>
           ))}
         </div>
@@ -49,21 +47,21 @@ export default function Page() {
         <h2>AIへの渡し方</h2>
         <div className="how">
           <article>
-            <h3>1. 指示文をコピーして貼る</h3>
-            <p>画面下の「AIへの指示文を見る」からコピーし、Claude・ChatGPT・Codex・Cursor などに貼ります。作りたい物を一言添えてください。</p>
-            <pre>（コピーした指示文）{"\n"}このデザインで、カフェの予約画面を作ってください。</pre>
+            <h3>名前を入れて頼む</h3>
+            <p>いちばん簡単な使い方です。調べた名前を、いつもの頼みごとに入れるだけで伝わり方が変わります。各部品の「AIへの頼み方の例」をそのまま使えます。</p>
+            <pre>上の帯をおしゃれにして{"\n"}↓{"\n"}ヘッダーの左にロゴ、右にログインボタンを置いて。</pre>
           </article>
           <article>
-            <h3>2. リンクを渡す</h3>
-            <p>調整した状態はURLに入っています。ページを読めるAIなら、リンクを渡すだけで同じ指定を読み取れます。チームでの共有にも使えます。</p>
-            <pre>この見た目で作って：{"\n"}https://…/?accent=db2777&radius=999&pick=button,modal</pre>
+            <h3>選んだ名前をまとめて渡す</h3>
+            <p>使いたい部品を「AIに渡す名前に入れる」で選び、下の帯の「AIに渡す文を見る」からコピーします。名前・意味・頼み方の例がまとめて入ります。</p>
+            <pre>1. モーダル（Modal）: 背景を暗くして…{"\n"}2. トースト（Toast）: 画面の端に出て…</pre>
           </article>
           <article>
-            <h3>3. 名前の一覧ごと読ませる</h3>
+            <h3>名前の一覧ごと読ませる</h3>
             <p>
-              <a href="llms.txt">llms.txt</a> と <a href="api/v1/catalog.json">catalog.json</a> に、{PARTS.length}個の部品の名前・意味・つまみ・URLの書き方をまとめています。AIに「このサイトを読んで」と渡せば、名前で話せるようになります。
+              <a href="llms.txt">llms.txt</a> と <a href="api/v1/catalog.json">catalog.json</a> に、{PARTS.length}個の名前・意味・頼み方の例をまとめています。AIに読ませれば、名前で話せるようになります。
             </p>
-            <pre>https://…/llms.txt を読んで、{"\n"}この画面の部品を正しい名前で説明して。</pre>
+            <pre>（このサイトの）llms.txt を読んで、{"\n"}この画面の部品を正しい名前で説明して。</pre>
           </article>
         </div>
       </section>
@@ -72,7 +70,7 @@ export default function Page() {
         <p>
           「名前を知っていれば、AIに頼める」という考え方は、大滝昇平さんの
           <a href="https://showheyohtaki.github.io/motion-prompt/" target="_blank" rel="noreferrer"> Motion Prompt </a>
-          から学びました。動きの名前はそちらで調べられます。UIつまみは、その考え方をUI部品の見た目の調整に広げた別のサイトです。
+          から学びました。動きの名前はそちらで調べられます。
         </p>
       </footer>
     </div>
