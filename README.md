@@ -1,5 +1,7 @@
 # UI部品図鑑
 
+https://mashihara.github.io/ui-parts-zukan/
+
 **その部品、なんて呼ぶ？** UI部品の正式な名前が分かる、図面の形をした辞書です。
 
 - 「上の帯」「出てくる窓」ではAIに伝わりません。見本の画面に図面の引き出し線で名前を書き込みました。ヘッダー・モーダル・ダイアログ・ラジオボタンなど43個の名前が分かります。
@@ -16,7 +18,7 @@
 | `/llms.txt` | サイトの説明・全部品の名前・まぎらわしい名前 |
 | `/api/v1/catalog.json` | 同じ内容の機械向けデータ |
 | `/api/v1/parts/<id>.txt` | 部品ごとの説明と頼み方の例 |
-| `skills/ui-parts-zukan/SKILL.md` | Claude Code・Codex 用のスキル |
+| `skills/ui-parts-zukan/SKILL.md` | Claude Code・Codex 用のスキル（`npx skills add mashihara/ui-parts-zukan`） |
 
 リンクの形: `?pick=modal,toast&part=modal`（pick＝選んだ部品、part＝開く部品）
 

@@ -160,6 +160,7 @@ span.spot { display: inline-flex; }
 .how article { display: flex; flex-direction: column; }
 .how p { margin: 0 0 12px; font-size: 14px; opacity: 0.92; flex: 1; }
 .how a { color: var(--y); }
+.how p.how-sub { flex: none; margin: 12px 0 6px; }
 .how pre { margin: 0; padding: 10px 12px; border-radius: 3px; background: var(--bp-ink); border: 1px solid var(--ln-weak); font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
 .credit { padding: 48px 0 24px; font-size: 13px; opacity: 0.8; max-width: 52em; }
 

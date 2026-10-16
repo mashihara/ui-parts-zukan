@@ -61,7 +61,9 @@ export default function Page() {
             <p>
               <a href="llms.txt">llms.txt</a> と <a href="api/v1/catalog.json">catalog.json</a> に、{PARTS.length}個の名前・意味・頼み方の例をまとめています。AIに読ませれば、名前で話せるようになります。
             </p>
-            <pre>（このサイトの）llms.txt を読んで、{"\n"}この画面の部品を正しい名前で説明して。</pre>
+            <pre>https://mashihara.github.io/ui-parts-zukan/llms.txt{"\n"}を読んで、この画面の部品を正しい名前で説明して。</pre>
+            <p className="how-sub">Claude Code・Codex には、スキルとして入れることもできます。</p>
+            <pre>npx skills add mashihara/ui-parts-zukan</pre>
           </article>
         </div>
       </section>

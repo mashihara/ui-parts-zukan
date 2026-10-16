@@ -24,7 +24,7 @@ AIに画面を作ってもらうとき、こんな頼み方をしていません
 
 そこで、画面に図面のように名前を書き込んだサイトを作りました。
 
-{URL}
+https://mashihara.github.io/ui-parts-zukan/
 
 ---
 
@@ -59,7 +59,7 @@ AIへの頼みごとで特に取り違えやすい名前は、1行で見分け�
 
 #### ④ 選んだ名前を、まとめてAIへ
 
-使いたい部品を選ぶと、名前・意味・頼み方の例をまとめた文になります。Claude・ChatGPT・Codex・Cursor に貼って、作りたい物を一言書き足すだけです。AIに読ませる用の llms.txt も用意しています。
+使いたい部品を選ぶと、名前・意味・頼み方の例をまとめた文になります。Claude・ChatGPT・Codex・Cursor に貼って、作りたい物を一言書き足すだけです。AIに読ませる用の llms.txt も用意しています。Claude Code・Codex には `npx skills add mashihara/ui-parts-zukan` でスキルとして入れられます。
 
 ---
 
@@ -75,7 +75,7 @@ AIに「上の帯をおしゃれに」と頼んでも伝わらないのは、部
 
 このサイトがあれば、AIでのデザインがうんとよくなる。
 
-{URL}
+https://mashihara.github.io/ui-parts-zukan/
 
 ### 添える画像
 
