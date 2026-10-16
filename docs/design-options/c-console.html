@@ -1,0 +1,81 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@400;500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scr.css">
+<style>
+:root{--al:#c7cace;--body:#e3e4e7;--bez:#1c1e22;--or:#ff6a1a;--txt:#24262a}
+*{box-sizing:border-box}
+body{margin:0;font-family:'M PLUS 1',sans-serif;color:var(--txt);background:repeating-linear-gradient(90deg,#c4c7cb 0 2px,#c9ccd0 2px 4px);min-height:100vh;padding:22px 28px 28px}
+.bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .plate{font-family:'M PLUS 1';font-weight:800;font-size:21px;letter-spacing:.04em;background:var(--bez);color:#f2f2f2;padding:4px 14px 6px;border-radius:8px;box-shadow:inset 0 -2px 0 #000,0 1px 0 rgba(255,255,255,.6)}
+.brand span{font-size:13px;font-weight:700;color:#4a4d52}
+.links{display:flex;gap:8px}.links span{font-size:12.5px;font-weight:700;background:var(--body);padding:6px 12px;border-radius:99px;box-shadow:0 2px 0 #9fa3a8}
+.deck{background:var(--body);border-radius:30px;padding:22px;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:22px;box-shadow:0 1px 0 #fff inset,0 18px 40px rgba(0,0,0,.18),0 3px 0 #a9adb2}
+.monitor{display:flex;flex-direction:column;background:var(--bez);border-radius:20px;padding:16px 16px 12px;box-shadow:inset 0 2px 6px rgba(0,0,0,.6)}
+.mhead{display:flex;justify-content:space-between;align-items:center;color:#c9ccd1;font-size:12px;margin-bottom:10px}
+.mhead h1{margin:0;font-family:'M PLUS 1';font-weight:800;font-size:25px;color:#fff;letter-spacing:.02em;line-height:1.3}
+.mhead h1 span{display:inline-block}
+.mhead h1 em{font-style:normal;color:var(--or)}
+.mode{display:flex;gap:4px}.mode span{padding:5px 10px;border-radius:6px;background:#2b2e33;font-weight:700}.mode .on{background:var(--or);color:#fff}
+.screen{position:relative;border-radius:10px;overflow:hidden;flex:1;display:flex;margin-top:6px}
+.screen .scr{flex:1;display:flex;flex-direction:column}.screen .scr .bd{flex:1;align-content:start}
+.screen .scr{border-radius:10px}
+.ntag{position:absolute;background:var(--or);color:#fff;font:700 11.5px/1.5 'M PLUS 1';padding:1px 8px;border-radius:5px;white-space:nowrap;z-index:3;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.hl{position:absolute;border:2px solid var(--or);border-radius:8px;z-index:2;background:rgba(255,106,26,.07)}
+.lcd{margin-top:12px;background:#9fb38a;color:#1d2a14;border-radius:8px;padding:9px 12px;font:500 12.5px/1.5 'M PLUS 1';box-shadow:inset 0 2px 4px rgba(0,0,0,.35);display:flex;gap:18px;flex-wrap:wrap}
+.lcd b{font-weight:800}
+.ctl{display:flex;flex-direction:column;gap:16px}
+.sec{background:#d6d8db;border-radius:18px;padding:14px 16px;box-shadow:inset 0 2px 3px rgba(0,0,0,.12)}
+.sec h2{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.08em;color:#55585e}
+.knobs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px}
+.kn{display:flex;flex-direction:column;align-items:center;gap:4px}
+.kn .lbl{font-size:11.5px;font-weight:800}
+.kn .val{font-size:11px;font-weight:700;background:#f4f5f6;border-radius:5px;padding:0 6px;box-shadow:inset 0 1px 2px rgba(0,0,0,.2);white-space:nowrap}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.key{background:#f1f2f3;border-radius:10px;padding:8px 10px;box-shadow:0 3px 0 #9ea2a7;font-weight:800;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.key i{width:7px;height:7px;border-radius:9px;background:#b9bcc0}.key.on i{background:var(--or);box-shadow:0 0 6px var(--or)}
+.key small{display:block;font-weight:500;font-size:10px;color:#6b6e73}
+.sw{display:flex;gap:8px}.sw i{width:26px;height:26px;border-radius:7px;box-shadow:0 3px 0 rgba(0,0,0,.25)}.sw i.on{outline:3px solid #fff;outline-offset:-3px}
+.send{display:flex;align-items:center;gap:14px;background:var(--bez);border-radius:18px;padding:12px 14px;color:#fff}
+.send .picks{flex:1;font-size:12px;color:#aeb2b8}.send .picks b{display:inline-block;background:#33363c;color:#fff;border-radius:5px;padding:0 7px;margin:2px 3px 0 0;font-size:12px}
+.send .go{width:96px;height:96px;border-radius:99px;background:radial-gradient(circle at 35% 30%,#ff9150,var(--or) 60%,#d94e05);display:grid;place-items:center;text-align:center;font-weight:800;font-size:13.5px;line-height:1.3;box-shadow:0 5px 0 #8e3200,0 8px 16px rgba(0,0,0,.4)}
+@media (max-width:700px){body{padding:14px 12px}.deck{grid-template-columns:1fr;padding:12px;border-radius:22px}.links{display:none}.scr .bd{grid-template-columns:1fr}.scr .srch{display:none}.mhead{display:block}.mode{margin-top:8px}.knobs{grid-template-columns:repeat(3,1fr)}}
+</style></head><body>
+<div class="bar"><div class="brand"><span class="plate">UIつまみ</span><span>UI KNOBS</span></div><div class="links"><span>見分け方</span><span>AIへの渡し方</span><span>llms.txt</span></div></div>
+<div class="deck">
+<section class="monitor">
+<div class="mhead"><h1><span>回して決める。</span><span><em>名前</em>で伝える。</span></h1><div class="mode"><span class="on">名前を調べる</span><span>部品を調整</span></div></div>
+<div class="screen" id="sc">
+<div class="scr">
+ <div class="hd" data-n="header"><span class="logo">もりカフェ</span><span class="nav" data-n="nav"><b>お店をさがす</b><span>予約</span><span>お知らせ</span></span><span class="srch" data-n="search">駅名・お店</span><span class="bell" data-n="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9Zm4 10.5a2 2 0 0 0 4 0"/></svg><i>3</i></span><span class="av" data-n="avatar"></span></div>
+ <div class="bd">
+  <div class="crumb" data-n="crumb"><a>ホーム</a> › <a>渋谷</a> › 森のコーヒー 駅前店</div>
+  <div class="alert" data-n="alert"><b>お知らせ</b>　<span>10月20日はメンテナンスのため予約を受け付けません。</span></div>
+  <div><div class="card" data-n="card"><div class="img"></div><div class="tx"><b>森のコーヒー 駅前店</b><p>静かな店内で、季節の豆を一杯ずつ。</p></div></div><div class="chips" data-n="chip"><span class="chip">電源あり</span><span class="chip">Wi-Fi</span></div></div>
+  <div class="form"><div><div class="lab">お名前</div><div class="fld" data-n="field">森 はな</div></div>
+   <div data-n="radio"><div class="lab">受け取り方</div><div class="rad"><i class="on"></i>店内で飲む</div><div class="rad"><i></i>持ち帰り</div></div>
+   <div class="tg" data-n="toggle">前日にお知らせ<i></i></div><div class="btn" data-n="button">予約内容を確認する</div></div>
+ </div>
+ <div class="ft" data-n="footer"><b>もりカフェ</b><span>利用規約</span><span>プライバシー</span></div>
+</div>
+</div>
+<div class="lcd"><span><b>選択中</b> ラジオボタン（Radio button）</span><span>丸を1つだけ選ぶ。選ぶとほかが外れる</span></div>
+</section>
+<section class="ctl">
+<div class="sec"><h2>全体のつまみ</h2><div class="knobs" id="kn"></div></div>
+<div class="sec"><h2>ふんいき</h2><div class="keys"><div class="key on"><span>標準<small>迷ったらこれ</small></span><i></i></div><div class="key"><span>やさしい<small>暮らし・医療</small></span><i></i></div><div class="key"><span>きりっと<small>業務・金融</small></span><i></i></div><div class="key"><span>元気<small>イベント</small></span><i></i></div><div class="key"><span>高級感<small>ブランド</small></span><i></i></div><div class="key"><span>夜<small>音楽・動画</small></span><i></i></div></div></div>
+<div class="sec"><h2>基本の色</h2><div class="sw"><i class="on" style="background:#2563eb"></i><i style="background:#0f766e"></i><i style="background:#15803d"></i><i style="background:#ca8a04"></i><i style="background:#ea580c"></i><i style="background:#dc2626"></i><i style="background:#db2777"></i><i style="background:#7c3aed"></i><i style="background:#27272a"></i></div></div>
+<div class="send"><div class="picks">指示に入れた部品<br><b>ラジオボタン</b><b>ボタン</b><br>リンクもコピーできます</div><div class="go">AIへの<br>指示文を<br>出す</div></div>
+</section></div>
+<script>
+// 回すつまみ：目盛りの数＝選択肢の数、指す位置＝選択中
+const K=[["角の丸さ",6,2,"#ff6a1a","やや丸い 8px"],["ゆとり",4,1,"#2f6fe0","ふつう ×1"],["影",4,1,"#f2c230","うっすら"],["枠線",3,1,"#f4f4f4","細い 1px"],["文字",3,1,"#f4f4f4","ふつう 16px"],["太さ",3,1,"#2f6fe0","太い 700"],["速さ",4,2,"#38a169","0.2秒"],["性格",3,0,"#ff6a1a","なめらか"]];
+document.getElementById('kn').innerHTML=K.map(([l,n,i,c,v])=>{const a0=-135,a1=135,R=30,cx=38,cy=38;let t='';for(let j=0;j<n;j++){const a=(a0+(a1-a0)*j/(n-1))*Math.PI/180;const x1=cx+Math.sin(a)*(R+3),y1=cy-Math.cos(a)*(R+3),x2=cx+Math.sin(a)*(R+8),y2=cy-Math.cos(a)*(R+8);t+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${j===i?'#ff6a1a':'#7d8086'}" stroke-width="${j===i?3:2}" stroke-linecap="round"/>`}
+const ang=a0+(a1-a0)*i/(n-1);return `<div class="kn"><span class="lbl">${l}</span><svg width="76" height="76" viewBox="0 0 76 76">${t}<circle cx="38" cy="40" r="26" fill="rgba(0,0,0,.25)"/><circle cx="38" cy="38" r="26" fill="#2a2c31"/><circle cx="38" cy="38" r="19" fill="${c}"/><circle cx="38" cy="36" r="19" fill="url(#g)" opacity=".35"/><line x1="38" y1="38" x2="38" y2="16" stroke="${c==='#f4f4f4'||c==='#f2c230'?'#222':'#fff'}" stroke-width="3" stroke-linecap="round" transform="rotate(${ang} 38 38)"/><defs><radialGradient id="g" cx=".35" cy=".3"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs></svg><span class="val">${v}</span></div>`}).join('');
+// 名前の札：選択中（ラジオボタン）と近くのいくつかを出す
+const N={header:"ヘッダー",nav:"グローバルナビ",search:"検索バー",badge:"バッジ",avatar:"アバター",crumb:"パンくずリスト",alert:"アラート",card:"カード",chip:"チップ",field:"テキストフィールド",radio:"ラジオボタン",toggle:"トグルスイッチ",button:"ボタン",footer:"フッター"};
+function draw(){const sc=document.getElementById('sc'),S=sc.getBoundingClientRect();sc.querySelectorAll('.ntag,.hl').forEach(n=>n.remove());
+sc.querySelectorAll('[data-n]').forEach(el=>{const r=el.getBoundingClientRect(),n=el.dataset.n;if(!['radio','header','card','button','alert'].includes(n))return;const t=document.createElement('span');t.className='ntag';t.textContent=N[n];t.style.left=(r.left-S.left+4)+'px';t.style.top=Math.max(2,r.top-S.top-10)+'px';if(n!=='radio'){t.style.background='#2b2e33'}sc.appendChild(t);
+if(n==='radio'){const h=document.createElement('span');h.className='hl';h.style.cssText=`left:${r.left-S.left-4}px;top:${r.top-S.top-4}px;width:${r.width+8}px;height:${r.height+8}px`;sc.appendChild(h)}})}
+document.fonts.ready.then(draw);addEventListener('resize',draw);
+</script></body></html>

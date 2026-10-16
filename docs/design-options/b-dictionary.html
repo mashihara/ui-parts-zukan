@@ -1,0 +1,102 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scr.css">
+<style>
+:root{--ink:#111;--red:#e2361b;--hl:#ffe74d;--mute:#666;--rule:#111}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font-family:'BIZ UDPGothic',sans-serif;font-size:14px;line-height:1.75;padding-bottom:84px}
+.page{display:grid;grid-template-columns:92px minmax(0,1.25fr) minmax(0,1fr) 44px;min-height:calc(100vh - 84px)}
+.spine{border-right:3px double var(--rule);display:flex;flex-direction:column;align-items:center;padding:28px 0;gap:18px}
+.spine h1{writing-mode:vertical-rl;font-family:'Shippori Mincho B1';font-weight:800;font-size:34px;letter-spacing:.12em;margin:0;line-height:1}
+.spine small{writing-mode:vertical-rl;font-size:12px;color:var(--mute);letter-spacing:.2em}
+.spine .mk{width:30px;height:30px;border-radius:99px;background:var(--ink);position:relative}.spine .mk:after{content:"";position:absolute;left:13px;top:4px;width:3px;height:10px;background:var(--hl);transform-origin:1.5px 11px;transform:rotate(40deg)}
+.fig{padding:26px 34px 0;border-right:1px solid #ddd}
+.runhead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:6px;margin-bottom:18px;font-size:12px;color:var(--mute)}
+.runhead b{font-family:'Shippori Mincho B1';font-size:15px;color:var(--ink)}
+.lead{font-family:'Shippori Mincho B1';font-weight:700;font-size:23px;line-height:1.6;margin:0 0 16px}
+.lead span{display:inline-block}
+.figbox{position:relative}
+.figbox .scr{border:1px solid #111;border-radius:2px}
+.num{position:absolute;width:22px;height:22px;border-radius:99px;background:var(--red);color:#fff;font:700 12px/22px 'BIZ UDPGothic';text-align:center;box-shadow:0 0 0 2px #fff;z-index:2}
+.num.sel{background:var(--ink);outline:3px solid var(--hl)}
+.cap{font-size:12px;color:var(--mute);margin:8px 0 10px}
+.legend{columns:3;column-gap:20px;font-size:13px;margin:0;padding:0;list-style:none}
+.legend li{display:flex;gap:7px;align-items:baseline;break-inside:avoid;padding:2px 0}
+.legend i{font-style:normal;color:var(--red);font-weight:700;width:16px}
+.legend .sel span{background:linear-gradient(transparent 55%,var(--hl) 55%);font-weight:700}
+.entry{padding:26px 34px 0}
+.hw{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.hw h2{margin:0;font-family:'Shippori Mincho B1';font-weight:800;font-size:50px;line-height:1.15;background:linear-gradient(transparent 62%,var(--hl) 62%)}
+.hw .en{font-family:'Shippori Mincho B1';font-size:20px}
+.pos{display:inline-block;border:1px solid var(--ink);font-size:11.5px;padding:0 6px;margin:10px 0 6px}
+.def{margin:0 0 4px;font-size:15px}
+.def b{color:var(--red);margin-right:4px}
+.ex{font-size:13.5px;color:#333;margin:6px 0 0;padding-left:1em;text-indent:-1em}
+.ex::before{content:"▶";color:var(--red);font-size:10px;margin-right:6px}
+.syn{margin-top:12px;font-size:13px;border-top:1px dotted #999;padding-top:10px}
+.syn b{border:1px solid var(--red);color:var(--red);font-size:11px;padding:0 4px;margin-right:6px}
+.tune{margin-top:18px;border-top:2px solid var(--ink)}
+.tune h3{font-family:'Shippori Mincho B1';font-size:16px;margin:10px 0 4px}
+.tr{display:grid;grid-template-columns:92px 1fr;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dotted #bbb}
+.tr .k{font-weight:700;font-size:13px}
+.opts{display:flex;gap:4px;flex-wrap:wrap}
+.opts span{font-size:12.5px;padding:2px 9px;border:1px solid #bbb;border-radius:99px}
+.opts .on{border-color:var(--ink);background:var(--ink);color:#fff}
+.tab{border-left:1px solid #ddd;display:flex;flex-direction:column}
+.tab span{flex:1;display:grid;place-items:center;font-family:'Shippori Mincho B1';font-weight:700;font-size:15px;border-bottom:1px solid #ddd;color:#777}
+.tab span.on{background:var(--ink);color:#fff}
+.dock{position:fixed;left:0;right:0;bottom:0;height:84px;background:#fff;border-top:3px double var(--rule);display:flex;align-items:center;gap:12px;padding:0 34px}
+.dock .l{font-family:'Shippori Mincho B1';font-weight:700}
+.dock .c{font-size:13px;padding:1px 10px;background:linear-gradient(transparent 55%,var(--hl) 55%)}
+.dock .go{margin-left:auto;height:48px;padding:0 26px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:700}
+.dock .go2{height:48px;padding:0 18px;border:1px solid var(--ink);display:grid;place-items:center;font-weight:700}
+@media (max-width:700px){.page{grid-template-columns:1fr}.spine{flex-direction:row;border-right:0;border-bottom:3px double var(--rule);padding:12px 16px;gap:10px}.spine h1,.spine small{writing-mode:horizontal-tb}.spine h1{font-size:24px}.fig,.entry{padding:18px 16px 0;border:0}.tab{display:none}.legend{columns:2}.scr .bd{grid-template-columns:1fr}.scr .srch{display:none}.hw h2{font-size:38px}.dock{padding:0 16px}.dock .l,.dock .c{display:none}.dock .go{flex:1}}
+</style></head><body>
+<div class="page">
+<aside class="spine"><span class="mk"></span><h1>UIのことば辞典</h1><small>UIつまみ</small></aside>
+<section class="fig">
+<div class="runhead"><b>図解　カフェ予約の画面</b><span>番号を押すと、右に項目が開きます</span></div>
+<p class="lead"><span>「上の帯」では、</span><span>AIに伝わらない。</span><span>名前で頼めば、</span><span>画面は見違える。</span></p>
+<div class="figbox" id="fb">
+<div class="scr">
+ <div class="hd" data-n="header"><span class="logo">もりカフェ</span><span class="nav" data-n="nav"><b>お店をさがす</b><span>予約</span><span>お知らせ</span></span><span class="srch" data-n="search">駅名・お店</span><span class="bell" data-n="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9Zm4 10.5a2 2 0 0 0 4 0"/></svg><i>3</i></span><span class="av" data-n="avatar"></span></div>
+ <div class="bd">
+  <div class="crumb" data-n="crumb"><a>ホーム</a> › <a>渋谷</a> › 森のコーヒー 駅前店</div>
+  <div class="alert" data-n="alert"><b>お知らせ</b>　<span>10月20日はメンテナンスのため予約を受け付けません。</span></div>
+  <div><div class="card" data-n="card"><div class="img"></div><div class="tx"><b>森のコーヒー 駅前店</b><p>静かな店内で、季節の豆を一杯ずつ。</p></div></div><div class="chips" data-n="chip"><span class="chip">電源あり</span><span class="chip">Wi-Fi</span></div></div>
+  <div class="form"><div><div class="lab">お名前</div><div class="fld" data-n="field">森 はな</div></div>
+   <div data-n="radio"><div class="lab">受け取り方</div><div class="rad"><i class="on"></i>店内で飲む</div><div class="rad"><i></i>持ち帰り</div></div>
+   <div class="tg" data-n="toggle">前日にお知らせ<i></i></div><div class="btn" data-n="button">予約内容を確認する</div></div>
+ </div>
+ <div class="ft" data-n="footer"><b>もりカフェ</b><span>利用規約</span><span>プライバシー</span></div>
+</div>
+</div>
+<p class="cap">図　カフェ予約の画面の部品（全43語のうち14語）</p>
+<ol class="legend" id="lg"></ol>
+</section>
+<section class="entry">
+<div class="runhead"><b>ら行</b><span>押す・入れる・選ぶ</span></div>
+<div class="hw"><h2>ラジオボタン</h2><span class="en">【Radio button】</span></div>
+<span class="pos">押す・入れる・選ぶ</span>
+<p class="def"><b>①</b>丸を1つだけ選ぶ部品。1つ選ぶと、ほかの選択が外れる。</p>
+<p class="def"><b>②</b>4個以下の選択肢から、必ず1つを選ばせるときに使う。</p>
+<p class="ex">受け取り方をラジオボタンで縦に並べて。選んだ丸は基本の色で塗る。</p>
+<div class="syn"><b>類</b>チェックボックス（いくつでも選べる四角）・トグルスイッチ（押した瞬間に効くオン・オフ）</div>
+<div class="tune"><h3>調整</h3>
+<div class="tr"><span class="k">並べ方</span><span class="opts"><span class="on">縦に並べる</span><span>横に並べる</span><span>カードで並べる</span></span></div>
+<div class="tr"><span class="k">ふんいき</span><span class="opts"><span class="on">標準</span><span>やさしい</span><span>きりっと</span><span>元気</span><span>高級感</span><span>夜</span></span></div>
+<div class="tr"><span class="k">角の丸さ</span><span class="opts"><span>角ばる</span><span>少し</span><span class="on">やや丸い</span><span>丸い</span><span>まんまる</span></span></div>
+<div class="tr"><span class="k">ゆとり</span><span class="opts"><span>ぎっしり</span><span class="on">ふつう</span><span>ゆったり</span><span>たっぷり</span></span></div>
+<div class="tr"><span class="k">基本の色</span><span class="opts"><span class="on">青</span><span>青緑</span><span>橙</span><span>赤</span><span>墨</span><span>好きな色</span></span></div>
+</div>
+</section>
+<nav class="tab"><span>あ</span><span>か</span><span>さ</span><span>た</span><span>な</span><span>は</span><span>ま</span><span>や</span><span class="on">ら</span><span>わ</span></nav>
+</div>
+<div class="dock"><span class="l">書き写した語</span><span class="c">ラジオボタン</span><span class="c">ボタン</span><span class="go2">リンクを写す</span><span class="go">AIへの指示文を写す</span></div>
+<script>
+const N={header:"ヘッダー",nav:"グローバルナビ",search:"検索バー",badge:"バッジ",avatar:"アバター",crumb:"パンくずリスト",alert:"アラート",card:"カード",chip:"チップ",field:"テキストフィールド",radio:"ラジオボタン",toggle:"トグルスイッチ",button:"ボタン",footer:"フッター"};
+function draw(){const fb=document.getElementById('fb'),F=fb.getBoundingClientRect();fb.querySelectorAll('.num').forEach(n=>n.remove());let li='';
+[...fb.querySelectorAll('[data-n]')].forEach((el,i)=>{const r=el.getBoundingClientRect(),d=document.createElement('span');d.className='num'+(el.dataset.n==='radio'?' sel':'');d.textContent=i+1;d.style.left=(r.left-F.left-8)+'px';d.style.top=(r.top-F.top-8)+'px';fb.appendChild(d);
+li+=`<li class="${el.dataset.n==='radio'?'sel':''}"><i>${i+1}</i><span>${N[el.dataset.n]}</span></li>`});document.getElementById('lg').innerHTML=li}
+document.fonts.ready.then(draw);addEventListener('resize',draw);
+</script></body></html>

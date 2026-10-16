@@ -1,0 +1,85 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scr.css">
+<style>
+:root{--bp:#1a47b8;--bp2:#153a99;--ln:rgba(255,255,255,.9);--y:#ffd84a}
+*{box-sizing:border-box}
+body{margin:0;font-family:'IBM Plex Sans JP',sans-serif;color:#fff;background:var(--bp);
+ background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);
+ background-size:24px 24px,24px 24px,120px 120px,120px 120px;padding-bottom:90px}
+.top{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 32px;border-bottom:1px solid rgba(255,255,255,.25)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.brand i{width:26px;height:26px;border:2px solid #fff;border-radius:99px;position:relative}.brand i:after{content:"";position:absolute;left:10px;top:2px;width:2px;height:9px;background:var(--y);transform-origin:1px 10px;transform:rotate(40deg)}
+.links{display:flex;gap:24px;font-size:14px;opacity:.85}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;padding:28px 32px 0}
+.title{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+h1{margin:0;font-size:40px;font-weight:700;line-height:1.25;letter-spacing:.01em}
+h1 em{font-style:normal;color:var(--y)}
+.sub{margin:8px 0 0;font-size:14.5px;opacity:.85;max-width:38em}
+.tabs{display:flex;border:1.5px solid #fff;border-radius:4px;overflow:hidden;font-size:13px}
+.tabs span{padding:7px 14px}.tabs .on{background:#fff;color:var(--bp)}
+.drawing{position:relative;padding:22px 160px 22px 170px}
+.drawing .scr{box-shadow:0 0 0 1.5px #fff,10px 10px 0 rgba(0,0,0,.18)}
+svg.ov{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.tag{position:absolute;font-size:12.5px;font-weight:700;white-space:nowrap;line-height:1.2}
+.tag small{display:block;font:500 10.5px 'IBM Plex Mono';opacity:.75;margin-top:2px}
+.tag.l{text-align:right}
+.tag.hot{color:var(--y)}
+.spec{border:1.5px solid #fff;border-radius:4px;background:rgba(21,58,153,.75);align-self:start}
+.spec h2{margin:0;font-size:13px;padding:10px 14px;border-bottom:1.5px solid #fff;display:flex;justify-content:space-between}
+.spec h2 span{font:500 11px 'IBM Plex Mono';opacity:.7}
+.row{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.35)}
+.row:last-child{border:0}
+.row .k{font-size:12.5px;font-weight:700;display:flex;justify-content:space-between;margin-bottom:7px}
+.row .k span{font:500 11px 'IBM Plex Mono';color:var(--y)}
+.seg{display:flex;border:1px solid rgba(255,255,255,.7);border-radius:3px}
+.seg span{flex:1;text-align:center;font-size:11.5px;padding:5px 0;border-left:1px solid rgba(255,255,255,.4)}
+.seg span:first-child{border:0}.seg .on{background:#fff;color:var(--bp);font-weight:700}
+.sw{display:flex;gap:7px}.sw i{width:22px;height:22px;border-radius:99px;border:1.5px solid rgba(255,255,255,.8)}.sw i.on{outline:2px solid var(--y);outline-offset:2px}
+.moods{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.moods span{border:1px solid rgba(255,255,255,.6);border-radius:3px;font-size:12px;padding:5px 8px}.moods .on{border-color:var(--y);color:var(--y)}
+.dock{position:fixed;left:0;right:0;bottom:0;height:72px;background:#fff;color:var(--bp2);display:flex;align-items:center;gap:14px;padding:0 32px;border-top:3px solid var(--y)}
+.dock b{font-size:13px}.dock .c{border:1.5px solid var(--bp2);border-radius:3px;padding:3px 10px;font-size:13px;font-weight:700}
+.dock .go{margin-left:auto;background:var(--bp2);color:#fff;height:44px;padding:0 22px;border-radius:3px;display:grid;place-items:center;font-weight:700}
+.dock .go2{height:44px;padding:0 18px;border:1.5px solid var(--bp2);border-radius:3px;display:grid;place-items:center;font-weight:700}
+@media (max-width:700px){.wrap{grid-template-columns:1fr;padding:18px 16px}.drawing{padding:16px 0 16px 96px}h1{font-size:28px}.title{display:block}.tabs{margin-top:12px;display:inline-flex}.links{display:none}.top{padding:0 16px}.scr .bd{grid-template-columns:1fr}.scr .srch{display:none}.dock{padding:0 16px}.dock b,.dock .c{display:none}.dock .go{flex:1}}
+</style></head><body>
+<header class="top"><div class="brand"><i></i>UIつまみ</div><nav class="links"><span>見分け方</span><span>AIへの渡し方</span><span>llms.txt</span></nav></header>
+<div class="wrap"><main>
+<div class="title"><div><h1>その部品、<em>なんて呼ぶ？</em></h1><p class="sub">画面に引き出し線で名前を書き込みました。押すと説明と調整に進み、決めた寸法はそのままAIへの指示書になります。</p></div><div class="tabs"><span class="on">図面で調べる</span><span>部品を調整</span></div></div>
+<div class="drawing" id="dw">
+<div class="scr">
+ <div class="hd" data-n="header"><span class="logo">もりカフェ</span><span class="nav" data-n="nav"><b>お店をさがす</b><span>予約</span><span>お知らせ</span></span><span class="srch" data-n="search">駅名・お店</span><span class="bell" data-n="badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9Zm4 10.5a2 2 0 0 0 4 0"/></svg><i>3</i></span><span class="av" data-n="avatar"></span></div>
+ <div class="bd">
+  <div class="crumb" data-n="crumb"><a>ホーム</a> › <a>渋谷</a> › 森のコーヒー 駅前店</div>
+  <div class="alert" data-n="alert"><b>お知らせ</b>　<span>10月20日はメンテナンスのため予約を受け付けません。</span></div>
+  <div><div class="card" data-n="card"><div class="img"></div><div class="tx"><b>森のコーヒー 駅前店</b><p>静かな店内で、季節の豆を一杯ずつ。</p></div></div><div class="chips" data-n="chip"><span class="chip">電源あり</span><span class="chip">Wi-Fi</span></div></div>
+  <div class="form"><div><div class="lab">お名前</div><div class="fld" data-n="field">森 はな</div></div>
+   <div data-n="radio"><div class="lab">受け取り方</div><div class="rad"><i class="on"></i>店内で飲む</div><div class="rad"><i></i>持ち帰り</div></div>
+   <div class="tg" data-n="toggle">前日にお知らせ<i></i></div><div class="btn" data-n="button">予約内容を確認する</div></div>
+ </div>
+ <div class="ft" data-n="footer"><b>もりカフェ</b><span>利用規約</span><span>プライバシー</span></div>
+</div>
+<svg class="ov" id="ov"></svg></div></main>
+<aside class="spec"><h2>指示書の寸法<span>UIつまみ / 全体</span></h2>
+<div class="row"><div class="k">ふんいき</div><div class="moods"><span class="on">標準</span><span>やさしい</span><span>きりっと</span><span>元気</span><span>高級感</span><span>夜</span></div></div>
+<div class="row"><div class="k">基本の色<span>#2563EB</span></div><div class="sw"><i class="on" style="background:#2563eb"></i><i style="background:#0f766e"></i><i style="background:#ea580c"></i><i style="background:#dc2626"></i><i style="background:#db2777"></i><i style="background:#7c3aed"></i><i style="background:#27272a"></i></div></div>
+<div class="row"><div class="k">角の丸さ<span>8px</span></div><div class="seg"><span>角ばる</span><span>少し</span><span class="on">やや丸い</span><span>丸い</span><span>まんまる</span></div></div>
+<div class="row"><div class="k">ゆとり<span>×1.0</span></div><div class="seg"><span>ぎっしり</span><span class="on">ふつう</span><span>ゆったり</span><span>たっぷり</span></div></div>
+<div class="row"><div class="k">影<span>うっすら</span></div><div class="seg"><span>平ら</span><span class="on">うっすら</span><span>ふんわり</span><span>浮く</span></div></div>
+<div class="row"><div class="k">動き<span>0.2s ease-out</span></div><div class="seg"><span>なし</span><span>きびきび</span><span class="on">ふつう</span><span>ゆったり</span></div></div>
+</aside></div>
+<div class="dock"><b>指示書に入れた部品</b><span class="c">ボタン</span><span class="c">ラジオボタン</span><span class="go2">リンクをコピー</span><span class="go">AIへの指示書を見る</span></div>
+<script>
+const N={header:["ヘッダー","Header"],nav:["グローバルナビ","Navigation"],search:["検索バー","Search bar"],badge:["バッジ","Badge"],avatar:["アバター","Avatar"],crumb:["パンくずリスト","Breadcrumbs"],alert:["アラート","Alert"],card:["カード","Card"],chip:["チップ","Chip"],field:["テキストフィールド","Text field"],radio:["ラジオボタン","Radio button"],toggle:["トグルスイッチ","Switch"],button:["ボタン","Button"],footer:["フッター","Footer"]};
+function draw(){const dw=document.getElementById('dw'),ov=document.getElementById('ov'),D=dw.getBoundingClientRect(),S=dw.querySelector('.scr').getBoundingClientRect();
+dw.querySelectorAll('.tag').forEach(t=>t.remove());let p='';const L=[],R=[];
+dw.querySelectorAll('[data-n]').forEach(el=>{const r=el.getBoundingClientRect(),cx=r.left+r.width/2-D.left,cy=r.top+Math.min(r.height/2,16)-D.top;((r.width>S.width*0.6||cx<S.left-D.left+S.width/2)?L:R).push({el,cx,cy,x:(r.left-D.left),x2:(r.right-D.left),n:el.dataset.n})});
+const narrow=innerWidth<700;if(narrow){L.push(...R.splice(0))}
+[[L,'l'],[R,'r']].forEach(([arr,side])=>{arr.sort((a,b)=>a.cy-b.cy);let last=-99;arr.forEach(o=>{let y=Math.max(o.cy,last+34);last=y;const t=document.createElement('div');t.className='tag '+side+(o.n==='radio'||o.n==='button'?' hot':'');t.innerHTML=N[o.n][0]+'<small>'+N[o.n][1]+'</small>';dw.appendChild(t);
+const ex=side==='l'?o.x:o.x2, lx=side==='l'?(S.left-D.left-18):(S.right-D.left+18);
+if(side==='l'){t.style.right=(D.width-lx+8)+'px'}else{t.style.left=(lx+8)+'px'}t.style.top=(y-9)+'px';
+const col=t.classList.contains('hot')?'#ffd84a':'rgba(255,255,255,.9)';
+p+=`<circle cx="${side==='l'?ex+6:ex-6}" cy="${o.cy}" r="3" fill="${col}"/><path d="M${side==='l'?ex+6:ex-6} ${o.cy} L${side==='l'?S.left-D.left-6:S.right-D.left+6} ${y} L${lx} ${y}" stroke="${col}" stroke-width="1.2" fill="none"/>`})});
+ov.innerHTML=p}
+document.fonts.ready.then(draw);addEventListener('resize',draw);
+</script></body></html>
