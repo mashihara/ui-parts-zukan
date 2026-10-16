@@ -75,14 +75,16 @@ a { color: inherit; }
 .map-header .k-header { gap: 20px; }
 .map-header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .map-search { width: 150px; }
-.map-body { padding: 20px 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+.map-body { position: relative; padding: 20px 20px 84px; display: flex; flex-direction: column; gap: 18px; }
 .map-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
 .map-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .map-col.form { background: var(--k-surface); border: var(--k-bw) solid var(--k-line); border-radius: var(--k-r-lg); padding: calc(var(--u) * 5); box-shadow: var(--k-shadow); gap: 14px; }
 .map-h { font-size: calc(var(--k-fs) + 2px); }
 .map-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 30px; }
 .map-tip { margin-left: auto; }
-.map-toast { position: absolute; right: 20px; top: 70px; z-index: 4; }
+/* トーストは画面の右下（フッターの上）に浮かせる。.spot の position: relative に負けないよう2つのクラスで指定する */
+.spot.map-toast { position: absolute; right: 20px; bottom: 20px; z-index: 4; display: block; }
+.spot.map-toast .k-toast { box-shadow: 0 8px 24px rgba(16, 24, 40, 0.25); }
 .map .k-footer { padding: 14px 20px; }
 
 /* 部品にかぶせる印 */
@@ -204,8 +206,9 @@ span.spot { display: inline-flex; }
   .map-cols { grid-template-columns: 1fr; }
   .spot.map-search { display: none; }
   .map-header [data-part="global-nav"] { display: none; }
-  .map-body { padding: 18px 14px 20px; }
-  .map-toast { top: auto; bottom: 64px; right: 12px; }
+  .map-body { padding: 18px 14px 80px; }
+  .spot.map-toast { right: 12px; left: 12px; bottom: 18px; }
+  .spot.map-toast .k-toast { white-space: normal; }
   .how { grid-template-columns: 1fr; }
   .dock { padding: 10px 16px; }
   .dock-picks { display: none; }

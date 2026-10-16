@@ -193,12 +193,13 @@ export default function ScreenMap({ onPick, selected }: { onPick: (id: string) =
                   <Spot id="button"><Btn o={{ variant: "filled", size: "lg", width: "full" }}>予約内容を確認する</Btn></Spot>
                 </div>
               </div>
+              {/* トーストは中身の欄の右下（フッターの上）に浮かせる */}
+              <Spot id="toast" className="map-toast">
+                <div role="status" className="k-toast st-dark is-open" style={{ position: "static" }}>
+                  <Icon name="check" size={18} />お気に入りに追加しました
+                </div>
+              </Spot>
             </div>
-            <Spot id="toast" className="map-toast">
-              <div role="status" className="k-toast st-dark is-open" style={{ position: "static" }}>
-                <Icon name="check" size={18} />お気に入りに追加しました
-              </div>
-            </Spot>
             <Spot id="footer">
               <footer className="k-footer l-simple bg-surface">
                 <span className="k-logo sm"><Icon name="coffee" size={18} />もりカフェ</span>

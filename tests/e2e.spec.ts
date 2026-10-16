@@ -5,6 +5,17 @@ const shot = async (page: Page, name: string) => {
   if (SHOT) await page.screenshot({ path: `${SHOT}/${name}.png` });
 };
 const entryName = (page: Page) => page.locator(".entry h2");
+// 図面の中の部品どうしが重ならないか（トーストがフッターに重なった不具合 2026-10-17 の再発防止）
+const overlap = async (page: Page, a: string, b: string) => {
+  const ra = (await page.locator(`.sheet [data-part=${a}]`).boundingBox())!;
+  const rb = (await page.locator(`.sheet [data-part=${b}]`).boundingBox())!;
+  return ra.x < rb.x + rb.width && rb.x < ra.x + ra.width && ra.y < rb.y + rb.height && rb.y < ra.y + ra.height;
+};
+const insideSheet = async (page: Page, id: string) => {
+  const r = (await page.locator(`.sheet [data-part=${id}]`).boundingBox())!;
+  const s = (await page.locator(".sheet").boundingBox())!;
+  return r.x >= s.x - 1 && r.y >= s.y - 1 && r.x + r.width <= s.x + s.width + 1 && r.y + r.height <= s.y + s.height + 1;
+};
 
 test.describe("図面", () => {
   test("引き出し線の名前を押すと、その部品の説明が出る", async ({ page }) => {
@@ -27,6 +38,19 @@ test.describe("図面", () => {
     await page.locator(".callout", { hasText: "アラート" }).click();
     await expect(page.locator(".entry h2")).toHaveText("アラート");
     await expect(page.locator(".entry h2")).toBeInViewport();
+  });
+
+  test("トーストはフッターに重ならず、浮いた札として画面の中に出る", async ({ page }) => {
+    await page.goto("/");
+    expect(await overlap(page, "toast", "footer")).toBe(false);
+    expect(await overlap(page, "toast", "button")).toBe(false);
+    expect(await insideSheet(page, "toast")).toBe(true);
+    expect(await page.locator(".sheet [data-part=toast]").evaluate((el) => getComputedStyle(el).position)).toBe("absolute");
+    // 横いっぱいに伸びない
+    const t = (await page.locator(".sheet [data-part=toast]").boundingBox())!;
+    const sh = (await page.locator(".sheet").boundingBox())!;
+    expect(t.width).toBeLessThan(sh.width * 0.6);
+    if (SHOT) await page.locator(".sheet").screenshot({ path: `${SHOT}/pc-sheet-bottom.png` });
   });
 
   test("見本の画面に部品の見た目が効いている", async ({ page }) => {
@@ -146,6 +170,10 @@ test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @
   const tag = await page.locator(".spot[data-part=header] > .spot-tag").boundingBox();
   const sheet = await page.locator(".sheet").boundingBox();
   expect(tag!.y).toBeLessThan(sheet!.y);
+  // トーストもフッターに重ならない
+  expect(await overlap(page, "toast", "footer")).toBe(false);
+  expect(await overlap(page, "toast", "button")).toBe(false);
+  expect(await insideSheet(page, "toast")).toBe(true);
   // 右端のアバターが画面に収まる
   const av = await page.locator(".spot[data-part=avatar]").boundingBox();
   expect(av!.x + av!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
