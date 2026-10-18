@@ -42,6 +42,28 @@ a { color: inherit; }
 .intro h1 span, .intro h1 em { display: inline-block; }
 .intro h1 em { font-style: normal; color: var(--y); }
 .intro p { margin: 10px 0 0; font-size: 15px; opacity: 0.9; }
+/* このページの見方（設計図の凡例のように枠で区切って並べる） */
+.intro { max-width: none; }
+.howto { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: calc(100% - 404px); border: 1px solid var(--ln-weak); border-radius: 4px; background: rgba(14, 42, 120, 0.35); }
+.howto li { display: flex; gap: 12px; align-items: flex-start; padding: 10px 16px; font-size: 13px; line-height: 1.55; }
+.howto li + li { border-left: 1px solid var(--ln-weak); }
+.howto svg { flex: none; width: 40px; height: 24px; margin-top: 2px; fill: none; stroke: #fff; stroke-width: 1.5; }
+.howto svg .y { stroke: var(--y); fill: var(--y); }
+.howto svg path.y { fill: none; stroke-width: 3; }
+.howto b { display: block; font-size: 14px; color: var(--y); }
+.howto-narrow, .howto-tag { display: none; }
+@media (max-width: 1099px) {
+  .howto { max-width: none; }
+  .howto-wide { display: none; }
+  .howto-narrow { display: inline; }
+}
+@media (max-width: 760px) {
+  .howto { grid-template-columns: 1fr; }
+  .howto li + li { border-left: 0; border-top: 1px solid var(--ln-weak); }
+  .howto li { padding: 8px 12px; }
+  .howto-line { display: none; }
+  .howto-tag { display: inline; }
+}
 
 /* ---- 図面と項目 ---- */
 /* PC幅：左に図面・一覧・読み物、右に説明の列（sticky でずっと出す） */
@@ -67,9 +89,9 @@ a { color: inherit; }
 .drawing.is-narrow { padding: 16px 0; }
 .sheet { container-type: inline-size; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1.5px #fff, 10px 10px 0 rgba(0, 0, 0, 0.18); }
 .leaders { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 2; }
-.leaders path { fill: none; stroke: var(--ln); stroke-width: 1.2; }
+.leaders path { fill: none; stroke: var(--ln-weak); stroke-width: 1.2; }
 .leaders path.halo { stroke: var(--bp); stroke-width: 3.6; }
-.leaders circle { fill: #fff; stroke: var(--bp); stroke-width: 1.5; }
+.leaders circle { fill: rgba(255, 255, 255, 0.75); stroke: var(--bp); stroke-width: 1.5; }
 .leaders .hot path { stroke: var(--y); stroke-width: 2; }
 .leaders .hot path.halo { stroke: var(--bp-ink); stroke-width: 4.4; }
 .leaders .hot circle { fill: var(--y); }
@@ -78,7 +100,11 @@ a { color: inherit; }
   font-size: 13px; font-weight: 700; line-height: 1.25; text-align: left; color: #fff;
 }
 .callout.l { text-align: right; }
-.callout small { display: block; font: 500 10.5px var(--mono); opacity: 0.72; margin-top: 2px; }
+/* 英語名は指した・選んだ名前だけに出して、図面の文字を減らす */
+.callout small { position: absolute; top: 100%; font: 500 10.5px var(--mono); opacity: 0; margin-top: 2px; transition: opacity 0.12s; pointer-events: none; }
+.callout.l small { right: 0; }
+.callout.r small { left: 0; }
+.callout.hot small { opacity: 0.85; }
 .callout:hover, .callout.hot { color: var(--y); }
 .callout.sel { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
 .callout:focus-visible { outline: 2px solid var(--y); outline-offset: 4px; }
@@ -147,6 +173,7 @@ span.spot { display: inline-flex; }
 @keyframes dr-fade { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .drawer, .drawer-backdrop { animation: none; } }
 .drawer-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 10px 8px 18px; border-bottom: 1.5px solid #fff; font-size: 12.5px; font-weight: 700; }
+.dh-cat small { font-size: 12px; font-weight: 500; opacity: 0.75; margin-left: 10px; }
 .dh-nav { display: flex; align-items: center; gap: 2px; }
 .dh-nav button { width: 36px; height: 36px; border: 0; background: transparent; border-radius: 3px; display: grid; place-items: center; cursor: pointer; }
 .dh-nav button:hover { background: rgba(255, 255, 255, 0.12); }

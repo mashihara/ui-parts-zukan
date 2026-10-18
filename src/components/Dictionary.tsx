@@ -179,7 +179,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
       <main className="board" aria-label="図面">
         <ScreenMap onPick={open} selected={s.part ?? ""} />
         <p className="board-note">
-          名前か部品を押すと、意味と使いどころ、AIへの頼み方が開きます。モーダル・ダイアログなど<b>画面に重なって出る窓</b>は、下の「部品の名前」にあります。
+          モーダル・ダイアログなど<b>画面に重なって出る窓</b>は、図面ではなく下の「部品の名前」にあります。
         </p>
       </main>
 
@@ -224,7 +224,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
       {/* PC幅：説明をずっと出しておく右の列（スクロールしても付いてくる） */}
       <aside className="side" aria-label="部品の説明">
         <div className="drawer-head">
-          <span className="dh-cat">{part ? CATEGORIES.find((c) => c.id === part.cat)?.label : "部品の説明"}</span>
+          <span className="dh-cat">部品の説明{part && <small>{CATEGORIES.find((c) => c.id === part.cat)?.label}</small>}</span>
           <span className="dh-nav">{stepper}</span>
         </div>
         {part ? (
@@ -248,7 +248,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
         <div className="drawer-backdrop" onClick={close}>
           <aside className="drawer" role="dialog" aria-modal="true" aria-label={`${part.ja}の説明`} onClick={(e) => e.stopPropagation()}>
             <div className="drawer-head">
-              <span className="dh-cat">{CATEGORIES.find((c) => c.id === part.cat)?.label}</span>
+              <span className="dh-cat">部品の説明<small>{CATEGORIES.find((c) => c.id === part.cat)?.label}</small></span>
               <span className="dh-nav">
                 {stepper}
                 <button type="button" ref={closeBtn} className="dh-x" onClick={close} aria-label="閉じる"><Icon name="x" size={18} /></button>
