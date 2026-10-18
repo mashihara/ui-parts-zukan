@@ -310,20 +310,3 @@ test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 });
 
-// ページの見方（2026-10-18「ページの見方を教えてほしい」）。幅に合った説明が出る
-test("PC幅：ページの見方が図面の上に出て、右の欄を指す", async ({ page }) => {
-  await page.goto("/");
-  const howto = page.getByRole("list", { name: "このページの見方" });
-  await expect(howto.getByRole("listitem")).toHaveCount(3);
-  await expect(howto).toContainText("白い線の先の名前");
-  await expect(howto).toContainText("右の欄に");
-  await expect(howto.getByText("下から開く欄に")).toBeHidden();
-});
-
-test("スマホ幅：ページの見方は名前札と下から開く欄を指す @mobile", async ({ page }) => {
-  await page.goto("/");
-  const howto = page.getByRole("list", { name: "このページの見方" });
-  await expect(howto.getByText("部品に付いた名前札")).toBeVisible();
-  await expect(howto.getByText("下から開く欄に")).toBeVisible();
-  await expect(howto.getByText("白い線の先の名前")).toBeHidden();
-});

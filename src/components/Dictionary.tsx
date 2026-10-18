@@ -125,10 +125,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
               <p className="entry-en">{p.en}</p>
               {p.aka && <p className="entry-aka">別名　{p.aka.join("、")}</p>}
               <p className="entry-meaning">{p.meaning}</p>
-              <button type="button" className={`pick ${s.picks.includes(p.id) ? "is-on" : ""}`} onClick={() => togglePick(p.id)} aria-pressed={s.picks.includes(p.id)}>
-                <Icon name={s.picks.includes(p.id) ? "check" : "plus"} size={18} />
-                {s.picks.includes(p.id) ? "AIに渡す名前に入れました" : "AIに渡す名前に入れる"}
-              </button>
+              {pickBtn(p)}
               <div className="kit entry-preview" style={VARS}>
                 <PartPreview id={p.id} o={p.demo ?? {}} />
               </div>
@@ -145,8 +142,8 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
               </dl>
               {CONFUSIONS.filter((c) => c.parts.includes(p.id)).map((c) => (
                 <div key={c.title} className="entry-confuse">
-                  <b>まぎらわしい名前：{c.title}</b>
-                  <p>{c.rule}</p>
+                  <b>まぎらわしい名前</b>
+                  <p><strong>{c.title}</strong>　{c.rule}</p>
                   <div className="entry-links">
                     {c.parts.filter((id) => id !== p.id).map((id) => (
                       <button type="button" key={id} onClick={() => open(id)}>{PART_MAP[id].ja}を見る</button>
@@ -155,6 +152,14 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
                 </div>
               ))}
     </>
+  );
+
+  // AIに渡す名前に入れるボタン
+  const pickBtn = (p: Part) => (
+      <button type="button" className={`pick ${s.picks.includes(p.id) ? "is-on" : ""}`} onClick={() => togglePick(p.id)} aria-pressed={s.picks.includes(p.id)}>
+        <Icon name={s.picks.includes(p.id) ? "check" : "plus"} size={18} />
+        {s.picks.includes(p.id) ? "AIに渡す名前に入れました" : "AIに渡す名前に入れる"}
+      </button>
   );
 
   const stepper = (
@@ -224,7 +229,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
       {/* PC幅：説明をずっと出しておく右の列（スクロールしても付いてくる） */}
       <aside className="side" aria-label="部品の説明">
         <div className="drawer-head">
-          <span className="dh-cat">部品の説明{part && <small>{CATEGORIES.find((c) => c.id === part.cat)?.label}</small>}</span>
+          <span className="dh-cat">{part ? CATEGORIES.find((c) => c.id === part.cat)?.label : "部品の説明"}</span>
           <span className="dh-nav">{stepper}</span>
         </div>
         {part ? (
@@ -248,7 +253,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
         <div className="drawer-backdrop" onClick={close}>
           <aside className="drawer" role="dialog" aria-modal="true" aria-label={`${part.ja}の説明`} onClick={(e) => e.stopPropagation()}>
             <div className="drawer-head">
-              <span className="dh-cat">部品の説明<small>{CATEGORIES.find((c) => c.id === part.cat)?.label}</small></span>
+              <span className="dh-cat">{CATEGORIES.find((c) => c.id === part.cat)?.label}</span>
               <span className="dh-nav">
                 {stepper}
                 <button type="button" ref={closeBtn} className="dh-x" onClick={close} aria-label="閉じる"><Icon name="x" size={18} /></button>

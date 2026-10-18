@@ -21,22 +21,7 @@ export default function Page() {
           <span>その部品、</span>
           <em>なんて呼ぶ？</em>
         </h1>
-        <p>「上の帯」「出てくる窓」では、AIに伝わりません。見本の画面に、図面のように部品の名前を書き込みました。</p>
-        {/* このページの見方。設計図の凡例のように、どこを押すと何が出るかを3つで示す */}
-        <ol className="howto" aria-label="このページの見方">
-          <li>
-            <svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="5" cy="18" r="3.5" className="y" /><path d="M8 16 L18 6 H38" /></svg>
-            <span><b>名前を押す</b><span className="howto-line">白い線の先の名前</span><span className="howto-tag">部品に付いた名前札</span>か、部品そのものを押します</span>
-          </li>
-          <li>
-            <svg viewBox="0 0 40 24" aria-hidden="true"><rect x="3" y="2" width="22" height="20" rx="1.5" /><rect x="27" y="2" width="10" height="20" rx="1.5" className="y" /></svg>
-            <span><b>説明を読む</b><span className="howto-wide">右の欄に</span><span className="howto-narrow">下から開く欄に</span>、意味・見本・AIへの頼み方が出ます</span>
-          </li>
-          <li>
-            <svg viewBox="0 0 40 24" aria-hidden="true"><rect x="3" y="2" width="34" height="20" rx="1.5" /><path d="M3 16 H37" className="y" /></svg>
-            <span><b>名前を集めて渡す</b>「AIに渡す名前に入れる」で集め、下の帯からまとめてコピーします</span>
-          </li>
-        </ol>
+        <p>「上の帯」「出てくる窓」では、AIに伝わりません。見本の画面に、図面のように部品の名前を書き込みました。名前を押すと、意味とAIへの頼み方が分かります。</p>
       </section>
 
       <Dictionary>
