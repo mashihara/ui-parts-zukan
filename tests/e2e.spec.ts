@@ -4,7 +4,14 @@ const SHOT = process.env.SHOT_DIR;
 const shot = async (page: Page, name: string) => {
   if (SHOT) await page.screenshot({ path: `${SHOT}/${name}.png` });
 };
-const entryName = (page: Page) => page.locator(".entry h2");
+const entryName = (page: Page) => page.locator(".drawer h2");
+// 一覧のカード（名前で探す。見本の中の文字には反応させない）
+const card = (page: Page, name: string) => page.locator(".name-card").filter({ has: page.locator(".nc-ja", { hasText: new RegExp(`^${name}`) }) });
+// 説明（重ねて開く欄）を閉じる
+const closeEntry = async (page: Page) => {
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".drawer")).toHaveCount(0);
+};
 // 図面の中の部品どうしが重ならないか（トーストがフッターに重なった不具合 2026-10-17 の再発防止）
 const overlap = async (page: Page, a: string, b: string) => {
   const ra = (await page.locator(`.sheet [data-part=${a}]`).boundingBox())!;
@@ -36,8 +43,8 @@ test.describe("図面", () => {
     await expect(page.locator(".drawing.is-wide")).toBeVisible();
     // 名前を押すと、下に回した説明へ移る
     await page.locator(".callout", { hasText: "アラート" }).click();
-    await expect(page.locator(".entry h2")).toHaveText("アラート");
-    await expect(page.locator(".entry h2")).toBeInViewport();
+    await expect(entryName(page)).toHaveText("アラート");
+    await expect(entryName(page)).toBeInViewport();
   });
 
   test("トーストはフッターに重ならず、浮いた札として画面の中に出る", async ({ page }) => {
@@ -58,6 +65,7 @@ test.describe("図面", () => {
     expect(await overlap(page, "tooltip", "icon-button")).toBe(false);
     await page.locator(".sheet .k-tooltip").click();
     await expect(entryName(page)).toHaveText("ツールチップ");
+    await closeEntry(page);
     await page.locator(".sheet [data-part=icon-button] .k-icon-btn").click();
     await expect(entryName(page)).toHaveText("アイコンボタン");
     // 札はハートの真上にあり、三角（札の左から20px）がハートの中心を指す
@@ -84,6 +92,7 @@ test.describe("図面", () => {
     await page.goto("/");
     await page.locator(".sheet .k-check").click();
     await expect(entryName(page)).toHaveText("チェックボックス");
+    await closeEntry(page);
     await page.locator(".sheet .k-gnav a", { hasText: "予約" }).click();
     await expect(entryName(page)).toHaveText("グローバルナビ");
   });
@@ -114,10 +123,10 @@ test.describe("図面", () => {
 
 test("一覧から窓の部品を開くと、見本と頼み方の例が出る", async ({ page }) => {
   await page.goto("/");
-  await page.locator(".name-card", { hasText: "モーダル" }).first().click();
+  await card(page, "モーダル").click();
   await expect(entryName(page)).toHaveText("モーダル");
   await expect(page.locator(".entry-preview .k-modal")).toBeVisible();
-  await expect(page.locator(".entry .ask")).toContainText("モーダルで出して");
+  await expect(page.locator(".drawer .ask")).toContainText("モーダルで出して");
   await expect(page.locator(".entry-confuse").first()).toContainText("ダイアログ");
 });
 
@@ -125,10 +134,12 @@ test("名前を選んでAIに渡す文にする", async ({ page }) => {
   await page.goto("/?part=modal");
   await expect(page.locator(".dock-go")).toBeDisabled();
   await page.getByRole("button", { name: "AIに渡す名前に入れる" }).click();
-  await page.locator(".name-card", { hasText: "トースト" }).click();
+  await closeEntry(page);
+  await card(page, "トースト").click();
   await page.getByRole("button", { name: "AIに渡す名前に入れる" }).click();
   await expect(page.locator(".dock-chip")).toHaveCount(2);
   await expect(page).toHaveURL(/pick=modal,toast/);
+  await closeEntry(page);
   await page.getByRole("button", { name: "AIに渡す文を見る" }).click();
   const text = page.locator(".ps-text");
   await expect(text).toContainText("1. モーダル（Modal）");
@@ -141,6 +152,34 @@ test("名前を選んでAIに渡す文にする", async ({ page }) => {
   await shot(page, "pc-sheet");
 });
 
+test("部品を開いて閉じても、ページの位置が変わらない", async ({ page }) => {
+  await page.goto("/");
+  const sk = card(page, "スケルトン");
+  await sk.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => scrollY);
+  expect(before).toBeGreaterThan(800);
+  await sk.click();
+  await expect(entryName(page)).toHaveText("スケルトン");
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+  // 開いたまま前後の部品をめくれる
+  await page.getByRole("button", { name: "次の部品" }).click();
+  await expect(entryName(page)).toHaveText("ステップ表示");
+  await page.getByRole("button", { name: "前の部品" }).click();
+  await expect(entryName(page)).toHaveText("スケルトン");
+  if (SHOT) await page.screenshot({ path: `${SHOT}/pc-drawer.png` });
+  // 閉じる：×・背景・Esc のどれでも、元の位置のまま
+  await page.getByRole("button", { name: "閉じる", exact: true }).click();
+  await expect(page.locator(".drawer")).toHaveCount(0);
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+  await sk.click();
+  await page.locator(".drawer-backdrop").click({ position: { x: 20, y: 300 } });
+  await expect(page.locator(".drawer")).toHaveCount(0);
+  await sk.click();
+  await closeEntry(page);
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+  await expect(page).not.toHaveURL(/part=/);
+});
+
 test("共有リンクを開くと同じ選択になる", async ({ page }) => {
   await page.goto("/?pick=modal,toast&part=dialog");
   await expect(entryName(page)).toHaveText("ダイアログ");
@@ -150,8 +189,8 @@ test("共有リンクを開くと同じ選択になる", async ({ page }) => {
 test("ことばで探せる", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("部品を探す").fill("窓");
-  await expect(page.locator(".name-card", { hasText: "モーダル" })).toBeVisible();
-  await expect(page.locator(".name-card", { hasText: "ヘッダー" })).toHaveCount(0);
+  await expect(card(page, "モーダル")).toBeVisible();
+  await expect(card(page, "ヘッダー")).toHaveCount(0);
   await page.getByLabel("部品を探す").fill("zzz");
   await expect(page.locator(".none")).toBeVisible();
 });
@@ -171,8 +210,17 @@ test("全部の部品の見本がエラーなく出る", async ({ page }) => {
   const cards = page.locator(".name-card");
   const n = await cards.count();
   expect(n).toBe(43);
+  // 一覧の小さな見本も全部描かれている
+  const empty = await page.locator(".thumb-in").evaluateAll((els) => els.filter((e) => ((e.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0) < 10).length);
+  expect(empty, "小さな見本が空のカード").toBe(0);
+  // 小さな見本は枠の中に収まり、左右が切れない
+  const cut = await page.locator(".thumb").evaluateAll((els) => els.filter((t) => { const a = t.getBoundingClientRect(), b = t.querySelector(".thumb-in")!.getBoundingClientRect(); return b.left < a.left - 2 || b.right > a.right + 2; }).length);
+  expect(cut, "見本の左右が切れるカード").toBe(0);
+  // 説明を開き、「次の部品」で全部をめくる
+  await cards.first().click();
   for (let i = 0; i < n; i++) {
-    await cards.nth(i).click();
+    if (i > 0) await page.getByRole("button", { name: "次の部品" }).click();
+    await expect(page.locator(".dh-count")).toHaveText(`${i + 1} / ${n}`);
     const name = (await entryName(page).textContent()) ?? "";
     const h = await page.locator(".entry-preview").evaluate((el) => (el.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0);
     expect(h, `${name} の見本が空`).toBeGreaterThan(10);
@@ -203,6 +251,9 @@ test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @
   expect(tipTag.x).toBeGreaterThanOrEqual(tipText.x + tipText.width);
   // ツールチップの札が画面の右で切れない
   expect(await insideSheet(page, "tooltip")).toBe(true);
+  // 一覧の小さな見本も左右が切れない
+  const cut = await page.locator(".thumb").evaluateAll((els) => els.filter((t) => { const a = t.getBoundingClientRect(), b = t.querySelector(".thumb-in")!.getBoundingClientRect(); return b.left < a.left - 2 || b.right > a.right + 2; }).length);
+  expect(cut, "見本の左右が切れるカード").toBe(0);
   // トーストもフッターに重ならない
   expect(await overlap(page, "toast", "footer")).toBe(false);
   expect(await overlap(page, "toast", "button")).toBe(false);

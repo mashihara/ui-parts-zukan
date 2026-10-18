@@ -5,7 +5,7 @@ import ScreenMap from "./ScreenMap";
 import { PartPreview } from "./previews";
 import { DEFAULT_TOKENS, cssVars } from "@/lib/tokens";
 import { CATEGORIES, CONFUSIONS, PARTS, PART_MAP, shortEn } from "@/lib/parts";
-import { DEFAULT_PART, fromQuery, toQuery, type AppState } from "@/lib/state";
+import { fromQuery, toQuery, type AppState } from "@/lib/state";
 import { buildPrompt } from "@/lib/prompt";
 
 const VARS = cssVars(DEFAULT_TOKENS) as CSSProperties;
@@ -26,12 +26,25 @@ async function copyText(text: string) {
   }
 }
 
+// 一覧のカードに載せる小さな見本。押せないようにして、カード全体を押すと説明が開く
+function Thumb({ id }: { id: string }) {
+  return (
+    <span className="thumb kit" style={VARS} inert aria-hidden="true">
+      <span className="thumb-in">
+        <PartPreview id={id} o={PART_MAP[id].demo ?? {}} />
+      </span>
+    </span>
+  );
+}
+
 export default function Dictionary() {
-  const [s, setS] = useState<AppState>({ picks: [], part: DEFAULT_PART });
+  const [s, setS] = useState<AppState>({ picks: [], part: null });
   const [filter, setFilter] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const loaded = useRef(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const closeBtn = useRef<HTMLButtonElement>(null);
 
   // URL から状態を読む（共有リンク・AIが作ったリンクを開いたとき）。
   // 静的書き出しのHTMLは既定の状態で作られるため、表示のずれを避けて読み込み後に1回だけ反映する
@@ -47,20 +60,47 @@ export default function Dictionary() {
     window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
   }, [query]);
 
-  const part = PART_MAP[s.part];
-  const picked = s.picks.includes(s.part);
+  const part = s.part ? PART_MAP[s.part] : null;
+  const index = part ? PARTS.findIndex((p) => p.id === part.id) : -1;
+  const isOpen = !!part;
+
+  const close = () => {
+    setS((cur) => ({ ...cur, part: null }));
+    // 開いたボタンへ戻る（ページの位置は動かさない）
+    opener.current?.focus({ preventScroll: true });
+  };
+
+  // 説明を開いている間は後ろのページを動かさない。Esc で閉じる
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeBtn.current?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setS((cur) => ({ ...cur, part: null }));
+        opener.current?.focus({ preventScroll: true });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen]);
+
   const base = typeof window === "undefined" ? "" : `${window.location.origin}${window.location.pathname}`;
   const link = s.picks.length ? `${base}?pick=${s.picks.join(",")}` : base;
-  const related = CONFUSIONS.filter((c) => c.parts.includes(s.part));
 
   const show = (msg: string) => {
     setFlash(msg);
     setTimeout(() => setFlash(null), 1800);
   };
-  const open = (id: string, scroll = false) => {
+  const open = (id: string) => {
+    if (!s.part) opener.current = document.activeElement as HTMLElement | null;
     setS((cur) => ({ ...cur, part: id }));
-    if (scroll) document.getElementById("entry")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const step = (d: number) => open(PARTS[(index + d + PARTS.length) % PARTS.length].id);
   const togglePick = (id: string) => setS((cur) => ({ ...cur, picks: cur.picks.includes(id) ? cur.picks.filter((x) => x !== id) : [...cur.picks, id] }));
 
   const q = filter.trim().toLowerCase();
@@ -72,55 +112,12 @@ export default function Dictionary() {
 
   return (
     <>
-      <div className="studio">
-        <main className="board" aria-label="図面">
-          <ScreenMap onPick={(id) => open(id, typeof window !== "undefined" && window.innerWidth <= 1400)} selected={s.part} />
-          <p className="board-note">
-            モーダル・ダイアログ・ドロワーなど、<b>画面に重なって出る窓</b>は図面の外です。下の「部品の名前」から開けます。
-          </p>
-        </main>
-
-        <aside className="entry" id="entry" aria-label="部品の説明">
-          <div className="entry-head">
-            <span>{CATEGORIES.find((c) => c.id === part.cat)?.label}</span>
-            <span className="entry-en">{part.en}</span>
-          </div>
-          <div className="entry-body">
-            <h2>{part.ja}</h2>
-            {part.aka && <p className="entry-aka">別名　{part.aka.join("、")}</p>}
-            <p className="entry-meaning">{part.meaning}</p>
-            <button type="button" className={`pick ${picked ? "is-on" : ""}`} onClick={() => togglePick(part.id)} aria-pressed={picked}>
-              <Icon name={picked ? "check" : "plus"} size={18} />
-              {picked ? "AIに渡す名前に入れました" : "AIに渡す名前に入れる"}
-            </button>
-            <div className="kit entry-preview" style={VARS}>
-              <PartPreview key={part.id} id={part.id} o={part.demo ?? {}} />
-            </div>
-            <dl className="entry-dl">
-              <dt>使いどころ</dt>
-              <dd>{part.when}</dd>
-              <dt>AIへの頼み方の例</dt>
-              <dd className="ask">
-                「{part.ask}」
-                <button type="button" onClick={async () => (await copyText(part.ask)) && show("頼み方の例をコピーしました")}>
-                  <Icon name="copy" size={14} />コピー
-                </button>
-              </dd>
-            </dl>
-            {related.map((c) => (
-              <div key={c.title} className="entry-confuse">
-                <b>まぎらわしい名前：{c.title}</b>
-                <p>{c.rule}</p>
-                <div className="entry-links">
-                  {c.parts.filter((id) => id !== part.id).map((id) => (
-                    <button type="button" key={id} onClick={() => open(id)}>{PART_MAP[id].ja}を見る</button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </aside>
-      </div>
+      <main className="board" aria-label="図面">
+        <ScreenMap onPick={open} selected={s.part ?? ""} />
+        <p className="board-note">
+          名前か部品を押すと、意味と使いどころ、AIへの頼み方が開きます。モーダル・ダイアログなど<b>画面に重なって出る窓</b>は、下の「部品の名前」にあります。
+        </p>
+      </main>
 
       <section className="catalog" id="names" aria-label="部品の名前">
         <div className="sec-head">
@@ -139,11 +136,16 @@ export default function Dictionary() {
               <ul>
                 {items.map((p) => (
                   <li key={p.id}>
-                    <button type="button" className={`name-card ${s.part === p.id ? "is-on" : ""}`} onClick={() => open(p.id, true)}>
-                      <span className="nc-ja">{p.ja}{s.picks.includes(p.id) && <i aria-label="AIに渡す名前に入れた">●</i>}</span>
-                      <span className="nc-en">{shortEn(p)}</span>
-                      <span className="nc-m">{p.meaning}</span>
-                    </button>
+                    {/* 見本の中にボタン等があるので、カードを <button> にせず、透明なボタンをカード全体にかぶせる（ボタンの入れ子は不正なHTML） */}
+                    <div className={`name-card ${s.part === p.id ? "is-on" : ""}`}>
+                      <Thumb id={p.id} />
+                      <span className="nc-text">
+                        <span className="nc-ja">{p.ja}{s.picks.includes(p.id) && <i aria-label="AIに渡す名前に入れた">●</i>}</span>
+                        <span className="nc-en">{shortEn(p)}</span>
+                        <span className="nc-m">{p.meaning}</span>
+                      </span>
+                      <button type="button" className="nc-open" onClick={() => open(p.id)} aria-haspopup="dialog" aria-label={`${p.ja}の説明を開く`} />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -153,6 +155,57 @@ export default function Dictionary() {
         {PARTS.every((p) => !match(p.id)) && <p className="none">「{filter}」に当てはまる名前はありません。別のことばで探してください。</p>}
       </section>
 
+      {part && (
+        <div className="drawer-backdrop" onClick={close}>
+          <aside className="drawer" role="dialog" aria-modal="true" aria-label={`${part.ja}の説明`} onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-head">
+              <span className="dh-cat">{CATEGORIES.find((c) => c.id === part.cat)?.label}</span>
+              <span className="dh-nav">
+                <button type="button" onClick={() => step(-1)} aria-label="前の部品"><Icon name="chevronLeft" size={18} /></button>
+                <span className="dh-count">{index + 1} / {PARTS.length}</span>
+                <button type="button" onClick={() => step(1)} aria-label="次の部品"><Icon name="chevronRight" size={18} /></button>
+                <button type="button" ref={closeBtn} className="dh-x" onClick={close} aria-label="閉じる"><Icon name="x" size={18} /></button>
+              </span>
+            </div>
+            <div className="drawer-body" key={part.id}>
+              <h2>{part.ja}</h2>
+              <p className="entry-en">{part.en}</p>
+              {part.aka && <p className="entry-aka">別名　{part.aka.join("、")}</p>}
+              <p className="entry-meaning">{part.meaning}</p>
+              <button type="button" className={`pick ${s.picks.includes(part.id) ? "is-on" : ""}`} onClick={() => togglePick(part.id)} aria-pressed={s.picks.includes(part.id)}>
+                <Icon name={s.picks.includes(part.id) ? "check" : "plus"} size={18} />
+                {s.picks.includes(part.id) ? "AIに渡す名前に入れました" : "AIに渡す名前に入れる"}
+              </button>
+              <div className="kit entry-preview" style={VARS}>
+                <PartPreview id={part.id} o={part.demo ?? {}} />
+              </div>
+              <dl className="entry-dl">
+                <dt>使いどころ</dt>
+                <dd>{part.when}</dd>
+                <dt>AIへの頼み方の例</dt>
+                <dd className="ask">
+                  「{part.ask}」
+                  <button type="button" onClick={async () => (await copyText(part.ask)) && show("頼み方の例をコピーしました")}>
+                    <Icon name="copy" size={14} />コピー
+                  </button>
+                </dd>
+              </dl>
+              {CONFUSIONS.filter((c) => c.parts.includes(part.id)).map((c) => (
+                <div key={c.title} className="entry-confuse">
+                  <b>まぎらわしい名前：{c.title}</b>
+                  <p>{c.rule}</p>
+                  <div className="entry-links">
+                    {c.parts.filter((id) => id !== part.id).map((id) => (
+                      <button type="button" key={id} onClick={() => open(id)}>{PART_MAP[id].ja}を見る</button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </aside>
+        </div>
+      )}
+
       <div className="dock" role="region" aria-label="AIに渡す名前">
         <div className="dock-picks">
           <span className="dock-label">AIに渡す名前</span>
@@ -161,7 +214,7 @@ export default function Dictionary() {
           ) : (
             s.picks.map((id) => (
               <span key={id} className="dock-chip">
-                <button type="button" onClick={() => open(id, true)}>{PART_MAP[id].ja}</button>
+                <button type="button" onClick={() => open(id)}>{PART_MAP[id].ja}</button>
                 <button type="button" aria-label={`${PART_MAP[id].ja}を外す`} onClick={() => togglePick(id)}><Icon name="x" size={12} stroke={2.4} /></button>
               </span>
             ))
