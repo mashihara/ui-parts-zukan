@@ -44,15 +44,28 @@ a { color: inherit; }
 .intro p { margin: 10px 0 0; font-size: 15px; opacity: 0.9; }
 
 /* ---- 図面と項目 ---- */
-/* 図面は横いっぱい（説明は横から重ねて開くので、図面の横に欄を取らない） */
-.board { min-width: 0; max-width: 1240px; margin: 12px auto 0; }
+/* PC幅：左に図面・一覧・読み物、右に説明の列（sticky でずっと出す） */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; margin-top: 12px; }
+.split-main { min-width: 0; }
+.side {
+  position: sticky; top: 12px; height: calc(100vh - var(--dock-h) - 24px); display: flex; flex-direction: column;
+  border: 1.5px solid #fff; border-radius: 4px; background: rgba(14, 42, 120, 0.85); overflow: hidden;
+}
+.side .drawer-head { padding-right: 8px; }
+.side-empty ul { margin: 10px 0 16px; padding-left: 1.2em; opacity: 0.9; }
+.side-lead { margin: 0; font-size: 15px; font-weight: 500; }
+@media (max-width: 1099px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .side { display: none; }
+}
+.board { min-width: 0; }
 .board-note { margin: 4px 0 0; font-size: 13px; opacity: 0.85; }
 .board-note b { color: var(--y); font-weight: 700; }
 
 .drawing { position: relative; }
-.drawing.is-wide { padding: 26px 172px; }
+.drawing.is-wide { padding: 26px 150px; }
 .drawing.is-narrow { padding: 16px 0; }
-.sheet { position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1.5px #fff, 10px 10px 0 rgba(0, 0, 0, 0.18); }
+.sheet { container-type: inline-size; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1.5px #fff, 10px 10px 0 rgba(0, 0, 0, 0.18); }
 .leaders { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 2; }
 .leaders path { fill: none; stroke: var(--ln); stroke-width: 1.2; }
 .leaders path.halo { stroke: var(--bp); stroke-width: 3.6; }
@@ -75,6 +88,13 @@ a { color: inherit; }
 .map-header .k-header { gap: 20px; }
 .map-header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .map-search { width: 150px; }
+/* 見本の画面が狭いとき（PC幅で右の列を出した1280px前後）は検索バーを省き、ヘッダーからはみ出さないようにする */
+@container (max-width: 640px) {
+  .spot.map-search { display: none; }
+  /* ステップ表示は、今の段階だけ名前を出して丸を詰める */
+  .map .k-steps li:not(.is-now) { font-size: 0; gap: 0; }
+  .map .k-steps li:not(:last-child)::after { margin: 0 6px; }
+}
 .map-body { position: relative; padding: 20px 20px 84px; display: flex; flex-direction: column; gap: 18px; }
 .map-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
 .map-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }

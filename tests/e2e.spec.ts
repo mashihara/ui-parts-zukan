@@ -4,11 +4,13 @@ const SHOT = process.env.SHOT_DIR;
 const shot = async (page: Page, name: string) => {
   if (SHOT) await page.screenshot({ path: `${SHOT}/${name}.png` });
 };
-const entryName = (page: Page) => page.locator(".drawer h2");
+// 説明の見出し（PC幅は右の列、狭い幅は重ねて開く欄。見えている方）
+const entryName = (page: Page) => page.locator(".entry-title:visible");
 // 一覧のカード（名前で探す。見本の中の文字には反応させない）
 const card = (page: Page, name: string) => page.locator(".name-card").filter({ has: page.locator(".nc-ja", { hasText: new RegExp(`^${name}`) }) });
 // 説明（重ねて開く欄）を閉じる
 const closeEntry = async (page: Page) => {
+  if (!(await page.locator(".drawer").count())) return; // PC幅は右の列なので閉じる物がない
   await page.keyboard.press("Escape");
   await expect(page.locator(".drawer")).toHaveCount(0);
 };
@@ -18,6 +20,15 @@ const overlap = async (page: Page, a: string, b: string) => {
   const rb = (await page.locator(`.sheet [data-part=${b}]`).boundingBox())!;
   return ra.x < rb.x + rb.width && rb.x < ra.x + ra.width && ra.y < rb.y + rb.height && rb.y < ra.y + ra.height;
 };
+// 見本の画面の中の文字や部品が、紙の右端・左端からはみ出していないか（はみ出した物の文字を返す）
+const overflowing = (page: Page) =>
+  page.locator(".sheet").evaluate((sheet) => {
+    const s = sheet.getBoundingClientRect();
+    return [...sheet.querySelectorAll<HTMLElement>(".map *")]
+      .filter((e) => e.offsetParent && !e.closest(".spot-tag") && e.getBoundingClientRect().width > 0)
+      .filter((e) => { const r = e.getBoundingClientRect(); return r.right > s.right + 1 || r.left < s.left - 1; })
+      .map((e) => e.textContent?.trim().slice(0, 12) || e.className);
+  });
 const insideSheet = async (page: Page, id: string) => {
   const r = (await page.locator(`.sheet [data-part=${id}]`).boundingBox())!;
   const s = (await page.locator(".sheet").boundingBox())!;
@@ -31,7 +42,7 @@ test.describe("図面", () => {
     await page.waitForTimeout(300);
     await shot(page, "pc-top");
     const n = await page.locator(".callout").count();
-    expect(n).toBe(await page.locator(".sheet [data-part]").count());
+    expect(n).toBe(await page.locator(".sheet [data-part]").evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().width > 0).length));
     await page.locator(".callout", { hasText: "トグルスイッチ" }).click();
     await expect(entryName(page)).toHaveText("トグルスイッチ");
     await expect(page).toHaveURL(/part=toggle/);
@@ -41,6 +52,11 @@ test.describe("図面", () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
     await expect(page.locator(".drawing.is-wide")).toBeVisible();
+    // 見本の画面の部品が、紙からはみ出さない（はみ出すと引き出し線が紙の外を指す）
+    for (const id of await page.locator(".sheet [data-part]").evaluateAll((els) => els.filter((e) => (e as HTMLElement).offsetParent).map((e) => (e as HTMLElement).dataset.part!))) {
+      expect(await insideSheet(page, id), `${id} が見本の画面からはみ出す`).toBe(true);
+    }
+    expect(await overflowing(page), "見本の画面からはみ出す物").toEqual([]);
     // 名前を押すと、下に回した説明へ移る
     await page.locator(".callout", { hasText: "アラート" }).click();
     await expect(entryName(page)).toHaveText("アラート");
@@ -126,7 +142,7 @@ test("一覧から窓の部品を開くと、見本と頼み方の例が出る",
   await card(page, "モーダル").click();
   await expect(entryName(page)).toHaveText("モーダル");
   await expect(page.locator(".entry-preview .k-modal")).toBeVisible();
-  await expect(page.locator(".drawer .ask")).toContainText("モーダルで出して");
+  await expect(page.locator(".ask:visible")).toContainText("モーダルで出して");
   await expect(page.locator(".entry-confuse").first()).toContainText("ダイアログ");
 });
 
@@ -152,22 +168,45 @@ test("名前を選んでAIに渡す文にする", async ({ page }) => {
   await shot(page, "pc-sheet");
 });
 
-test("部品を開いて閉じても、ページの位置が変わらない", async ({ page }) => {
+test("PC幅：説明は右の列にずっと出ていて、押しても右の列だけが変わる", async ({ page }) => {
   await page.goto("/");
+  // 何も選んでいないときは案内を出す
+  await expect(page.locator(".side")).toBeVisible();
+  await expect(page.locator(".side-lead")).toContainText("ここに説明が出ます");
+  await expect(page.locator(".drawer")).toHaveCount(0);
   const sk = card(page, "スケルトン");
   await sk.scrollIntoViewIfNeeded();
   const before = await page.evaluate(() => scrollY);
   expect(before).toBeGreaterThan(800);
   await sk.click();
   await expect(entryName(page)).toHaveText("スケルトン");
+  // 重ねて開く欄は出ず、ページも動かない。右の列は画面の中に見えている
+  await expect(page.locator(".drawer-backdrop")).toHaveCount(0);
   expect(await page.evaluate(() => scrollY)).toBe(before);
-  // 開いたまま前後の部品をめくれる
+  await expect(page.locator(".side")).toBeInViewport();
   await page.getByRole("button", { name: "次の部品" }).click();
   await expect(entryName(page)).toHaveText("ステップ表示");
-  await page.getByRole("button", { name: "前の部品" }).click();
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+  if (SHOT) await page.screenshot({ path: `${SHOT}/pc-side.png` });
+  // 一番下までスクロールしても右の列は付いてくる
+  await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(200);
+  await expect(page.locator(".side")).toBeInViewport();
+  await expect(entryName(page)).toBeInViewport();
+});
+
+test("狭い幅：説明は重ねて開き、閉じてもページの位置が変わらない", async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 900 });
+  await page.goto("/");
+  await expect(page.locator(".side")).toBeHidden();
+  const sk = card(page, "スケルトン");
+  await sk.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => scrollY);
+  await sk.click();
   await expect(entryName(page)).toHaveText("スケルトン");
-  if (SHOT) await page.screenshot({ path: `${SHOT}/pc-drawer.png` });
-  // 閉じる：×・背景・Esc のどれでも、元の位置のまま
+  expect(await page.evaluate(() => scrollY)).toBe(before);
+  await page.getByRole("button", { name: "次の部品" }).click();
+  await expect(entryName(page)).toHaveText("ステップ表示");
   await page.getByRole("button", { name: "閉じる", exact: true }).click();
   await expect(page.locator(".drawer")).toHaveCount(0);
   expect(await page.evaluate(() => scrollY)).toBe(before);
@@ -254,6 +293,7 @@ test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @
   // 一覧の小さな見本も左右が切れない
   const cut = await page.locator(".thumb").evaluateAll((els) => els.filter((t) => { const a = t.getBoundingClientRect(), b = t.querySelector(".thumb-in")!.getBoundingClientRect(); return b.left < a.left - 2 || b.right > a.right + 2; }).length);
   expect(cut, "見本の左右が切れるカード").toBe(0);
+  expect(await overflowing(page), "見本の画面からはみ出す物").toEqual([]);
   // トーストもフッターに重ならない
   expect(await overlap(page, "toast", "footer")).toBe(false);
   expect(await overlap(page, "toast", "button")).toBe(false);

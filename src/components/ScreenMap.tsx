@@ -40,7 +40,7 @@ function Spot({ id, children, className = "", as = "div" }: { id: string; childr
 
 type Callout = { id: string; side: "l" | "r"; ex: number; ey: number; y: number };
 
-const WIDE = 900; // これより広ければ引き出し線で書き込む
+const WIDE = 780; // これより広ければ引き出し線で書き込む（PC幅で右の列を出しても、幅1280pxで線が出るようにする）
 const GAP = 36; // 名前どうしの最小の縦の間隔
 
 export default function ScreenMap({ onPick, selected }: { onPick: (id: string) => void; selected: string }) {
@@ -66,6 +66,8 @@ export default function ScreenMap({ onPick, selected }: { onPick: (id: string) =
     const R: Callout[] = [];
     el.querySelectorAll<HTMLElement>("[data-part]").forEach((node) => {
       const r = node.getBoundingClientRect();
+      // 狭い見本で省いた部品（検索バーなど）には名前を書かない
+      if (!r.width || !r.height) return;
       const cx = r.left - W.left + r.width / 2;
       const ey = r.top - W.top + Math.min(r.height / 2, 16);
       // 横に広い部品と左半分の部品は左へ、残りは右へ
