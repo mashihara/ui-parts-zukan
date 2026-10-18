@@ -448,6 +448,8 @@
   padding: 4px 10px; border-radius: min(var(--k-r-sm), 8px); pointer-events: none;
 }
 .k-tooltip.st-dark { background: var(--k-text); color: var(--k-surface); }
+/* 下向きの三角で、どの部品から出た札かを示す */
+.k-tooltip.st-dark::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -5px; border: 5px solid transparent; border-top-color: var(--k-text); }
 .k-tooltip.st-light { background: var(--k-surface); color: var(--k-text); border: 1px solid var(--k-line); box-shadow: var(--k-shadow); }
 
 .k-toast {

@@ -165,14 +165,17 @@ export default function ScreenMap({ onPick, selected }: { onPick: (id: string) =
                 <div className="map-col">
                   <Spot id="card"><Card o={{ media: "top", hover: "none" }} /></Spot>
                   <div className="map-row">
+                    {/* ハートは「アイコンボタン」、上の札は「ツールチップ」と別々に名前を付ける */}
+                    <span className="k-anchor map-tip">
+                      <Spot id="icon-button" as="span">
+                        <span className="k-icon-btn sh-circle st-tonal"><Icon name="heart" /></span>
+                      </Spot>
+                      <Spot id="tooltip" as="span" className="map-tip-bubble">
+                        <span className="k-tooltip st-dark">お気に入りに追加</span>
+                      </Spot>
+                    </span>
                     <Spot id="chip" as="span"><span className="k-chip st-soft is-on">電源あり</span></Spot>
                     <span className="k-chip st-soft is-on">Wi-Fi</span>
-                    <Spot id="tooltip" as="span" className="map-tip">
-                      <span className="k-anchor">
-                        <span className="k-icon-btn sh-circle st-tonal"><Icon name="heart" /></span>
-                        <span className="k-tooltip st-dark">お気に入りに追加</span>
-                      </span>
-                    </Spot>
                   </div>
                   <Spot id="tabs"><Tabs o={{ style: "underline" }} /></Spot>
                   <Spot id="accordion"><Accordion o={{ icon: "chevron", multi: "one" }} /></Spot>

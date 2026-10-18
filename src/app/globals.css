@@ -81,7 +81,13 @@ a { color: inherit; }
 .map-col.form { background: var(--k-surface); border: var(--k-bw) solid var(--k-line); border-radius: var(--k-r-lg); padding: calc(var(--u) * 5); box-shadow: var(--k-shadow); gap: 14px; }
 .map-h { font-size: calc(var(--k-fs) + 2px); }
 .map-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 30px; }
-.map-tip { margin-left: auto; }
+.map-tip { margin-right: 4px; }
+/* ツールチップの札はハートの真上に浮かせる。札そのものに名前の線が付くよう、札を包む .spot ごと動かす。
+   ハートは列の左端にあるので、札は左端をそろえ、三角だけをハートの中心（左から20px）に置く */
+.spot.map-tip-bubble { position: absolute; bottom: calc(100% + 10px); left: 0; }
+.spot.map-tip-bubble .k-tooltip::after { left: 20px; }
+/* 本物のツールチップはクリックを素通しするが、図面では札を押して名前を引けるようにする */
+.spot.map-tip-bubble .k-tooltip { position: static; transform: none; display: block; pointer-events: auto; }
 /* トーストは画面の右下（フッターの上）に浮かせる。.spot の position: relative に負けないよう2つのクラスで指定する */
 .spot.map-toast { position: absolute; right: 20px; bottom: 20px; z-index: 4; display: block; }
 .spot.map-toast .k-toast { box-shadow: 0 8px 24px rgba(16, 24, 40, 0.25); }
@@ -102,6 +108,10 @@ span.spot { display: inline-flex; }
 .drawing.is-narrow { padding-top: 22px; }
 .drawing.is-narrow .sheet { overflow: visible; }
 .drawing.is-narrow .sheet .map { border-radius: 6px; overflow: clip; overflow-clip-margin: 14px; }
+/* 狭い幅：小さな部品が並ぶ行は札がぶつかるので、ツールチップは札の右、アイコンボタンは下に名前を出す */
+.drawing.is-narrow .spot[data-part="tooltip"] > .spot-tag { top: 50%; left: calc(100% + 6px); transform: translateY(-50%); }
+.drawing.is-narrow .spot[data-part="icon-button"] > .spot-tag { top: calc(100% + 3px); left: 0; }
+.drawing.is-narrow .map-row { margin-bottom: 22px; }
 .drawing.is-narrow .spot.is-sel > .spot-tag { background: var(--y); color: var(--bp-ink); }
 
 /* 部品の項目 */

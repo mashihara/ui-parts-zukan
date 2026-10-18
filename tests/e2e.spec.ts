@@ -53,6 +53,24 @@ test.describe("図面", () => {
     if (SHOT) await page.locator(".sheet").screenshot({ path: `${SHOT}/pc-sheet-bottom.png` });
   });
 
+  test("ツールチップの札とハートのアイコンボタンを別々に引ける", async ({ page }) => {
+    await page.goto("/");
+    expect(await overlap(page, "tooltip", "icon-button")).toBe(false);
+    await page.locator(".sheet .k-tooltip").click();
+    await expect(entryName(page)).toHaveText("ツールチップ");
+    await page.locator(".sheet [data-part=icon-button] .k-icon-btn").click();
+    await expect(entryName(page)).toHaveText("アイコンボタン");
+    // 札はハートの真上にあり、三角（札の左から20px）がハートの中心を指す
+    const tip = (await page.locator(".sheet [data-part=tooltip]").boundingBox())!;
+    const btn = (await page.locator(".sheet [data-part=icon-button]").boundingBox())!;
+    expect(tip.y + tip.height).toBeLessThanOrEqual(btn.y);
+    expect(Math.abs(tip.x + 20 - (btn.x + btn.width / 2))).toBeLessThan(4);
+    expect(await insideSheet(page, "tooltip")).toBe(true);
+    // 名前の線の点は札そのものの高さにある
+    const tagY = await page.locator(".callout", { hasText: "ツールチップ" }).evaluate((el) => el.getBoundingClientRect().top);
+    expect(Math.abs(tagY + 10 - (tip.y + Math.min(tip.height / 2, 16)))).toBeLessThan(40);
+  });
+
   test("見本の画面に部品の見た目が効いている", async ({ page }) => {
     await page.goto("/");
     // 変数が流れていないと背景が透明になる（2026-10-16 に一度起きた）
@@ -170,6 +188,21 @@ test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @
   const tag = await page.locator(".spot[data-part=header] > .spot-tag").boundingBox();
   const sheet = await page.locator(".sheet").boundingBox();
   expect(tag!.y).toBeLessThan(sheet!.y);
+  // 名前の札どうしが重ならない
+  const tags = await page.locator(".drawing.is-narrow .spot-tag").evaluateAll((els) =>
+    els.filter((e) => getComputedStyle(e).display !== "none" && (e as HTMLElement).offsetParent).map((e) => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, s: e.textContent }; }),
+  );
+  for (let i = 0; i < tags.length; i++)
+    for (let j = i + 1; j < tags.length; j++) {
+      const a = tags[i], c = tags[j];
+      expect(a.l < c.r && c.l < a.r && a.t < c.b && c.t < a.b, `${a.s} と ${c.s} の札が重なる`).toBe(false);
+    }
+  // ツールチップの名前の札が、ツールチップの文字を隠さない
+  const tipText = (await page.locator(".sheet .k-tooltip").boundingBox())!;
+  const tipTag = (await page.locator(".spot[data-part=tooltip] > .spot-tag").boundingBox())!;
+  expect(tipTag.x).toBeGreaterThanOrEqual(tipText.x + tipText.width);
+  // ツールチップの札が画面の右で切れない
+  expect(await insideSheet(page, "tooltip")).toBe(true);
   // トーストもフッターに重ならない
   expect(await overlap(page, "toast", "footer")).toBe(false);
   expect(await overlap(page, "toast", "button")).toBe(false);
