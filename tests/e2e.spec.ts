@@ -317,12 +317,22 @@ test("広いPC幅：目次から図面に無い部品も開ける", async ({ pag
   await page.goto("/");
   const toc = page.getByRole("navigation", { name: "部品の目次" });
   await expect(toc).toBeVisible();
-  await expect(toc.getByRole("button")).toHaveCount(43);
+  // 最初は分類だけが並び、押した分類だけが開く（アコーディオン）
+  await expect(toc.getByRole("button", { expanded: true })).toHaveCount(0);
+  await toc.getByRole("button", { name: /^画面の骨組み/ }).click();
+  await expect(toc.getByRole("button", { name: "ヘッダー", exact: true })).toBeVisible();
   const y = await page.evaluate(() => scrollY);
+  await toc.getByRole("button", { name: /^重なって出る窓/ }).click();
+  await expect(toc.getByRole("button", { name: "ヘッダー", exact: true })).toHaveCount(0);
+  await expect(toc.getByRole("button", { expanded: true })).toHaveCount(1);
   await toc.getByRole("button", { name: "モーダル", exact: true }).click();
   await expect(entryName(page)).toHaveText("モーダル");
   await expect(toc.getByRole("button", { name: "モーダル", exact: true })).toHaveAttribute("aria-current", "true");
   expect(await page.evaluate(() => scrollY)).toBe(y);
+  // 図面で別の分類の部品を選ぶと、その分類だけが開く
+  await page.locator(".callout", { hasText: "アラート" }).click();
+  await expect(toc.getByRole("button", { name: /^状態を伝える/ })).toHaveAttribute("aria-expanded", "true");
+  await expect(toc.getByRole("button", { expanded: true })).toHaveCount(1);
   // 図面は引き出し線で書き込める幅が残っている
   await expect(page.locator(".drawing.is-wide")).toBeVisible();
 });
