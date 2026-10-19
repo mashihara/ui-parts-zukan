@@ -38,6 +38,13 @@ function Spot({ id, children, className = "", as = "div" }: { id: string; childr
   );
 }
 
+// 全体図に書き込んである部品。これ以外（重なって出る窓など）は、真ん中を単体の見本に切り替えて見せる。
+// 検索バーは見本の画面が狭いと省くので含めない
+export const MAP_PARTS = new Set([
+  "header", "global-nav", "badge", "avatar", "breadcrumb", "alert", "card", "icon-button", "tooltip", "chip",
+  "tabs", "accordion", "stepper", "text-field", "select", "radio", "checkbox", "toggle", "button", "toast", "footer",
+]);
+
 type Callout = { id: string; side: "l" | "r"; ex: number; ey: number; y: number };
 
 const WIDE = 780; // これより広ければ引き出し線で書き込む（PC幅で右の列を出しても、幅1280pxで線が出るようにする）

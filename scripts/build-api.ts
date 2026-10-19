@@ -36,7 +36,7 @@ const catalog = {
     when: p.when,
     ask: p.ask,
     text: url(`api/v1/parts/${p.id}.txt`),
-    open: url(`?part=${p.id}`),
+    open: url(`parts/${p.id}/`),
   })),
   confusions: CONFUSIONS,
 };
@@ -54,7 +54,7 @@ for (const p of PARTS) {
     `AIへの頼み方の例: ${p.ask}`,
     ...CONFUSIONS.filter((c) => c.parts.includes(p.id)).flatMap((c) => ["", `まぎらわしい名前（${c.title}）: ${c.rule}`]),
     "",
-    `見本: ${url(`?part=${p.id}`)}`,
+    `見本: ${url(`parts/${p.id}/`)}`,
     "",
   ];
   out(`api/v1/parts/${p.id}.txt`, lines.join("\n"));

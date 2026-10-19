@@ -32,6 +32,7 @@ a { color: inherit; }
 /* ---- 上の帯 ---- */
 .top { display: flex; align-items: center; justify-content: space-between; height: 64px; border-bottom: 1px solid var(--ln-weak); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+.brand-name { text-decoration: none; }
 /* 印：部品に打った点から引き出し線を伸ばした形 */
 .brand-mark { width: 30px; height: 22px; position: relative; flex: none; margin-right: 4px; }
 .brand-mark::before { content: ""; position: absolute; left: 0; bottom: 0; width: 9px; height: 9px; border-radius: 99px; background: var(--y); }
@@ -47,6 +48,26 @@ a { color: inherit; }
 .intro p { margin: 10px 0 0; font-size: 15px; opacity: 0.9; }
 .intro { max-width: none; }
 .intro p { max-width: 760px; }
+/* 部品を選んだときの見出し。トップの見出しと高さをそろえ、切り替えで図面の位置が動かないようにする */
+.intro { min-height: 176px; }
+.intro.is-part { padding-top: 16px; }
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.crumbs a { color: var(--bp); }
+.crumbs span[aria-hidden] { opacity: 0.5; }
+.intro.is-part h1 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; }
+.intro.is-part h1 small { font: 500 15px var(--mono); color: var(--bp); }
+.intro.is-part p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* 全体図に無い部品の単体表示 */
+.focus { padding: 16px 0 26px; display: flex; flex-direction: column; }
+.focus-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; }
+.focus-back { display: inline-flex; align-items: center; gap: 4px; height: 38px; padding: 0 14px 0 8px; border: 1.5px solid var(--bp); border-radius: 3px; background: #fff; color: var(--bp); font-weight: 700; cursor: pointer; }
+.focus-back:hover { background: var(--tint); }
+.focus-bar span { opacity: 0.75; }
+.focus-sheet { flex: 1; display: flex; flex-direction: column; position: relative; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1.5px var(--bp), 8px 8px 0 rgba(26, 71, 184, 0.12); padding: 18px; }
+.focus-name { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: var(--bp); }
+.focus-name small { margin-left: 10px; font: 500 12px var(--mono); }
+.focus-stage { flex: 1; min-height: 460px; border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 32px 20px; overflow: hidden; }
 
 /* ---- 図面と項目 ---- */
 /* PC幅：左に図面・一覧・読み物、右に説明の列（sticky でずっと出す） */

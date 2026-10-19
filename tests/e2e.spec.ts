@@ -45,7 +45,9 @@ test.describe("図面", () => {
     expect(n).toBe(await page.locator(".sheet [data-part]").evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().width > 0).length));
     await page.locator(".callout", { hasText: "トグルスイッチ" }).click();
     await expect(entryName(page)).toHaveText("トグルスイッチ");
-    await expect(page).toHaveURL(/part=toggle/);
+    await expect(page).toHaveURL(/\/parts\/toggle\//);
+    // 選んだ部品の名前が h1 になる（SEO・2026-10-19）
+    await expect(page.locator("h1")).toHaveText(/^トグルスイッチ/);
   });
 
   test("よくあるノートPCの幅（1280px）でも引き出し線が出る", async ({ page }) => {
@@ -217,7 +219,7 @@ test("狭い幅：説明は重ねて開き、閉じてもページの位置が�
   await sk.click();
   await closeEntry(page);
   expect(await page.evaluate(() => scrollY)).toBe(before);
-  await expect(page).not.toHaveURL(/part=/);
+  await expect(page).not.toHaveURL(/\/parts\//);
 });
 
 test("共有リンクを開くと同じ選択になる", async ({ page }) => {
@@ -366,4 +368,42 @@ test("1280px：目次は出さず、図面に引き出し線を書く", async ({
   await page.goto("/");
   await expect(page.getByRole("navigation", { name: "部品の目次" })).toBeHidden();
   await expect(page.locator(".drawing.is-wide")).toBeVisible();
+});
+
+// 部品ごとのページ（SEO・2026-10-19）。h1・題・説明が書き出したHTMLに入っている
+test("部品のページは、その部品の名前が h1 で、説明が開いた状態で書き出されている", async ({ page, request }) => {
+  const html = await (await request.get("/parts/breadcrumb/")).text();
+  expect(html).toContain("<h1>パンくずリスト");
+  expect(html).toContain("<title>パンくずリスト（Breadcrumbs）とは？");
+  expect(html).toMatch(/<link rel="canonical" href="[^"]*\/parts\/breadcrumb\/"/);
+  expect(html).toContain('"@type":"DefinedTerm"');
+  await page.goto("/parts/breadcrumb/");
+  await expect(page.locator("h1")).toHaveText(/^パンくずリスト/);
+  await expect(entryName(page)).toHaveText("パンくずリスト");
+  // 見出しの「UI部品図鑑」でトップの見出しに戻る
+  await page.locator(".crumbs a").click();
+  await expect(page.locator("h1")).toHaveText("その部品、なんて呼ぶ？");
+  await expect(page).not.toHaveURL(/\/parts\//);
+  const sitemap = await (await request.get("/sitemap.xml")).text();
+  // トップと、一覧にある全部品のページ
+  expect(sitemap.match(/<loc>/g)?.length).toBe(1 + (await page.locator(".name-card").count()));
+});
+
+// 全体図に無い部品は、真ん中を単体の見本に切り替え、全体図へ戻れる（2026-10-19）
+test("全体図に無い部品は真ん中を単体表示にし、全体図へ戻れる", async ({ page }) => {
+  await page.goto("/");
+  const toc = page.getByRole("navigation", { name: "部品の目次" });
+  await toc.getByRole("button", { name: /^画面の骨組み/ }).click();
+  await toc.getByRole("button", { name: "サイドバー", exact: true }).click();
+  await expect(page.locator(".focus-name")).toHaveText(/^サイドバー/);
+  await expect(page.locator(".drawing")).toHaveCount(0);
+  await page.getByRole("button", { name: "画面の全体図に戻る" }).click();
+  await expect(page.locator(".drawing.is-wide")).toBeVisible();
+  await expect(entryName(page)).toHaveText("サイドバー");
+  // 全体図にある部品を選ぶと全体図のまま、また別の窓の部品を選ぶと単体表示になる
+  await page.locator(".callout", { hasText: "アラート" }).click();
+  await expect(page.locator(".drawing")).toBeVisible();
+  await toc.getByRole("button", { name: /^重なって出る窓/ }).click();
+  await toc.getByRole("button", { name: "モーダル", exact: true }).click();
+  await expect(page.locator(".focus-name")).toHaveText(/^モーダル/);
 });

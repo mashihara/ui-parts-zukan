@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "../components/kit.css";
+import { SITE_NAME, SITE_URL, TOP_DESCRIPTION, TOP_TITLE } from "@/lib/site";
 
 // 共有画像の絶対URLの土台（ドメインだけ。サブパスは next.config の basePath から Next.js が足す）
 const SITE = process.env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = {
-  title: "UI部品図鑑 — その部品、なんて呼ぶ？UI部品の名前が分かる図面",
-  description:
-    "ヘッダー・モーダル・ダイアログ・ラジオボタンなど、UI部品の正式な名前を図面から調べ、意味・使いどころ・AIへの頼み方が分かるサイト。",
+  title: TOP_TITLE,
+  description: TOP_DESCRIPTION,
   ...(SITE ? { metadataBase: new URL(SITE) } : {}),
-  openGraph: { title: "UI部品図鑑", description: "その部品、なんて呼ぶ？画面に図面のように名前を書き込んだ、UI部品の名前の辞書。", type: "website" },
-  alternates: { types: { "text/plain": "/llms.txt" } },
+  openGraph: {
+    title: SITE_NAME, description: "その部品、なんて呼ぶ？画面に図面のように名前を書き込んだ、UI部品の名前の辞書。",
+    type: "website", siteName: SITE_NAME, locale: "ja_JP", url: `${SITE_URL}/`,
+  },
+  twitter: { card: "summary_large_image" },
+  // canonical は各ページで書く（ここに書くと全ページに継承され、部品のページもトップを指してしまう）
+  alternates: { types: { "text/plain": `${SITE_URL}/llms.txt` } },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
