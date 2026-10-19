@@ -18,9 +18,11 @@
   --font: "IBM Plex Sans JP", "Hiragino Sans", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
   --dock-h: 72px;
+  --top-h: 64px; /* 上の帯（スクロールしても画面上部に固定） */
+  --stick: calc(var(--top-h) + 12px); /* 目次・説明の列など、上の帯の下に付いてくる物の位置 */
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-padding-top: 12px; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: var(--stick); }
 body {
   margin: 0; color: var(--bp-ink); font-family: var(--font); font-size: 15px; line-height: 1.7; padding-bottom: calc(var(--dock-h) + 24px);
   background-color: var(--paper);
@@ -36,7 +38,11 @@ a { color: inherit; }
 .site { max-width: 1480px; margin: 0 auto; padding: 0 28px; }
 
 /* ---- 上の帯 ---- */
-.top { display: flex; align-items: center; justify-content: space-between; height: 64px; border-bottom: 1px solid var(--ln-weak); }
+/* 上の帯は画面上部に固定する（2026-10-19 本人指示）。地は左右の余白まで伸ばし、後ろを流れる中身を隠す */
+.top {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; height: var(--top-h);
+  border-bottom: 1px solid var(--ln-weak); background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax);
+}
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
 .brand-name { text-decoration: none; }
 /* 印：部品に打った点から引き出し線を伸ばした形 */
@@ -70,7 +76,7 @@ a { color: inherit; }
 /* 選んでいる部品の帯（図面の上に sticky で付いてくる） */
 .pick-bar {
   /* 高さは固定（部品を選ぶ前後で図面の位置が動かないように）。長い意味は1行で切る */
-  position: sticky; top: 12px; z-index: 8; display: flex; align-items: center; gap: 12px; height: 54px; overflow: hidden; white-space: nowrap;
+  position: sticky; top: var(--stick); z-index: 8; display: flex; align-items: center; gap: 12px; height: 54px; overflow: hidden; white-space: nowrap;
   margin-bottom: 4px; padding: 0 18px; border: 1.5px solid var(--ln-weak); border-radius: 4px; background: rgba(255, 255, 255, 0.96); font-size: 14px;
 }
 .pick-bar > span { opacity: 0.7; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -100,7 +106,7 @@ a { color: inherit; }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; margin-top: 12px; }
 .split-main { min-width: 0; }
 .side {
-  position: sticky; top: 12px; height: calc(100vh - var(--dock-h) - 24px); display: flex; flex-direction: column;
+  position: sticky; top: var(--stick); height: calc(100vh - var(--dock-h) - var(--top-h) - 24px); display: flex; flex-direction: column;
   border: 1.5px solid var(--bp); border-radius: 4px; background: #fff; overflow: hidden;
 }
 .side .drawer-head { padding-right: 8px; }
@@ -116,7 +122,7 @@ a { color: inherit; }
 @media (min-width: 1400px) {
   .split { grid-template-columns: 188px minmax(0, 1fr) 320px; gap: 20px; }
   .toc {
-    display: block; position: sticky; top: 12px; max-height: calc(100vh - var(--dock-h) - 24px); overflow: auto; overscroll-behavior: contain;
+    display: block; position: sticky; top: var(--stick); max-height: calc(100vh - var(--dock-h) - var(--top-h) - 24px); overflow: auto; overscroll-behavior: contain;
     padding: 4px 12px 16px 0; border-right: 1px solid var(--ln-weak);
   }
 }

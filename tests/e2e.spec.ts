@@ -396,7 +396,8 @@ test("広いPC幅：目次から図面に無い部品も開ける", async ({ pag
   await expect.poll(async () => {
     const r = (await page.locator('.sheet [data-part="footer"]').boundingBox())!;
     const vh = page.viewportSize()!.height - 72;
-    return r.y >= 0 && r.y + r.height <= vh;
+    // 上に固定した帯（64px）に隠れていないこと
+    return r.y >= 64 && r.y + r.height <= vh;
   }).toBe(true);
   // 図面で別の分類の部品を選ぶと、その分類だけが開く
   await page.locator(".callout", { hasText: "アラート" }).click();
@@ -486,4 +487,16 @@ test("AIへの渡し方は別ページにあり、3つの方法と一覧のリ�
   await page.goto("/");
   await expect(page.locator(".how")).toHaveCount(0);
   await expect(page.locator(".read-links a")).toHaveCount(2);
+});
+
+// 上の帯は画面上部に固定し、スクロールしても見えている（2026-10-19）
+test("上の帯はスクロールしても画面上部に残る", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => window.scrollTo(0, 1500));
+  await expect(page.getByRole("banner")).toBeInViewport();
+  const r = (await page.getByRole("banner").boundingBox())!;
+  expect(Math.round(r.y)).toBe(0);
+  // 右の説明の列は上の帯に重ならない
+  const side = (await page.locator(".side").boundingBox())!;
+  expect(side.y).toBeGreaterThanOrEqual(r.height);
 });

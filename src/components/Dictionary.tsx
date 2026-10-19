@@ -194,9 +194,13 @@ export default function Dictionary({ children, initialPart }: { children?: React
       const r = el!.classList.contains("focus") ? { top: r0.top, bottom: r0.top + 360, height: 360 } : r0;
       const dock = document.querySelector<HTMLElement>(".dock")?.offsetHeight ?? 0;
       const viewH = window.innerHeight - dock;
+      // 上に固定した帯（サイトの上の帯と、図面の上の部品の帯）に隠れる分を除いて測る
+      const bar = document.querySelector<HTMLElement>(".pick-bar");
+      const cover = (document.querySelector<HTMLElement>(".top")?.offsetHeight ?? 0) + (bar && bar.offsetHeight ? bar.offsetHeight + 16 : 0);
+      const viewTop = cover + 12;
       // すでに全体が見えていれば動かさない
-      if (r.top >= 12 && r.bottom <= viewH - 12) return;
-      const top = window.scrollY + r.top - Math.max(24, (viewH - r.height) / 2);
+      if (r.top >= viewTop && r.bottom <= viewH - 12) return;
+      const top = window.scrollY + r.top - viewTop - Math.max(12, (viewH - viewTop - r.height) / 2);
       const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       window.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" });
     });
