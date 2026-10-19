@@ -6,6 +6,11 @@
 - 配信の実体: GitHub Pages（リポジトリ mashihara/ui-parts-zukan）。main へ push すると `.github/workflows/pages.yml` が自動でビルドして公開し、mashiharalab（~/work/mashiharalab の `next.config.ts` の rewrites）が /ui-parts-zukan/ で中継する。github.io で直接開かれたら mashiharalab.dev の同じページへ移す（`src/app/layout.tsx`）
 - 残り: `web-seo-setup` スキルで Search Console に登録する
 
+## Zenn・note の記事
+
+- 下書き: `docs/articles/zenn.md`（エンジニア向け。AIに読ませる仕組みと作り方のメモ付き）、`docs/articles/note.md`（デザインを学んでいない人向け）
+- 画像は各エディタでアップロードし、本文の「画像：」の行を差し替える。Zenn は `published: false` のまま下書きで入れる
+
 ## X の記事（長文）の下書き
 
 ### タイトル
