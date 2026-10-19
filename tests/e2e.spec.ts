@@ -296,9 +296,13 @@ test("全部の部品の見本がエラーなく出る", async ({ page }) => {
 test("スマホ幅：部品は点線で囲むだけで、押すとそばに吹き出しで名前が出る @mobile", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".drawing.is-narrow")).toBeVisible();
-  await expect(page.locator(".map-hint")).toBeVisible();
-  // 名前の札は無く、押せる部品は点線で囲む
-  expect(await page.locator(".sheet [data-part=radio]").evaluate((e) => getComputedStyle(e, "::after").borderTopStyle)).toBe("dashed");
+  await expect(page.locator(".map-hint")).toHaveText("部品をタップすれば、名前がでます");
+  // 点線の枠は付けない（「不要」と言われた）
+  expect(await page.locator(".sheet [data-part=radio]").evaluate((e) => getComputedStyle(e, "::after").borderTopStyle)).not.toBe("dashed");
+  // 導入文の下に余計な空きを作らない（PC幅の高さそろえが残って空いていた）
+  const introGap = await page.evaluate(() => document.querySelector(".intro")!.getBoundingClientRect().bottom - document.querySelector(".intro p")!.getBoundingClientRect().bottom);
+  expect(introGap).toBeLessThanOrEqual(12);
+  const sheetTop = async () => (await page.locator(".sheet").boundingBox())!.y + (await page.evaluate(() => scrollY));
   // 名前を1つも入れていないときは下の帯を出さない
   await expect(page.locator(".dock")).toBeHidden();
   // 一覧の小さな見本も左右が切れない
@@ -326,6 +330,7 @@ test("スマホ幅：部品は点線で囲むだけで、押すとそばに吹�
     // 吹き出しは選んだ部品を隠さない（上か下に出る）
     expect(b.y + b.height <= r.y + 1 || b.y >= r.y + r.height - 1, `吹き出しが${id}に重なる`).toBe(true);
   };
+  const top0 = await sheetTop();
   for (const [id, name] of [["toggle", "トグルスイッチ"], ["header", "ヘッダー"], ["avatar", "アバター"], ["alert", "アラート"]] as const) {
     await page.locator(`.sheet [data-part=${id}]`).scrollIntoViewIfNeeded();
     const y = await page.evaluate(() => scrollY);
@@ -335,6 +340,9 @@ test("スマホ幅：部品は点線で囲むだけで、押すとそばに吹�
     await expect(page.locator(".map-bubble")).toBeInViewport();
     expect(await page.evaluate(() => scrollY)).toBe(y);
     await bubbleFits(id);
+    // 押しても見出しが切り替わらず、図面の位置が動かない
+    await expect(page.locator(".intro h1")).toContainText("なんて呼ぶ");
+    expect(await sheetTop()).toBe(top0);
     if (id === "toggle") await shot(page, "sp-bubble");
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);

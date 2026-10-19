@@ -62,6 +62,8 @@ a { color: inherit; }
 .intro p { max-width: 760px; }
 /* 部品を選んだときの見出し。トップの見出しと高さをそろえ、切り替えで図面の位置が動かないようにする */
 .intro { min-height: 214px; }
+/* スマホ幅は吹き出しの間は見出しを切り替えないので、高さをそろえない（導入文の下が空いて見えた） */
+@media (max-width: 760px) { .intro { min-height: 0; } }
 .intro.is-part { padding-top: 16px; }
 .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
 .crumbs a { color: var(--bp); }
@@ -222,15 +224,12 @@ span.spot { display: inline-flex; }
     linear-gradient(var(--amber), var(--amber)) right bottom / 16px 4px no-repeat, linear-gradient(var(--amber), var(--amber)) right bottom / 4px 16px no-repeat,
     var(--amber-fill);
 }
-/* 狭い幅：名前の札を部品に重ねると見本の文字が隠れたので、押せる部品を点線で囲むだけにする。
-   押した部品のそばに吹き出しで名前を出す（2026-10-19 A3案） */
+/* 狭い幅：名前の札を部品に重ねると見本の文字が隠れたので、名前は書き込まず、
+   押した部品のそばに吹き出しで名前を出す（2026-10-19 A3案。点線の枠は「不要」と言われ外した） */
 .map-hint { display: none; }
-.drawing.is-narrow .map-hint { display: flex; align-items: center; gap: 6px; position: absolute; top: 6px; left: 0; margin: 0; font-size: 13px; opacity: 0.85; }
-.drawing.is-narrow .map-hint::before { content: ""; width: 12px; height: 12px; border: 1.5px dashed var(--bp); border-radius: 3px; }
+.drawing.is-narrow .map-hint { display: block; position: absolute; top: 6px; left: 0; margin: 0; font-size: 13px; opacity: 0.85; }
 .drawing.is-narrow .sheet { overflow: visible; }
 .drawing.is-narrow .sheet .map { border-radius: 6px; overflow: clip; overflow-clip-margin: 14px; }
-.drawing.is-narrow .spot::after { border: 1.5px dashed rgba(26, 71, 184, 0.5); }
-.drawing.is-narrow .spot.is-sel::after { border: 0; }
 
 /* 吹き出し：選んだ部品の上（入らなければ下）に出し、三角で部品を指す */
 .map-bubble { position: absolute; z-index: 20; }

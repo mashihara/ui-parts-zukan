@@ -1,6 +1,6 @@
 "use client";
 // 図面：見本の画面の部品に、図面の引き出し線で名前を書き込む。
-// 広い幅では左右の余白に名前を並べて線でつなぐ。狭い幅では部品を点線で囲むだけにし（札を重ねると見本の文字が隠れた）、
+// 広い幅では左右の余白に名前を並べて線でつなぐ。狭い幅では名前を書き込まず（札を重ねると見本の文字が隠れた）、
 // 押した部品のそばに吹き出しで名前を出す。
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Icon from "./Icon";
@@ -139,7 +139,7 @@ export default function ScreenMap({ onPick, selected, bubble }: { onPick: (id: s
     <MapCtx.Provider value={{ hover, setHover, onPick: pick, selected }}>
       <div ref={wrap} className={`drawing ${lines.wide ? "is-wide" : "is-narrow"}`}>
         {/* 狭い幅の見方。名前は書き込まず、押した部品だけ吹き出しで名前を出す */}
-        <p className="map-hint">点線で囲んだ部品を押すと、名前が出ます</p>
+        <p className="map-hint">部品をタップすれば、名前がでます</p>
         {bubble && !lines.wide && (
           <div
             ref={tipRef}

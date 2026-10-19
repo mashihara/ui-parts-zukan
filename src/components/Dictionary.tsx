@@ -332,7 +332,8 @@ export default function Dictionary({ children, initialPart }: { children?: React
   return (
     <>
       {/* 見出し。部品を選んでいるときは、その部品の名前を h1 にする（部品のページでも同じ） */}
-      {part ? (
+      {/* スマホの吹き出しで見ている間は見出しを切り替えない（高さが変わって、押した部品が動いてしまう） */}
+      {part && !isBubble ? (
         <section className="intro is-part">
           <nav className="crumbs" aria-label="現在地">
             <a href={`${BASE_PATH}/`} onClick={(e) => { e.preventDefault(); setS((cur) => ({ ...cur, part: null })); }}>{SITE_NAME}</a>
