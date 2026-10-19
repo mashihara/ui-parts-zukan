@@ -229,6 +229,21 @@ export default function Dictionary({ children, initialPart }: { children?: React
       </button>
   );
 
+  // 部品のカード（一覧と、単体表示の「同じ分類のほかの部品」で共通）
+  const nameCard = (p: Part) => (
+    // 見本の中にボタン等があるので、カードを <button> にせず、透明なリンクをカード全体にかぶせる（ボタンの入れ子は不正なHTML）
+    <div className={`name-card ${s.part === p.id ? "is-on" : ""}`}>
+      <Thumb id={p.id} />
+      <span className="nc-text">
+        <span className="nc-ja">{p.ja}{s.picks.includes(p.id) && <i aria-label="AIに渡す名前に入れた">●</i>}</span>
+        <span className="nc-en">{shortEn(p)}</span>
+        <span className="nc-m">{p.meaning}</span>
+      </span>
+      {/* 検索エンジンが部品のページへたどれるよう、リンクにする（押したときはページを移らず説明を開く） */}
+      <a className="nc-open" href={`${BASE_PATH}${partPath(p.id)}`} onClick={(e) => { e.preventDefault(); open(p.id); }} aria-label={`${p.ja}の説明を開く`} />
+    </div>
+  );
+
   const stepper = (
     <>
       <button type="button" onClick={() => step(-1)} aria-label="前の部品"><Icon name="chevronLeft" size={18} /></button>
@@ -328,6 +343,15 @@ export default function Dictionary({ children, initialPart }: { children?: React
                 <PartPreview id={focus.id} o={focus.demo ?? {}} />
               </div>
             </div>
+            {/* 全体図と同じ高さを保つときに空く場所へ、同じ分類のほかの部品を並べる（続けて見比べられるように） */}
+            <section className="focus-more" aria-label={`${catLabel(focus.id)}のほかの部品`}>
+              <h3>{catLabel(focus.id)}のほかの部品</h3>
+              <ul>
+                {PARTS.filter((p) => p.cat === focus.cat && p.id !== focus.id).map((p) => (
+                  <li key={p.id}>{nameCard(p)}</li>
+                ))}
+              </ul>
+            </section>
           </div>
         ) : (
           <ScreenMap onPick={open} selected={s.part ?? ""} />
@@ -354,17 +378,7 @@ export default function Dictionary({ children, initialPart }: { children?: React
               <ul>
                 {items.map((p) => (
                   <li key={p.id}>
-                    {/* 見本の中にボタン等があるので、カードを <button> にせず、透明なボタンをカード全体にかぶせる（ボタンの入れ子は不正なHTML） */}
-                    <div className={`name-card ${s.part === p.id ? "is-on" : ""}`}>
-                      <Thumb id={p.id} />
-                      <span className="nc-text">
-                        <span className="nc-ja">{p.ja}{s.picks.includes(p.id) && <i aria-label="AIに渡す名前に入れた">●</i>}</span>
-                        <span className="nc-en">{shortEn(p)}</span>
-                        <span className="nc-m">{p.meaning}</span>
-                      </span>
-                      {/* 検索エンジンが部品のページへたどれるよう、リンクにする（押したときはページを移らず説明を開く） */}
-                      <a className="nc-open" href={`${BASE_PATH}${partPath(p.id)}`} onClick={(e) => { e.preventDefault(); open(p.id); }} aria-label={`${p.ja}の説明を開く`} />
-                    </div>
+                    {nameCard(p)}
                   </li>
                 ))}
               </ul>

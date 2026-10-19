@@ -89,6 +89,8 @@ a { color: inherit; }
 .focus-bar span { opacity: 0.75; }
 .focus-sheet { position: relative; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1.5px var(--bp), 8px 8px 0 rgba(26, 71, 184, 0.12); padding: 18px; }
 .focus-name { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: var(--bp); }
+.focus-more h3 { margin: 22px 0 10px; font-size: 15px; }
+.focus-more ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
 .focus-name small { margin-left: 10px; font: 500 12px var(--mono); }
 /* 枠は見本の大きさに合わせる（全体図と同じ高さに伸ばすと、見本が下へ沈んで見えなかった） */
 .focus-stage { min-height: 460px; border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 32px 20px; overflow: hidden; }

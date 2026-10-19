@@ -6,8 +6,8 @@ const shot = async (page: Page, name: string) => {
 };
 // 説明の見出し（PC幅は右の列、狭い幅は重ねて開く欄。見えている方）
 const entryName = (page: Page) => page.locator(".entry-title:visible");
-// 一覧のカード（名前で探す。見本の中の文字には反応させない）
-const card = (page: Page, name: string) => page.locator(".name-card").filter({ has: page.locator(".nc-ja", { hasText: new RegExp(`^${name}`) }) });
+// 一覧のカード（名前で探す。見本の中の文字や、単体表示の「ほかの部品」には反応させない）
+const card = (page: Page, name: string) => page.locator("#names .name-card").filter({ has: page.locator(".nc-ja", { hasText: new RegExp(`^${name}`) }) });
 // 説明（重ねて開く欄）を閉じる
 const closeEntry = async (page: Page) => {
   if (!(await page.locator(".drawer").count())) return; // PC幅は右の列なので閉じる物がない
@@ -405,6 +405,12 @@ test("全体図に無い部品は真ん中を単体表示にし、全体図へ�
   await expect(page.locator(".focus-name")).toHaveText(/^サイドバー/);
   // 見本は図面の枠の上の方に出て、画面の中に見えている（余白の見本が下へ沈んで見えなかった 2026-10-19）
   await expect(page.locator(".focus-stage > *").first()).toBeInViewport();
+  // 空いた場所には同じ分類のほかの部品が並び、押すとその部品に切り替わる（2026-10-19）
+  const more = page.getByRole("region", { name: "画面の骨組みのほかの部品" });
+  await expect(more.locator(".name-card").first()).toBeVisible();
+  await more.getByRole("link", { name: "ボトムナビの説明を開く" }).click();
+  await expect(page.locator(".focus-name")).toHaveText(/^ボトムナビ/);
+  await toc.getByRole("button", { name: "サイドバー", exact: true }).click();
   await expect(page.locator(".drawing")).toHaveCount(0);
   await page.getByRole("button", { name: "画面の全体図に戻る" }).click();
   await expect(page.locator(".drawing.is-wide")).toBeVisible();
