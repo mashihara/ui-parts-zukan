@@ -46,6 +46,9 @@ test.describe("図面", () => {
     await page.locator(".callout", { hasText: "トグルスイッチ" }).click();
     await expect(entryName(page)).toHaveText("トグルスイッチ");
     await expect(page).toHaveURL(/\/parts\/toggle\//);
+    // 図面の上の帯に名前と意味が出て、選んだ部品以外は暗くなる（2026-10-19）
+    await expect(page.locator(".pick-bar.is-on")).toContainText("トグルスイッチ");
+    expect(await page.locator(".sheet [data-part=toggle]").evaluate((el) => getComputedStyle(el, "::after").boxShadow)).toContain("4000px");
     // 選んだ部品の名前が h1 になる（SEO・2026-10-19）
     await expect(page.locator("h1")).toHaveText(/^トグルスイッチ/);
   });

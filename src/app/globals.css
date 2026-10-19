@@ -49,14 +49,31 @@ a { color: inherit; }
 .intro { max-width: none; }
 .intro p { max-width: 760px; }
 /* 部品を選んだときの見出し。トップの見出しと高さをそろえ、切り替えで図面の位置が動かないようにする */
-.intro { min-height: 176px; }
+.intro { min-height: 214px; }
 .intro.is-part { padding-top: 16px; }
 .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
 .crumbs a { color: var(--bp); }
 .crumbs span[aria-hidden] { opacity: 0.5; }
 .intro.is-part h1 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; }
 .intro.is-part h1 small { font: 500 15px var(--mono); color: var(--bp); }
-.intro.is-part p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.intro.is-part .intro-meaning { margin: 8px 0 0; max-width: none; font-size: 22px; font-weight: 700; line-height: 1.45; opacity: 1; }
+.intro.is-part .intro-meaning::first-line { background: var(--mark); }
+.intro.is-part .intro-when { margin: 8px 0 0; max-width: 820px; font-size: 15px; opacity: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.intro-when b { margin-right: 10px; font-size: 12.5px; color: var(--bp); }
+
+/* 選んでいる部品の帯（図面の上に sticky で付いてくる） */
+.pick-bar {
+  /* 高さは固定（部品を選ぶ前後で図面の位置が動かないように）。長い意味は1行で切る */
+  position: sticky; top: 12px; z-index: 8; display: flex; align-items: center; gap: 12px; height: 54px; overflow: hidden; white-space: nowrap;
+  margin-bottom: 4px; padding: 0 18px; border: 1.5px solid var(--ln-weak); border-radius: 4px; background: rgba(255, 255, 255, 0.96); font-size: 14px;
+}
+.pick-bar > span { opacity: 0.7; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pick-bar.is-on { border-color: var(--bp); box-shadow: 0 6px 18px rgba(14, 42, 120, 0.12); }
+.pick-bar.is-on b { font-size: 19px; color: var(--bp); }
+.pick-bar.is-on small { font: 500 12px var(--mono); color: var(--bp); }
+/* 狭い幅は選ぶと説明が下から開くので、帯は出さない */
+@media (max-width: 1099px) { .pick-bar { display: none; } }
+.pick-bar.is-on > span { opacity: 1; font-size: 16px; font-weight: 700; background: var(--mark); }
 
 /* 全体図に無い部品の単体表示 */
 .focus { padding: 16px 0 26px; display: flex; flex-direction: column; }
@@ -175,7 +192,8 @@ a { color: inherit; }
 span.spot { display: inline-flex; }
 .spot::after { content: ""; position: absolute; inset: -3px; border-radius: 8px; border: 2px solid transparent; pointer-events: none; z-index: 5; transition: border-color 0.12s; }
 .spot.is-hover::after { border: 2px dashed var(--bp); background: rgba(26, 71, 184, 0.05); }
-.spot.is-sel::after { border: 2px solid var(--bp); background: rgba(26, 71, 184, 0.06); }
+/* 選んだ部品は太い枠で囲み、それ以外を暗くする（全体図の中で何を指しているか分かるように） */
+.spot.is-sel::after { border: 3px solid var(--bp); background: transparent; box-shadow: 0 0 0 4000px rgba(14, 42, 120, 0.22); }
 .spot-tag {
   display: none; position: absolute; z-index: 6; top: -10px; left: 4px; padding: 0 7px; border-radius: 3px; white-space: nowrap; pointer-events: none;
   background: var(--bp-ink); color: #fff; font: 700 11px/1.7 var(--font); box-shadow: 0 0 0 1px #fff;

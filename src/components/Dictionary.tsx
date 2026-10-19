@@ -257,7 +257,9 @@ export default function Dictionary({ children, initialPart }: { children?: React
             <span aria-current="page">{part.ja}</span>
           </nav>
           <h1>{part.ja}<small>{shortEn(part)}</small></h1>
-          <p>{part.meaning}。{part.when}</p>
+          {/* 意味は大きく太く、使いどころはその下に。部品を選んだら最初に目に入るところに置く */}
+          <p className="intro-meaning">{part.meaning}</p>
+          <p className="intro-when"><b>使いどころ</b>{part.when}</p>
         </section>
       ) : (
         <section className="intro">
@@ -299,6 +301,18 @@ export default function Dictionary({ children, initialPart }: { children?: React
       </nav>
       <div className="split-main">
       <main className="board" aria-label="図面" ref={board}>
+        {/* 選んでいる部品の名前と意味。図面をスクロールしても上に付いてくる（上の見出しが見えなくても分かるように） */}
+        <div className={`pick-bar ${part ? "is-on" : ""}`} aria-live="polite">
+          {part ? (
+            <>
+              <b>{part.ja}</b>
+              <small>{shortEn(part)}</small>
+              <span>{part.meaning}</span>
+            </>
+          ) : (
+            <span>図面の名前か部品を押すと、ここに意味が出ます</span>
+          )}
+        </div>
         {focus ? (
           // 全体図に無い部品は、真ん中を単体の見本に切り替える。全体図へ戻る道は上に置く
           <div className="focus" style={{ minHeight: mapH || undefined }}>
