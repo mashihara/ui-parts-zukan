@@ -1,36 +1,24 @@
 import Dictionary from "@/components/Dictionary";
-import { CONFUSIONS, PARTS, PART_MAP, shortEn } from "@/lib/parts";
+import SiteHeader from "@/components/SiteHeader";
+import { CONFUSIONS, PARTS } from "@/lib/parts";
 import { BASE_PATH } from "@/lib/site";
 
 // トップと部品ごとのページで共通の中身。initialPart があれば、その部品を選んだ状態で書き出す
 export default function Home({ initialPart }: { initialPart?: string }) {
   return (
     <div className="site">
-      <header className="top">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true" />
-          <a className="brand-name" href={`${BASE_PATH}/`}>UI部品図鑑</a>
-        </div>
-        <nav className="top-links">
-          <a href="#names">部品の名前</a>
-          <a href="#confuse">見分け方</a>
-          <a href="#ai">AIへの渡し方</a>
-        </nav>
-      </header>
+      <SiteHeader />
 
       <Dictionary initialPart={initialPart}>
+        {/* 見分け方は別ページ（/confusions/）。ここには入口だけ置く */}
         <section className="info" id="confuse">
-          <h2>まぎらわしい名前の見分け方</h2>
-          <p className="info-lead">AIへの頼みごとで特に取り違えやすい名前です。名前を正しく書くだけで、出てくる画面がぐっと狙いに近づきます。</p>
-          <div className="confuse-grid">
-            {CONFUSIONS.map((c) => (
-              <article key={c.title} className="confuse">
-                <h3>{c.title}</h3>
-                <p>{c.rule}</p>
-                <p className="confuse-names">{c.parts.map((id) => `${PART_MAP[id].ja}（${shortEn(PART_MAP[id])}）`).join(" ／ ")}</p>
-              </article>
-            ))}
-          </div>
+          <a className="confuse-link" href={`${BASE_PATH}/confusions/`}>
+            <span>
+              <b>まぎらわしい名前の見分け方</b>
+              <small>モーダルとダイアログ、トーストとアラートなど、取り違えやすい名前{CONFUSIONS.length}組</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </a>
         </section>
 
         <section className="info" id="ai">

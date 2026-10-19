@@ -215,6 +215,7 @@ export default function Dictionary({ children, initialPart }: { children?: React
                     {c.parts.filter((id) => id !== p.id).map((id) => (
                       <button type="button" key={id} onClick={() => open(id)}>{PART_MAP[id].ja}を見る</button>
                     ))}
+                    <a className="entry-all" href={`${BASE_PATH}/confusions/`}>見分け方の一覧</a>
                   </div>
                 </div>
               ))}

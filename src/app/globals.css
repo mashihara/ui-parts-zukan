@@ -266,6 +266,7 @@ span.spot { display: inline-flex; }
 .entry-confuse p { margin: 4px 0 8px; font-size: 14px; }
 .entry-links { display: flex; flex-wrap: wrap; gap: 6px; }
 .entry-links button { border: 1px solid var(--ln-weak); background: transparent; border-radius: 3px; font-size: 12.5px; padding: 2px 10px; cursor: pointer; }
+.entry-all { align-self: center; margin-left: 4px; font-size: 12.5px; color: var(--bp); }
 .entry-links button:hover { border-color: var(--bp); }
 /* AIに渡す名前に入れるボタンは線だけにして、見本より目立たせない */
 .pick { margin: 0 0 16px; width: 100%; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--bp); border-radius: 3px; background: transparent; color: var(--bp); font-weight: 700; cursor: pointer; }
@@ -307,6 +308,26 @@ span.spot { display: inline-flex; }
 .info { padding-top: 64px; }
 .info h2 { border-bottom: 1.5px solid var(--bp); padding-bottom: 12px; }
 .info-lead { margin: 12px 0 18px; opacity: 0.9; max-width: 44em; }
+/* トップの見分け方への入口 */
+.confuse-link { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; border: 1.5px solid var(--bp); border-radius: 4px; background: #fff; text-decoration: none; }
+.confuse-link b { display: block; font-size: 20px; color: var(--bp); }
+.confuse-link small { font-size: 14px; opacity: 0.8; }
+.confuse-link > span[aria-hidden] { font-size: 24px; color: var(--bp); }
+.confuse-link:hover { background: var(--tint); }
+.top-links a[aria-current="page"] { opacity: 1; font-weight: 700; color: var(--bp); }
+/* 見分け方のページ */
+.confuse-intro { min-height: 0; padding-bottom: 8px; }
+.intro.is-part.confuse-intro .intro-when { display: block; overflow: visible; }
+.confuse-list { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.confuse-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 24px; align-items: start; padding: 20px 22px; border: 1px solid var(--ln-weak); border-radius: 4px; background: #fff; }
+.confuse-text h2 { margin: 0 0 8px; font-size: 19px; color: var(--bp); }
+.confuse-text p { margin: 0; font-size: 15px; }
+.confuse-parts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.confuse-parts .name-card { text-decoration: none; color: inherit; }
+@media (max-width: 900px) {
+  .confuse-row { grid-template-columns: 1fr; }
+  .confuse-parts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .confuse-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
 .confuse, .how article { border: 1px solid var(--ln-weak); border-radius: 3px; background: #fff; padding: 16px 18px; }
 .confuse h3, .how h3 { margin: 0 0 6px; font-size: 16px; }
@@ -358,7 +379,10 @@ span.spot { display: inline-flex; }
   .thumb-in { transform: translate(-50%, -50%) scale(0.38); }
   .nc-m { display: none; }
   .site { padding: 0 16px; }
-  .top-links a[href="#confuse"] { display: none; }
+  /* 見分け方は別ページになったので、スマホでも3つとも出す */
+  .top-links { gap: 12px; font-size: 12.5px; }
+  .brand { font-size: 16px; }
+  .intro.is-part .intro-meaning { font-size: 18px; }
   .map-cols { grid-template-columns: 1fr; }
   .spot.map-search { display: none; }
   .map-header [data-part="global-nav"] { display: none; }

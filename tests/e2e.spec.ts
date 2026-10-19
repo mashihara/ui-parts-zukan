@@ -392,8 +392,9 @@ test("部品のページは、その部品の名前が h1 で、説明が開い�
   await expect(page.locator("h1")).toHaveText("その部品、なんて呼ぶ？");
   await expect(page).not.toHaveURL(/\/parts\//);
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  // トップと、一覧にある全部品のページ
-  expect(sitemap.match(/<loc>/g)?.length).toBe(1 + (await page.locator(".name-card").count()));
+  // トップ・見分け方と、一覧にある全部品のページ
+  expect(sitemap.match(/<loc>/g)?.length).toBe(2 + (await page.locator("#names .name-card").count()));
+  expect(sitemap).toContain("/confusions/</loc>");
 });
 
 // 全体図に無い部品は、真ん中を単体の見本に切り替え、全体図へ戻れる（2026-10-19）
@@ -421,4 +422,16 @@ test("全体図に無い部品は真ん中を単体表示にし、全体図へ�
   await toc.getByRole("button", { name: /^重なって出る窓/ }).click();
   await toc.getByRole("button", { name: "モーダル", exact: true }).click();
   await expect(page.locator(".focus-name")).toHaveText(/^モーダル/);
+});
+
+// 見分け方は別ページ（2026-10-19）。上の帯とトップの入口から行け、部品のページへリンクしている
+test("見分け方は別ページにあり、部品のページへ進める", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "見分け方", exact: true }).click();
+  await expect(page).toHaveURL(/\/confusions\/$/);
+  await expect(page.locator("h1")).toHaveText("まぎらわしい名前の見分け方");
+  await expect(page.locator(".confuse-row").first()).toContainText("モーダルとダイアログ");
+  await page.locator(".confuse-row").first().getByRole("link", { name: /^ダイアログ/ }).click();
+  await expect(page).toHaveURL(/\/parts\/dialog\/$/);
+  await expect(page.locator("h1")).toHaveText(/^ダイアログ/);
 });
