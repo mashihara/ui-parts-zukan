@@ -2,10 +2,11 @@
 // 見本（src/components/previews.tsx）は demo の見せ方と、ここの数値表（BTN_SIZE など）で描く。
 // React に依存しない（scripts/build-api.ts からも読むため）。
 
-export type CatId = "layout" | "overlay" | "input" | "display" | "status";
+export type CatId = "layout" | "arrange" | "overlay" | "input" | "display" | "status";
 
 export const CATEGORIES: { id: CatId; label: string; desc: string }[] = [
   { id: "layout", label: "画面の骨組み", desc: "画面の上下左右にいつもある場所" },
+  { id: "arrange", label: "画面の組み方", desc: "部品の並べ方・画面の分け方のことば" },
   { id: "overlay", label: "重なって出る窓", desc: "画面の上に一時的に重なる物" },
   { id: "input", label: "押す・入れる・選ぶ", desc: "利用者が操作する部品" },
   { id: "display", label: "並べて見せる", desc: "情報をまとめて見せる入れ物" },
@@ -69,16 +70,68 @@ export const PARTS: Part[] = [
     demo: { sep: "chevron" },
   },
   {
-    id: "hero", cat: "layout", ja: "ヒーロー", en: "Hero section", aka: ["メインビジュアル", "ファーストビュー"],
+    id: "hero", cat: "layout", ja: "ヒーロー", en: "Hero section", aka: ["メインビジュアル", "キービジュアル"],
     meaning: "ページ最上部の大きな見せ場", when: "サイトのトップで、何のサービスかを大きな見出しと写真で一目で伝える。",
     ask: "トップページのヒーローに、大きな見出しと説明1行、「お店をさがす」ボタンを置いて。右には写真を。",
     demo: { align: "left" },
   },
   {
-    id: "bottom-nav", cat: "layout", ja: "ボトムナビ", en: "Bottom navigation (Tab bar)", aka: ["タブバー"],
+    id: "bottom-nav", cat: "layout", ja: "ボトムナビ", en: "Bottom navigation (Tab bar)", aka: ["タブバー", "ボトムナビゲーション"],
     meaning: "スマホの画面下に並ぶ切り替えボタン", when: "スマホアプリで、主な画面3〜5個を親指で切り替えられるようにする。",
     ask: "スマホでは画面下にボトムナビを置いて、ホーム・さがす・予約・マイページの4つをアイコンと文字で並べて。",
     demo: { labels: "always" },
+  },
+
+  // ===== 画面の組み方 =====
+  {
+    id: "column", cat: "arrange", ja: "カラム", en: "Column layout", aka: ["段組み", "2カラム", "3カラム"],
+    meaning: "画面を縦の列に分けた並べ方", when: "PCで本文の横に目次やメニューを置くなど、情報を横に並べたいとき。",
+    ask: "PCでは2カラムにして、左に本文、右に幅320pxの目次を置いて。スマホでは1カラムにして。",
+  },
+  {
+    id: "sticky", cat: "arrange", ja: "スティッキー", en: "Sticky (position: sticky)", aka: ["sticky", "追従"],
+    meaning: "スクロールしても途中で止まって付いてくる", when: "目次・表の見出し・右の列など、読み進めても見えていてほしい物に。",
+    ask: "右の列はstickyにして、スクロールしても画面の上から12pxの位置で付いてくるようにして。",
+  },
+  {
+    id: "fixed", cat: "arrange", ja: "固定表示", en: "Fixed (position: fixed)", aka: ["fixed", "固定"],
+    meaning: "画面の決まった位置にずっと貼り付く", when: "スマホの下の購入ボタンやチャットの入力欄など、いつでも押せてほしい物に。",
+    ask: "スマホでは「カートに入れる」ボタンを画面の下に固定表示して、スクロールしても常に見えるようにして。",
+  },
+  {
+    id: "grid", cat: "arrange", ja: "グリッド", en: "Grid layout", aka: ["格子", "タイル"],
+    meaning: "同じ大きさの枠を縦横にそろえて並べる", when: "商品・写真・カードの一覧を、きれいにそろえて並べたいとき。",
+    ask: "商品をグリッドで並べて。PCは4列、タブレットは3列、スマホは2列、間は16px。",
+  },
+  {
+    id: "responsive", cat: "arrange", ja: "レスポンシブ", en: "Responsive design", aka: ["レスポンシブデザイン", "スマホ対応"],
+    meaning: "画面幅に合わせて組み方を変える", when: "同じページをPCでもスマホでも見やすくしたいとき（今はほぼ必須）。",
+    ask: "レスポンシブにして。PCでは横に3列、スマホでは縦に1列に並べ替えて。",
+  },
+  {
+    id: "breakpoint", cat: "arrange", ja: "ブレークポイント", en: "Breakpoint", aka: ["切り替えの幅"],
+    meaning: "組み方を切り替える画面幅の境目", when: "「何px以上なら2カラム」のように、切り替える幅を決めて伝えるとき。",
+    ask: "ブレークポイントは768pxと1024pxにして。768px未満は1列、768〜1023pxは2列、1024px以上は3列に。",
+  },
+  {
+    id: "spacing", cat: "arrange", ja: "余白（パディング・マージン）", en: "Padding / Margin", aka: ["パディング", "マージン", "ホワイトスペース"],
+    meaning: "枠の内側と外側のすき間", when: "窮屈・スカスカを直すとき。内側（パディング）か外側（マージン）かを言い分けると伝わる。",
+    ask: "カードの内側の余白（パディング）を24pxにして、カード同士の外側の余白（マージン）は16pxにして。",
+  },
+  {
+    id: "overlay", cat: "arrange", ja: "オーバーレイ", en: "Overlay (Scrim / Backdrop)", aka: ["スクリム", "バックドロップ", "幕"],
+    meaning: "画面の上にかぶせる半透明の幕", when: "モーダルやドロワーの後ろを暗くして、手前に注目させるとき。",
+    ask: "メニューを開いたら、後ろに黒の半透明（50%）のオーバーレイをかぶせて、それを押したら閉じるようにして。",
+  },
+  {
+    id: "scroll", cat: "arrange", ja: "横スクロール", en: "Horizontal scroll", aka: ["スクロール", "スワイプ"],
+    meaning: "はみ出した分を横に動かして見る", when: "カテゴリやおすすめなど、数が多い物を1列に並べて指で送って見せるとき。",
+    ask: "おすすめのお店を横スクロールで並べて。次のカードが少し見えるようにして、スクロールバーは隠して。",
+  },
+  {
+    id: "first-view", cat: "arrange", ja: "ファーストビュー", en: "First view (Above the fold)", aka: ["FV", "アバブ・ザ・フォールド"],
+    meaning: "開いて最初に見える範囲", when: "何のサイトか・何をすればよいかを、スクロールせずに伝えたいとき。",
+    ask: "スマホのファーストビューに、見出し・説明1行・申し込みボタンまでが収まるようにして。",
   },
 
   // ===== 重なって出る窓 =====
@@ -95,7 +148,7 @@ export const PARTS: Part[] = [
     demo: { buttons: "right", tone: "danger" },
   },
   {
-    id: "drawer", cat: "overlay", ja: "ドロワー", en: "Drawer (Side sheet)", aka: ["オフキャンバスメニュー", "サイドシート"],
+    id: "drawer", cat: "overlay", ja: "ドロワー", en: "Drawer (Side sheet)", aka: ["オフキャンバスメニュー", "サイドシート", "ナビゲーションドロワー"],
     meaning: "画面の横から引き出される縦長の窓", when: "スマホのメニューや絞り込み条件など、縦に長い中身を一時的に出す。",
     ask: "スマホではメニューボタンを押すと左からドロワーが出るようにして。背景を押すと閉じるように。",
     demo: { side: "left", width: "narrow" },
@@ -125,7 +178,7 @@ export const PARTS: Part[] = [
     demo: { pos: "bottom", style: "dark", sec: "4" },
   },
   {
-    id: "dropdown-menu", cat: "overlay", ja: "ドロップダウンメニュー", en: "Dropdown menu (Menu)", aka: ["プルダウンメニュー", "コンテキストメニュー"],
+    id: "dropdown-menu", cat: "overlay", ja: "ドロップダウンメニュー", en: "Dropdown menu (Menu)", aka: ["プルダウンメニュー", "コンテキストメニュー", "メニュー"],
     meaning: "押すと下に操作の一覧が開く", when: "「編集・複製・削除」のように、1つの対象に対する操作をまとめる。",
     ask: "一覧の各行の右に「…」ボタンを置いて、押したらドロップダウンメニューで編集・複製・削除を出して。",
     demo: { icons: "on" },
@@ -193,13 +246,13 @@ export const PARTS: Part[] = [
     demo: { size: "md", on: "accent" },
   },
   {
-    id: "slider", cat: "input", ja: "スライダー", en: "Slider (Range input)", aka: ["シークバー"],
+    id: "slider", cat: "input", ja: "スライダー", en: "Slider (Range input)", aka: ["シークバー", "レンジスライダー（範囲スライダー）"],
     meaning: "つまみを横に動かして値を決める", when: "音量・明るさ・価格の範囲など、だいたいの値を選ばせるとき。",
     ask: "予算はスライダーで選ばせて、右に今の金額を出して。",
     demo: { value: "side" },
   },
   {
-    id: "segmented", cat: "input", ja: "セグメントコントロール", en: "Segmented control", aka: ["セグメントボタン"],
+    id: "segmented", cat: "input", ja: "セグメントコントロール", en: "Segmented control", aka: ["セグメントボタン", "ボタングループ"],
     meaning: "くっついたボタンで表示を切り替える", when: "「日・週・月」のように、同じ物の見せ方を2〜4個から切り替える。",
     ask: "グラフの上に「日・週・月」のセグメントコントロールを置いて、押したらグラフの期間を切り替えて。",
   },
@@ -218,7 +271,7 @@ export const PARTS: Part[] = [
     demo: { divider: "line", density: "comfort" },
   },
   {
-    id: "table", cat: "display", ja: "テーブル", en: "Table (Data table)", aka: ["表"],
+    id: "table", cat: "display", ja: "テーブル", en: "Table (Data table)", aka: ["表", "データテーブル"],
     meaning: "行と列で数字や項目を見比べる表", when: "注文履歴・会員一覧など、項目をそろえて見比べたいとき。",
     ask: "注文履歴をテーブルにして、日付・お店・人数・金額の列を作って。金額は右寄せに。",
     demo: { stripe: "off", lines: "row" },
@@ -230,7 +283,7 @@ export const PARTS: Part[] = [
     demo: { style: "underline" },
   },
   {
-    id: "accordion", cat: "display", ja: "アコーディオン", en: "Accordion", aka: ["折りたたみ", "エクスパンダー"],
+    id: "accordion", cat: "display", ja: "アコーディオン", en: "Accordion", aka: ["折りたたみ", "エクスパンダー", "エクスパンションパネル"],
     meaning: "見出しを押すと中身が開いたり閉じたりする", when: "よくある質問など、全部を一度に見せると長すぎるとき。",
     ask: "よくある質問をアコーディオンにして、質問を押したら答えが開くように。開いたら矢印を上向きに。",
     demo: { icon: "chevron", multi: "one" },
@@ -272,18 +325,18 @@ export const PARTS: Part[] = [
     demo: { style: "soft", removable: "off" },
   },
   {
-    id: "progress", cat: "status", ja: "プログレスバー", en: "Progress bar", aka: ["進捗バー"],
+    id: "progress", cat: "status", ja: "プログレスバー", en: "Progress bar", aka: ["進捗バー", "線形プログレス"],
     meaning: "どこまで進んだかを横の棒で示す", when: "アップロードや手続きの残りなど、進み具合が分かる待ち時間に。",
     ask: "写真のアップロード中はプログレスバーを出して、右に何％まで進んだかを出して。",
     demo: { thick: "8", label: "on" },
   },
   {
-    id: "spinner", cat: "status", ja: "スピナー", en: "Spinner (Loading indicator)", aka: ["ローディング", "くるくる"],
+    id: "spinner", cat: "status", ja: "スピナー", en: "Spinner (Loading indicator)", aka: ["ローディング", "くるくる", "円形プログレス"],
     meaning: "くるくる回って待ちを示す", when: "どのくらいかかるか分からない、数秒の待ち時間に。",
     ask: "送信中はボタンの文字の代わりにスピナーを出して、二度押しできないようにして。",
   },
   {
-    id: "skeleton", cat: "status", ja: "スケルトン", en: "Skeleton (Skeleton screen)", aka: ["スケルトンスクリーン"],
+    id: "skeleton", cat: "status", ja: "スケルトン", en: "Skeleton (Skeleton screen)", aka: ["スケルトンスクリーン", "スケルトンローダー"],
     meaning: "読み込み中に中身と同じ形の灰色の枠を出す", when: "一覧やカードを読み込む間、どこに何が出るかを先に見せる。",
     ask: "お店の一覧を読み込んでいる間は、カードと同じ形のスケルトンを出して。",
     demo: { anim: "shimmer" },
@@ -315,5 +368,11 @@ export const CONFUSIONS: { title: string; parts: string[]; rule: string }[] = [
   { title: "タブとセグメントコントロール", parts: ["tabs", "segmented"], rule: "タブは中身そのものを入れ替える。セグメントコントロールは同じ中身の見せ方（日・週・月など）を切り替える。" },
   { title: "ヘッダーとグローバルナビ", parts: ["header", "global-nav"], rule: "ヘッダーは画面上の帯という「場所」。グローバルナビはその中に並ぶ主要ページへの「リンクの並び」。" },
   { title: "バッジとチップ", parts: ["badge", "chip"], rule: "バッジは別の物の角に重ねる件数や点。チップは単独で並ぶ札で、押したり消したりできる。" },
+  { title: "スティッキーと固定表示", parts: ["sticky", "fixed"], rule: "固定表示は、最初から最後まで画面の同じ位置に貼り付く。スティッキーは、決めた位置に来るまでは普通に流れ、そこで止まって付いてくる（入っている枠の終わりまで来ると一緒に流れる）。" },
+  { title: "パディングとマージン", parts: ["spacing"], rule: "パディングは枠の内側（枠線と中身の間）の余白。マージンは枠の外側（隣の物との間）の余白。背景色が付くのはパディングまで。" },
+  { title: "カラムとグリッド", parts: ["column", "grid"], rule: "カラムは画面を大きく縦の列に分ける（本文と目次など、中身の種類が違う）。グリッドは同じ大きさの枠を縦横にそろえて並べる（商品一覧など、同じ種類の物）。" },
+  { title: "レスポンシブとブレークポイント", parts: ["responsive", "breakpoint"], rule: "レスポンシブは「画面幅に合わせて組み方を変える」という考え方。ブレークポイントは「何pxで変えるか」という境目の数値。" },
+  { title: "オーバーレイとモーダル", parts: ["overlay", "modal"], rule: "オーバーレイは後ろにかぶせる半透明の幕。モーダルはその幕の上に出る窓。「モーダルの後ろを暗く」はオーバーレイのこと。" },
+  { title: "ヒーローとファーストビュー", parts: ["hero", "first-view"], rule: "ヒーローはページ最上部の大きな見せ場という「部品（区画）」。ファーストビューは開いて最初に見える「範囲」。ヒーローはたいていファーストビューの中に置く。" },
   { title: "スピナー・スケルトン・プログレスバー", parts: ["spinner", "skeleton", "progress"], rule: "終わりが読めない短い待ちはスピナー、一覧の読み込みはスケルトン、進み具合が分かるならプログレスバー。" },
 ];

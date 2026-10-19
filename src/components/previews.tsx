@@ -1,7 +1,7 @@
 "use client";
 // 部品の見本。色・角・余白などは親の .kit に流したCSS変数（--k-*）で決まる。
 // 寸法の数値は src/lib/parts.ts の数値表と同じ物を使い、指示文と見本を一致させる。
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Icon from "./Icon";
 import { AVATAR, BACKDROP, BTN_SIZE, HEADER_H, MODAL_W, TOAST_SEC } from "@/lib/parts";
 
@@ -511,6 +511,165 @@ function SliderDemo({ o }: { o: O }) {
   );
 }
 
+
+// ===== 画面の組み方（模式図） =====
+const Lines = ({ n = 3 }: { n?: number }) => (
+  <>
+    {Array.from({ length: n }).map((_, i) => (
+      <i key={i} className="sc-line" style={{ width: `${90 - i * 18}%` }} />
+    ))}
+  </>
+);
+
+function Columns() {
+  return (
+    <div className="sc-row">
+      {[1, 2, 3].map((n) => (
+        <figure key={n} className="sc-fig">
+          <div className="sc-page">
+            {Array.from({ length: n }).map((_, i) => (
+              <div key={i} className={`sc-col ${n === 2 && i === 1 ? "is-side" : ""}`}><Lines /></div>
+            ))}
+          </div>
+          <figcaption>{n}カラム</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+// 中をスクロールできる枠。最初は少し下げて、止まって付いてくる様子が見えるようにする
+function Scroller({ children, start = 0, className = "" }: { children: ReactNode; start?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.scrollTop = start;
+  }, [start]);
+  return <div ref={ref} className={`sc-scroll ${className}`} tabIndex={0} aria-label="中をスクロールできる見本">{children}</div>;
+}
+
+function Sticky() {
+  return (
+    <div className="sc-wrap">
+      <Scroller start={70}>
+        <div className="sc-block"><b>お店の紹介</b><Lines /></div>
+        <div className="sc-sticky">スティッキー：ここまで来たら止まって付いてくる</div>
+        {Array.from({ length: 7 }).map((_, i) => <div key={i} className="sc-block"><Lines n={2} /></div>)}
+      </Scroller>
+      <p className="sc-hint">枠の中をスクロールしてみてください</p>
+    </div>
+  );
+}
+
+function Fixed() {
+  return (
+    <div className="sc-wrap">
+      <div className="sc-phone">
+        <Scroller>
+          {Array.from({ length: 8 }).map((_, i) => <div key={i} className="sc-block"><Lines n={2} /></div>)}
+        </Scroller>
+        <div className="sc-fixed">固定表示：いつも画面の下にある<span>カートに入れる</span></div>
+      </div>
+      <p className="sc-hint">中をスクロールしても、下の帯は動きません</p>
+    </div>
+  );
+}
+
+function Grid() {
+  return (
+    <div className="sc-grid">
+      {Array.from({ length: 8 }).map((_, i) => <div key={i} className="sc-tile"><span /><Lines n={2} /></div>)}
+    </div>
+  );
+}
+
+function Responsive() {
+  return (
+    <div className="sc-row bottom">
+      <figure className="sc-fig">
+        <div className="sc-page wide">
+          {[0, 1, 2].map((i) => <div key={i} className="sc-tile"><span /><Lines n={1} /></div>)}
+        </div>
+        <figcaption>PC：横に3列</figcaption>
+      </figure>
+      <span className="sc-arrow" aria-hidden="true">→</span>
+      <figure className="sc-fig">
+        <div className="sc-page narrow">
+          {[0, 1, 2].map((i) => <div key={i} className="sc-tile"><span /><Lines n={1} /></div>)}
+        </div>
+        <figcaption>スマホ：縦に1列</figcaption>
+      </figure>
+    </div>
+  );
+}
+
+function Breakpoint() {
+  const [w, setW] = useState(900);
+  const cols = w < 768 ? 1 : w < 1024 ? 2 : 3;
+  return (
+    <div className="sc-wrap bp">
+      <div className="sc-bp-stage">
+        <div className="sc-page" style={{ width: Math.round(w * 0.28), display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="sc-tile"><span /></div>)}
+        </div>
+      </div>
+      <div className="sc-ruler" aria-hidden="true">
+        <span style={{ left: `${((768 - 320) / 960) * 100}%` }}>768px</span>
+        <span style={{ left: `${((1024 - 320) / 960) * 100}%` }}>1024px</span>
+      </div>
+      <input type="range" min={320} max={1280} step={4} value={w} onChange={(e) => setW(Number(e.target.value))} aria-label="画面の幅" />
+      <p className="sc-hint">画面の幅 <b>{w}px</b> → <b>{cols}列</b>（つまみを動かすと、768pxと1024pxで切り替わります）</p>
+    </div>
+  );
+}
+
+function Spacing() {
+  return (
+    <div className="sc-box-margin">
+      <span className="sc-tag m">マージン（外側の余白）</span>
+      <div className="sc-box-border">
+        <span className="sc-tag p">パディング（内側の余白）</span>
+        <div className="sc-box-content">中身</div>
+      </div>
+    </div>
+  );
+}
+
+function Overlay() {
+  return (
+    <div className="k-frame" style={{ height: 230 }}>
+      <div className="k-frame-bg" aria-hidden="true"><div className="k-ghost w60" /><div className="k-ghost w90" /><div className="k-ghost w80" /><div className="k-ghost-card" /><div className="k-ghost w70" /></div>
+      <div className="sc-overlay"><span>オーバーレイ（半透明の幕）</span><small>後ろの画面は暗くなり、押せなくなる</small></div>
+    </div>
+  );
+}
+
+function HScroll() {
+  return (
+    <div className="sc-wrap">
+      <div className="sc-hscroll" tabIndex={0} aria-label="横にスクロールできる見本">
+        {["駅前店", "川沿い店", "本店", "公園前店", "大学通り店", "港店"].map((t) => (
+          <div key={t} className="sc-hcard"><span /><b>森のコーヒー</b><small>{t}</small></div>
+        ))}
+      </div>
+      <p className="sc-hint">横にスクロールしてみてください（次のカードが少し見えています）</p>
+    </div>
+  );
+}
+
+function FirstView() {
+  return (
+    <div className="sc-fv">
+      <div className="sc-fv-page">
+        <div className="sc-fv-in">
+          <b>見出し</b><Lines n={2} /><span className="sc-fv-btn">申し込む</span>
+        </div>
+        <div className="sc-fv-line"><span>ここまでがファーストビュー</span></div>
+        <div className="sc-fv-out"><Lines /><Lines n={2} /><small>スクロールしないと見えない</small></div>
+      </div>
+    </div>
+  );
+}
+
 export function PartPreview({ id, o }: { id: string; o: O }) {
   switch (id) {
     case "header": return <Header o={o} />;
@@ -540,6 +699,16 @@ export function PartPreview({ id, o }: { id: string; o: O }) {
         </section>
       );
     case "bottom-nav": return <BottomNav o={o} />;
+    case "column": return <Columns />;
+    case "sticky": return <Sticky />;
+    case "fixed": return <Fixed />;
+    case "grid": return <Grid />;
+    case "responsive": return <Responsive />;
+    case "breakpoint": return <Breakpoint />;
+    case "spacing": return <Spacing />;
+    case "overlay": return <Overlay />;
+    case "scroll": return <HScroll />;
+    case "first-view": return <FirstView />;
     case "modal": return <Modal o={o} />;
     case "dialog": return <Dialog o={o} />;
     case "drawer": return <Drawer o={o} />;

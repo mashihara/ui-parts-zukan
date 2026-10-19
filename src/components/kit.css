@@ -479,3 +479,61 @@
 .k-opt.is-on svg { color: var(--k-accent); }
 .k-menu button.is-danger { color: var(--k-danger); }
 .k-menu button.is-danger.is-hover { background: transparent; }
+
+/* ===== 画面の組み方（模式図） ===== */
+.sc-row { display: flex; gap: 8px; align-items: flex-end; justify-content: center; flex-wrap: wrap; }
+.sc-row.bottom { align-items: center; }
+.sc-fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sc-fig figcaption { white-space: nowrap; font-size: 12px; color: var(--k-muted); font-weight: 700; }
+.sc-page { width: 72px; height: 100px; display: flex; gap: 5px; padding: 6px; background: var(--k-surface); border: 1px solid var(--k-line); border-radius: 6px; }
+.sc-col { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 7px 6px; background: var(--k-accent-soft); border-radius: 4px; }
+.sc-col.is-side { flex: 0 0 34%; }
+.sc-line { display: block; height: 6px; border-radius: 3px; background: var(--k-grey2); }
+.sc-wrap { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 8px; }
+.sc-hint { margin: 0; font-size: 12px; color: var(--k-muted); text-align: center; }
+.sc-hint b { color: var(--k-accent); }
+.sc-scroll { height: 210px; overflow: auto; background: var(--k-surface); border: 1px solid var(--k-line); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; overscroll-behavior: contain; }
+.sc-block { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 6px; background: var(--k-bg); font-size: 13px; }
+.sc-sticky { flex: none; position: sticky; top: -10px; z-index: 1; padding: 9px 12px; border-radius: 6px; background: var(--k-accent); color: var(--k-on-accent); font-size: 12.5px; font-weight: 700; box-shadow: 0 4px 10px rgba(16, 24, 40, 0.15); }
+.sc-phone { position: relative; width: 210px; margin: 0 auto; border-radius: 18px; border: 1px solid var(--k-line); overflow: hidden; background: var(--k-surface); }
+.sc-phone .sc-scroll { height: 240px; border: 0; border-radius: 0; padding-bottom: 70px; }
+.sc-fixed { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 10px 10px; background: var(--k-surface); border-top: 1px solid var(--k-line); font-size: 11px; color: var(--k-muted); display: flex; flex-direction: column; gap: 6px; }
+.sc-fixed span { display: grid; place-items: center; height: 32px; border-radius: 8px; background: var(--k-accent); color: var(--k-on-accent); font-weight: 700; font-size: 13px; }
+.sc-grid { width: 100%; max-width: 380px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.sc-tile { display: flex; flex-direction: column; gap: 5px; padding: 6px; border-radius: 6px; background: var(--k-surface); border: 1px solid var(--k-line); }
+.sc-tile > span { display: block; aspect-ratio: 4 / 3; border-radius: 4px; background: var(--k-accent-soft); }
+.sc-page.wide { width: 150px; height: auto; display: grid; grid-template-columns: repeat(3, 1fr); align-content: start; }
+.sc-page.narrow { width: 64px; height: auto; flex-direction: column; }
+.sc-arrow { font-size: 18px; color: var(--k-muted); }
+.sc-row.bottom { flex-wrap: nowrap; }
+.sc-bp-stage { height: 150px; display: flex; align-items: flex-start; justify-content: center; overflow: hidden; }
+.sc-bp-stage .sc-page { height: auto; align-content: start; transition: width 0.1s linear; }
+/* ブレークポイントの見本は枠を低くして、6つの枠が全部見えるようにする */
+.sc-bp-stage .sc-tile > span { aspect-ratio: auto; height: 22px; }
+.sc-ruler { position: relative; height: 18px; margin: 0 9px; border-bottom: 1px solid var(--k-line); }
+.sc-ruler span { position: absolute; bottom: 2px; transform: translateX(-50%); font-size: 10.5px; color: var(--k-muted); white-space: nowrap; }
+.sc-ruler span::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 1px; height: 8px; background: var(--k-muted); }
+.bp input[type="range"] { width: 100%; accent-color: var(--k-accent); }
+.sc-box-margin { position: relative; padding: 30px 26px; border-radius: 10px; background: repeating-linear-gradient(45deg, #fde7cf 0 6px, #fbd9b4 6px 12px); }
+.sc-box-border { position: relative; padding: 34px 28px 22px; border: 2px solid var(--k-text); border-radius: 8px; background: #d8f2df; }
+.sc-box-content { padding: 16px 40px; border-radius: 4px; background: var(--k-surface); border: 1px dashed var(--k-muted); font-weight: 700; text-align: center; }
+.sc-tag { position: absolute; left: 10px; top: 6px; font-size: 11.5px; font-weight: 700; }
+.sc-tag.m { color: #9a4a00; }
+.sc-tag.p { color: #136b33; top: 8px; }
+.sc-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(0, 0, 0, 0.5); color: #fff; }
+.sc-overlay span { font-weight: 700; font-size: 15px; }
+.sc-overlay small { font-size: 12px; opacity: 0.85; }
+.sc-hscroll { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 8px; scrollbar-width: none; }
+.sc-hscroll::-webkit-scrollbar { display: none; }
+.sc-hcard { flex: 0 0 132px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 4px; padding: 8px; border-radius: 8px; background: var(--k-surface); border: 1px solid var(--k-line); font-size: 12px; }
+.sc-hcard > span { display: block; aspect-ratio: 4 / 3; border-radius: 6px; background: var(--k-accent-soft); }
+.sc-hcard small { color: var(--k-muted); }
+.sc-fv { display: flex; justify-content: center; }
+.sc-fv-page { width: 190px; border-radius: 14px; border: 1px solid var(--k-line); background: var(--k-surface); overflow: hidden; }
+.sc-fv-in { height: 150px; padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; background: var(--k-accent-soft); }
+.sc-fv-in b { font-size: 14px; }
+.sc-fv-btn { margin-top: auto; display: grid; place-items: center; height: 30px; border-radius: 8px; background: var(--k-accent); color: var(--k-on-accent); font-size: 12px; font-weight: 700; }
+.sc-fv-line { position: relative; border-top: 2px dashed var(--k-accent); }
+.sc-fv-line span { position: absolute; right: 6px; top: -10px; padding: 0 6px; font-size: 10.5px; font-weight: 700; color: var(--k-accent); background: var(--k-surface); }
+.sc-fv-out { padding: 14px 12px; display: flex; flex-direction: column; gap: 7px; opacity: 0.45; }
+.sc-fv-out small { font-size: 11px; color: var(--k-muted); text-align: center; }

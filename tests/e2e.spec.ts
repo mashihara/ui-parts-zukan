@@ -226,6 +226,21 @@ test("共有リンクを開くと同じ選択になる", async ({ page }) => {
   await expect(page.locator(".dock-chip")).toHaveCount(2);
 });
 
+test("画面の組み方の見本が、右の列の幅に1行で収まる", async ({ page }) => {
+  for (const w of [1100, 1440]) {
+    await page.setViewportSize({ width: w, height: 1000 });
+    for (const id of ["column", "responsive"]) {
+      await page.goto(`/?part=${id}`);
+      // 子どもの上端ではなく、全部が同じ縦の範囲に重なっているか（折り返すと重ならない）で1行かを判定
+      const oneRow = await page.locator(".side .entry-preview .sc-row").evaluate((el) => {
+        const rs = [...el.children].map((c) => c.getBoundingClientRect());
+        return rs.every((r) => rs.every((q) => r.top < q.bottom && q.top < r.bottom));
+      });
+      expect(oneRow, `${w}px の ${id} が折り返す`).toBe(true);
+    }
+  }
+});
+
 test("ことばで探せる", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("部品を探す").fill("窓");
@@ -249,7 +264,7 @@ test("全部の部品の見本がエラーなく出る", async ({ page }) => {
   await page.goto("/");
   const cards = page.locator(".name-card");
   const n = await cards.count();
-  expect(n).toBe(43);
+  expect(n).toBe(53);
   // 一覧の小さな見本も全部描かれている
   const empty = await page.locator(".thumb-in").evaluateAll((els) => els.filter((e) => ((e.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0) < 10).length);
   expect(empty, "小さな見本が空のカード").toBe(0);
