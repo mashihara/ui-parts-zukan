@@ -4,8 +4,8 @@ const SHOT = process.env.SHOT_DIR;
 const shot = async (page: Page, name: string) => {
   if (SHOT) await page.screenshot({ path: `${SHOT}/${name}.png` });
 };
-// 説明の見出し（PC幅は右の列、狭い幅は重ねて開く欄。見えている方）
-const entryName = (page: Page) => page.locator(".entry-title:visible");
+// 選んだ部品の名前（見出しの h1。部品名はここ1か所に出す）
+const entryName = (page: Page) => page.locator(".intro-name");
 // 一覧のカード（名前で探す。見本の中の文字や、単体表示の「ほかの部品」には反応させない）
 const card = (page: Page, name: string) => page.locator("#names .name-card").filter({ has: page.locator(".nc-ja", { hasText: new RegExp(`^${name}`) }) });
 // 説明（重ねて開く欄）を閉じる
@@ -47,7 +47,9 @@ test.describe("図面", () => {
     await expect(entryName(page)).toHaveText("トグルスイッチ");
     await expect(page).toHaveURL(/\/parts\/toggle\//);
     // 図面の上の帯に名前と意味が出て、選んだ部品は山吹の角の印で押さえる（2026-10-19）
-    await expect(page.locator(".pick-bar.is-on")).toContainText("トグルスイッチ");
+    // 部品名は図面の上の見出しの1か所だけで、右の欄には出さない（2026-10-19 A案）
+    await expect(page.locator(".split-main > .intro.is-part")).toContainText("トグルスイッチ");
+    await expect(page.locator(".side .entry-title")).toBeHidden();
     const mark = await page.locator(".sheet [data-part=toggle]").evaluate((el) => getComputedStyle(el, "::after"));
     expect(mark.mixBlendMode).toBe("multiply");
     expect(mark.backgroundImage).toContain("linear-gradient");
@@ -448,7 +450,7 @@ test("1280px：目次は出さず、図面に引き出し線を書く", async ({
 // 部品ごとのページ（SEO・2026-10-19）。h1・題・説明が書き出したHTMLに入っている
 test("部品のページは、その部品の名前が h1 で、説明が開いた状態で書き出されている", async ({ page, request }) => {
   const html = await (await request.get("/parts/breadcrumb/")).text();
-  expect(html).toContain("<h1>パンくずリスト");
+  expect(html).toMatch(/<h1><span class="intro-name">パンくずリスト<\/span>/);
   expect(html).toContain("<title>パンくずリスト（Breadcrumbs）とは？");
   expect(html).toMatch(/<link rel="canonical" href="[^"]*\/parts\/breadcrumb\/"/);
   expect(html).toContain('"@type":"DefinedTerm"');
@@ -530,4 +532,21 @@ test("上の帯はスクロールしても画面上部に残る", async ({ page 
   // 右の説明の列は上の帯に重ならない
   const side = (await page.locator(".side").boundingBox())!;
   expect(side.y).toBeGreaterThanOrEqual(r.height);
+});
+
+// PC幅：部品名は図面の上の見出し1か所。選ぶ前後で図面の位置が動かず、スクロールしても見出しが付いてくる（2026-10-19 A案）
+test("PC幅：見出しは図面の上に1か所で、選んでも図面が動かず、スクロールしても付いてくる", async ({ page }) => {
+  await page.goto("/");
+  const boardTop = () => page.evaluate(() => Math.round(document.querySelector(".board")!.getBoundingClientRect().top + scrollY));
+  const before = await boardTop();
+  await page.locator(".callout", { hasText: "ラジオボタン" }).click();
+  await expect(entryName(page)).toHaveText("ラジオボタン");
+  expect(await boardTop()).toBe(before);
+  // 目次は上の帯のすぐ下から始まる（見出しより上にある）
+  const toc = (await page.getByRole("navigation", { name: "部品の目次" }).boundingBox())!;
+  const head = (await page.locator(".split-main > .intro").boundingBox())!;
+  expect(toc.y).toBeLessThanOrEqual(head.y + 1);
+  await page.evaluate(() => window.scrollTo(0, 900));
+  await expect(page.locator(".split-main > .intro.is-part")).toBeInViewport();
+  await expect(page.locator(".pick-bar")).toHaveCount(0);
 });

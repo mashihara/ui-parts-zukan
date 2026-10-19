@@ -223,9 +223,10 @@ export default function Dictionary({ children, initialPart }: { children?: React
       const r = el!.classList.contains("focus") ? { top: r0.top, bottom: r0.top + 360, height: 360 } : r0;
       const dock = document.querySelector<HTMLElement>(".dock")?.offsetHeight ?? 0;
       const viewH = window.innerHeight - dock;
-      // 上に固定した帯（サイトの上の帯と、図面の上の部品の帯）に隠れる分を除いて測る
-      const bar = document.querySelector<HTMLElement>(".pick-bar");
-      const cover = (document.querySelector<HTMLElement>(".top")?.offsetHeight ?? 0) + (bar && bar.offsetHeight ? bar.offsetHeight + 16 : 0);
+      // 上に固定した物（サイトの上の帯と、図面の上に付いてくる見出し）に隠れる分を除いて測る
+      const head = document.querySelector<HTMLElement>(".split-main > .intro.is-part");
+      const stuck = head && getComputedStyle(head).position === "sticky";
+      const cover = (document.querySelector<HTMLElement>(".top")?.offsetHeight ?? 0) + (stuck ? head.offsetHeight + 16 : 0);
       const viewTop = cover + 12;
       // すでに全体が見えていれば動かさない
       if (r.top >= viewTop && r.bottom <= viewH - 12) return;
@@ -331,32 +332,6 @@ export default function Dictionary({ children, initialPart }: { children?: React
 
   return (
     <>
-      {/* 見出し。部品を選んでいるときは、その部品の名前を h1 にする（部品のページでも同じ） */}
-      {/* スマホの吹き出しで見ている間は見出しを切り替えない（高さが変わって、押した部品が動いてしまう） */}
-      {part && !isBubble ? (
-        <section className="intro is-part">
-          <nav className="crumbs" aria-label="現在地">
-            <a href={`${BASE_PATH}/`} onClick={(e) => { e.preventDefault(); setS((cur) => ({ ...cur, part: null })); }}>{SITE_NAME}</a>
-            <span aria-hidden="true">›</span>
-            <span>{catLabel(part.id)}</span>
-            <span aria-hidden="true">›</span>
-            <span aria-current="page">{part.ja}</span>
-          </nav>
-          <h1>{part.ja}<small>{shortEn(part)}</small></h1>
-          {/* 意味は大きく太く、使いどころはその下に。部品を選んだら最初に目に入るところに置く */}
-          <p className="intro-meaning">{part.meaning}</p>
-          <p className="intro-when"><b>使いどころ</b>{part.when}</p>
-        </section>
-      ) : (
-        <section className="intro">
-          <h1>
-            <span>その部品、</span>
-            <em>なんて呼ぶ？</em>
-          </h1>
-          {/* スマホ幅では名前を書き込まず点線で囲むので、どちらの幅でも当てはまる言い方にする */}
-          <p>「上の帯」「出てくる窓」では、AIに伝わりません。下の見本の画面で部品を押すと、正式な名前と意味、AIへの頼み方が分かります。</p>
-        </section>
-      )}
       <div className="split">
       {/* 広いPC幅：全部の部品の目次（左の列） */}
       <nav className="toc" ref={toc} aria-label="部品の目次">
@@ -387,19 +362,35 @@ export default function Dictionary({ children, initialPart }: { children?: React
         })}
       </nav>
       <div className="split-main">
+        {/* 見出し。部品を選んでいるときは、その部品の名前を h1 にする（部品のページでも同じ）。
+            部品名を出すのはここ1か所（PC幅では図面の上に付いてくる枠になり、右の欄には名前を出さない。2026-10-19 A案） */}
+        {/* スマホの吹き出しで見ている間は見出しを切り替えない（高さが変わって、押した部品が動いてしまう） */}
+        {part && !isBubble ? (
+          <section className="intro is-part">
+            <nav className="crumbs" aria-label="現在地">
+              <a href={`${BASE_PATH}/`} onClick={(e) => { e.preventDefault(); setS((cur) => ({ ...cur, part: null })); }}>{SITE_NAME}</a>
+              <span aria-hidden="true">›</span>
+              <span>{catLabel(part.id)}</span>
+              <span aria-hidden="true">›</span>
+              <span aria-current="page">{part.ja}</span>
+            </nav>
+            <h1><span className="intro-name">{part.ja}</span><small>{shortEn(part)}</small></h1>
+            {part.aka && <p className="intro-aka">別名　{part.aka.join("、")}</p>}
+            {/* 意味は大きく太く、使いどころはその下に。部品を選んだら最初に目に入るところに置く */}
+            <p className="intro-meaning">{part.meaning}</p>
+            <p className="intro-when"><b>使いどころ</b>{part.when}</p>
+          </section>
+        ) : (
+          <section className="intro">
+            <h1>
+              <span>その部品、</span>
+              <em>なんて呼ぶ？</em>
+            </h1>
+            {/* スマホ幅では名前を書き込まず点線で囲むので、どちらの幅でも当てはまる言い方にする */}
+            <p>「上の帯」「出てくる窓」では、AIに伝わりません。下の見本の画面で部品を押すと、正式な名前と意味、AIへの頼み方が分かります。</p>
+          </section>
+        )}
       <main className="board" aria-label="図面" ref={board}>
-        {/* 選んでいる部品の名前と意味。図面をスクロールしても上に付いてくる（上の見出しが見えなくても分かるように） */}
-        <div className={`pick-bar ${part ? "is-on" : ""}`} aria-live="polite">
-          {part ? (
-            <>
-              <b>{part.ja}</b>
-              <small>{shortEn(part)}</small>
-              <span>{part.meaning}</span>
-            </>
-          ) : (
-            <span>図面の名前か部品を押すと、ここに意味が出ます</span>
-          )}
-        </div>
         {focus ? (
           // 全体図に無い部品は、真ん中を単体の見本に切り替える。全体図へ戻る道は上に置く
           <div className="focus" style={{ minHeight: mapH || undefined }}>
