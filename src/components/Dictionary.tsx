@@ -48,6 +48,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
   const loaded = useRef(false);
   const opener = useRef<HTMLElement | null>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
+  const toc = useRef<HTMLElement>(null);
   const [side, setSide] = useState(false);
 
   // 画面幅で、右の列にするか重ねて開くかを決める
@@ -77,6 +78,14 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
   const index = part ? PARTS.findIndex((p) => p.id === part.id) : -1;
   // 重ねて開く欄が出ているのは、狭い幅で部品を選んでいるときだけ
   const isOpen = !!part && !side;
+
+  // 目次の選んだ部品が見えるよう、目次の中だけを動かす（ページの位置は変えない）
+  useEffect(() => {
+    const nav = toc.current;
+    const on = nav?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!nav || !on) return;
+    if (on.offsetTop < nav.scrollTop || on.offsetTop + on.offsetHeight > nav.scrollTop + nav.clientHeight) nav.scrollTop = on.offsetTop - nav.clientHeight / 2;
+  }, [part]);
 
   const close = () => {
     setS((cur) => ({ ...cur, part: null }));
@@ -180,6 +189,24 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
   return (
     <>
       <div className="split">
+      {/* 広いPC幅：全部の部品の目次（左の列） */}
+      <nav className="toc" ref={toc} aria-label="部品の目次">
+        <h2>部品の目次</h2>
+        {CATEGORIES.map((c) => (
+          <div key={c.id}>
+            <h3>{c.label}</h3>
+            <ul>
+              {PARTS.filter((p) => p.cat === c.id).map((p) => (
+                <li key={p.id}>
+                  <button type="button" aria-current={s.part === p.id} onClick={() => open(p.id)}>
+                    {p.ja}{s.picks.includes(p.id) && <i aria-label="AIに渡す名前に入れた">●</i>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
       <div className="split-main">
       <main className="board" aria-label="図面">
         <ScreenMap onPick={open} selected={s.part ?? ""} />

@@ -1,11 +1,14 @@
-/* サイトの枠（設計図の見た目）。見本の部品は components/kit.css */
+/* サイトの枠（白い方眼紙に青インクで描いた設計図）。見本の部品は components/kit.css */
 :root {
-  --bp: #1a47b8; /* 方眼の地 */
-  --bp-deep: #123793; /* 面 */
-  --bp-ink: #0e2a78; /* 濃い面・文字 */
-  --ln: rgba(255, 255, 255, 0.88); /* 線 */
-  --ln-weak: rgba(255, 255, 255, 0.4);
-  --y: #ffd84a; /* 書き込みの黄 */
+  --paper: #f7f9fe; /* 方眼紙の地 */
+  --bp: #1a47b8; /* 青インク（線・強調） */
+  --bp-deep: #123793;
+  --bp-ink: #0e2a78; /* 文字 */
+  --ln: #1a47b8; /* 線 */
+  --ln-weak: rgba(26, 71, 184, 0.3);
+  --tint: #eef2fb; /* 淡い面 */
+  --y: #ffd84a; /* 蛍光ペンの黄（地に敷くだけで、文字色には使わない） */
+  --mark: linear-gradient(transparent 60%, var(--y) 60%);
   --font: "IBM Plex Sans JP", "Hiragino Sans", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
   --dock-h: 72px;
@@ -13,13 +16,13 @@
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: 12px; }
 body {
-  margin: 0; color: #fff; font-family: var(--font); font-size: 15px; line-height: 1.7; padding-bottom: calc(var(--dock-h) + 24px);
-  background-color: var(--bp);
+  margin: 0; color: var(--bp-ink); font-family: var(--font); font-size: 15px; line-height: 1.7; padding-bottom: calc(var(--dock-h) + 24px);
+  background-color: var(--paper);
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+    linear-gradient(rgba(26, 71, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 71, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(26, 71, 184, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 71, 184, 0.1) 1px, transparent 1px);
   background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
 }
 button { font: inherit; color: inherit; }
@@ -32,7 +35,7 @@ a { color: inherit; }
 /* 印：部品に打った点から引き出し線を伸ばした形 */
 .brand-mark { width: 30px; height: 22px; position: relative; flex: none; margin-right: 4px; }
 .brand-mark::before { content: ""; position: absolute; left: 0; bottom: 0; width: 9px; height: 9px; border-radius: 99px; background: var(--y); }
-.brand-mark::after { content: ""; position: absolute; left: 6px; bottom: 6px; width: 13px; height: 14px; border-top: 2px solid #fff; border-left: 2px solid #fff; transform: skewX(-35deg); transform-origin: left bottom; }
+.brand-mark::after { content: ""; position: absolute; left: 6px; bottom: 6px; width: 13px; height: 14px; border-top: 2px solid var(--bp); border-left: 2px solid var(--bp); transform: skewX(-35deg); transform-origin: left bottom; }
 .top-links { display: flex; gap: 24px; font-size: 14px; }
 .top-links a { text-decoration: none; opacity: 0.85; }
 .top-links a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
@@ -40,7 +43,7 @@ a { color: inherit; }
 .intro { padding: 28px 0 8px; max-width: 760px; }
 .intro h1 { margin: 0; font-size: clamp(30px, 4vw, 46px); line-height: 1.25; font-weight: 700; }
 .intro h1 span, .intro h1 em { display: inline-block; }
-.intro h1 em { font-style: normal; color: var(--y); }
+.intro h1 em { font-style: normal; color: var(--bp); background: var(--mark); }
 .intro p { margin: 10px 0 0; font-size: 15px; opacity: 0.9; }
 .intro { max-width: none; }
 .intro p { max-width: 760px; }
@@ -51,7 +54,7 @@ a { color: inherit; }
 .split-main { min-width: 0; }
 .side {
   position: sticky; top: 12px; height: calc(100vh - var(--dock-h) - 24px); display: flex; flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 4px; background: rgba(14, 42, 120, 0.85); overflow: hidden;
+  border: 1.5px solid var(--bp); border-radius: 4px; background: #fff; overflow: hidden;
 }
 .side .drawer-head { padding-right: 8px; }
 .side-empty ul { margin: 10px 0 16px; padding-left: 1.2em; opacity: 0.9; }
@@ -60,34 +63,51 @@ a { color: inherit; }
   .split { grid-template-columns: minmax(0, 1fr); }
   .side { display: none; }
 }
+/* 目次：左の列に全部の部品を並べ、図面に無い部品（重なって出る窓など）も選べるようにする。
+   図面に引き出し線を書ける幅（780px）が残る 1400px 以上だけ出す */
+.toc { display: none; }
+@media (min-width: 1400px) {
+  .split { grid-template-columns: 156px minmax(0, 1fr) 320px; gap: 20px; }
+  .toc {
+    display: block; position: sticky; top: 12px; max-height: calc(100vh - var(--dock-h) - 24px); overflow: auto; overscroll-behavior: contain;
+    padding: 4px 8px 16px 0; border-right: 1px solid var(--ln-weak); font-size: 13px;
+  }
+}
+.toc h2 { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--bp); }
+.toc h3 { margin: 14px 0 2px; font-size: 11.5px; font-weight: 700; opacity: 0.6; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc button { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 3px 8px; border-radius: 3px; cursor: pointer; line-height: 1.5; }
+.toc button:hover { background: var(--tint); }
+.toc button[aria-current="true"] { background: var(--bp); color: #fff; font-weight: 700; }
+.toc button i { font-style: normal; font-size: 8px; margin-left: 4px; vertical-align: 2px; }
 .board { min-width: 0; }
 .board-note { margin: 4px 0 0; font-size: 13px; opacity: 0.85; }
-.board-note b { color: var(--y); font-weight: 700; }
+.board-note b { color: var(--bp); font-weight: 700; }
 
 .drawing { position: relative; }
 .drawing.is-wide { padding: 26px 150px; }
 .drawing.is-narrow { padding: 16px 0; }
-.sheet { container-type: inline-size; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1.5px #fff, 10px 10px 0 rgba(0, 0, 0, 0.18); }
+.sheet { container-type: inline-size; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1.5px var(--bp), 8px 8px 0 rgba(26, 71, 184, 0.12); }
 .leaders { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 2; }
 .leaders path { fill: none; stroke: var(--ln-weak); stroke-width: 1.2; }
-.leaders path.halo { stroke: var(--bp); stroke-width: 3.6; }
-.leaders circle { fill: rgba(255, 255, 255, 0.75); stroke: var(--bp); stroke-width: 1.5; }
-.leaders .hot path { stroke: var(--y); stroke-width: 2; }
-.leaders .hot path.halo { stroke: var(--bp-ink); stroke-width: 4.4; }
-.leaders .hot circle { fill: var(--y); }
+.leaders path.halo { stroke: var(--paper); stroke-width: 3.6; }
+.leaders circle { fill: var(--bp); stroke: #fff; stroke-width: 1.5; }
+.leaders .hot path { stroke: var(--bp); stroke-width: 2; }
+.leaders .hot path.halo { stroke: var(--paper); stroke-width: 4.4; }
+.leaders .hot circle { fill: var(--y); stroke: var(--bp); }
 .callout {
   position: absolute; z-index: 3; border: 0; background: transparent; padding: 0; cursor: pointer; white-space: nowrap;
-  font-size: 13px; font-weight: 700; line-height: 1.25; text-align: left; color: #fff;
+  font-size: 13px; font-weight: 700; line-height: 1.25; text-align: left; color: var(--bp-ink);
 }
 .callout.l { text-align: right; }
 /* 英語名は指した・選んだ名前だけに出して、図面の文字を減らす */
 .callout small { position: absolute; top: 100%; font: 500 10.5px var(--mono); opacity: 0; margin-top: 2px; transition: opacity 0.12s; pointer-events: none; }
 .callout.l small { right: 0; }
 .callout.r small { left: 0; }
-.callout.hot small { opacity: 0.85; }
-.callout:hover, .callout.hot { color: var(--y); }
-.callout.sel { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
-.callout:focus-visible { outline: 2px solid var(--y); outline-offset: 4px; }
+.callout.hot small { opacity: 0.85; color: var(--bp); }
+.callout:hover, .callout.hot { color: var(--bp); background: var(--mark); }
+.callout.sel { color: var(--bp); background: var(--mark); }
+.callout:focus-visible { outline: 2px solid var(--bp); outline-offset: 4px; }
 
 /* 見本の画面の中身 */
 .map { position: relative; }
@@ -118,6 +138,8 @@ a { color: inherit; }
 .spot.map-toast { position: absolute; right: 20px; bottom: 20px; z-index: 4; display: block; }
 .spot.map-toast .k-toast { box-shadow: 0 8px 24px rgba(16, 24, 40, 0.25); }
 .map .k-footer { padding: 14px 20px; }
+/* 目次を出した幅では見本の画面が狭いので、タブの間を詰めて1行に収める */
+.map .k-tablist button { padding-inline: calc(var(--u) * 2); }
 
 /* 部品にかぶせる印 */
 .spot { position: relative; display: block; cursor: pointer; border-radius: 6px; }
@@ -145,8 +167,7 @@ span.spot { display: inline-flex; }
 .drawer-backdrop { position: fixed; inset: 0; z-index: 45; background: rgba(8, 24, 70, 0.45); animation: dr-fade 0.18s ease-out; }
 .drawer {
   position: absolute; top: 0; right: 0; bottom: 0; width: min(480px, 100%); display: flex; flex-direction: column;
-  background: var(--bp-deep); border-left: 1.5px solid #fff; box-shadow: -12px 0 40px rgba(0, 0, 0, 0.3); animation: dr-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 24px 24px;
+  background: #fff; border-left: 1.5px solid var(--bp); box-shadow: -12px 0 40px rgba(14, 42, 120, 0.2); animation: dr-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 @keyframes dr-in { from { transform: translateX(40px); opacity: 0; } }
 @keyframes dr-up { from { transform: translateY(60px); opacity: 0; } }
@@ -156,7 +177,7 @@ span.spot { display: inline-flex; }
 .dh-cat { font-weight: 500; opacity: 0.75; }
 .dh-nav { display: flex; align-items: center; gap: 2px; }
 .dh-nav button { width: 36px; height: 36px; border: 0; background: transparent; border-radius: 3px; display: grid; place-items: center; cursor: pointer; }
-.dh-nav button:hover { background: rgba(255, 255, 255, 0.12); }
+.dh-nav button:hover { background: var(--tint); }
 .dh-count { font: 500 12px var(--mono); opacity: 0.8; min-width: 54px; text-align: center; }
 .dh-nav .dh-x { margin-left: 6px; border: 1px solid var(--ln-weak); }
 .drawer-body { flex: 1; overflow: auto; overscroll-behavior: contain; padding: 18px 18px 28px; }
@@ -164,41 +185,42 @@ span.spot { display: inline-flex; }
 .entry-en { margin: 2px 0 0; font: 500 12px var(--mono); opacity: 0.8; }
 .entry-aka { margin: 2px 0 0; font-size: 12.5px; opacity: 0.8; }
 .entry-meaning { margin: 8px 0 16px; font-size: 16px; font-weight: 500; }
-.entry-preview { border-radius: 4px; min-height: 180px; padding: 20px 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.entry-preview { border: 1px solid #e3e8f4; border-radius: 4px; min-height: 180px; padding: 20px 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .entry-dl { margin: 6px 0 0; }
 /* 小見出しは色の札にせず、淡い文字で区切る */
-.entry-dl dt, .entry-confuse b { display: block; font-size: 12px; font-weight: 700; opacity: 0.7; margin-top: 18px; }
+.entry-dl dt, .entry-confuse b { display: block; font-size: 12px; font-weight: 700; color: var(--bp); margin-top: 18px; }
 .entry-dl dd { margin: 4px 0 0; font-size: 14px; }
-.entry-dl dd.ask { background: rgba(255, 255, 255, 0.07); border-radius: 4px; padding: 10px 12px; }
+.entry-dl dd.ask { background: var(--tint); border-radius: 4px; padding: 10px 12px; }
 .entry-dl dd.ask button { display: flex; align-items: center; gap: 4px; margin: 8px 0 0 auto; border: 1px solid var(--ln-weak); background: transparent; border-radius: 3px; font-size: 12px; padding: 1px 8px; cursor: pointer; vertical-align: 1px; }
-.entry-dl dd.ask button:hover { border-color: #fff; }
+.entry-dl dd.ask button:hover { border-color: var(--bp); }
 .entry-confuse { margin-top: 0; }
 .entry-confuse p { margin: 4px 0 8px; font-size: 14px; }
 .entry-links { display: flex; flex-wrap: wrap; gap: 6px; }
 .entry-links button { border: 1px solid var(--ln-weak); background: transparent; border-radius: 3px; font-size: 12.5px; padding: 2px 10px; cursor: pointer; }
-.entry-links button:hover { border-color: #fff; }
+.entry-links button:hover { border-color: var(--bp); }
 /* AIに渡す名前に入れるボタンは線だけにして、見本より目立たせない */
-.pick { margin: 0 0 16px; width: 100%; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 3px; background: transparent; color: #fff; font-weight: 700; cursor: pointer; }
-.pick:hover { background: rgba(255, 255, 255, 0.1); }
+.pick { margin: 0 0 16px; width: 100%; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--bp); border-radius: 3px; background: transparent; color: var(--bp); font-weight: 700; cursor: pointer; }
+.pick:hover { background: var(--tint); }
 .pick.is-on { background: var(--y); border-color: var(--y); color: var(--bp-ink); }
 
 /* ---- 部品の名前の一覧 ---- */
 .catalog { padding-top: 56px; }
-.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 1.5px solid #fff; padding-bottom: 12px; }
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 1.5px solid var(--bp); padding-bottom: 12px; }
 .sec-head h2, .info h2 { margin: 0; font-size: 26px; display: flex; align-items: baseline; gap: 10px; }
-.sec-head h2 span { font: 500 14px var(--mono); color: var(--y); }
-.find { display: flex; align-items: center; gap: 8px; width: min(420px, 100%); height: 40px; padding: 0 12px; border: 1.5px solid #fff; border-radius: 3px; background: rgba(14, 42, 120, 0.6); }
-.find input { all: unset; flex: 1; font-size: 14px; color: #fff; }
-.find input::placeholder { color: rgba(255, 255, 255, 0.6); }
+.sec-head h2 span { font: 500 14px var(--mono); color: var(--bp); }
+.find { display: flex; align-items: center; gap: 8px; width: min(420px, 100%); height: 40px; padding: 0 12px; border: 1.5px solid var(--ln-weak); border-radius: 3px; background: #fff; }
+.find input { all: unset; flex: 1; font-size: 14px; color: var(--bp-ink); }
+.find input::placeholder { color: rgba(14, 42, 120, 0.5); }
+.find:focus-within { border-color: var(--bp); }
 .cat h3 { margin: 24px 0 10px; font-size: 15px; display: flex; align-items: baseline; gap: 10px; }
 .cat h3 small { font-size: 12px; font-weight: 400; opacity: 0.75; }
 .cat ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.name-card { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch; text-align: left; padding: 0; overflow: hidden; border: 1px solid var(--ln-weak); border-radius: 3px; background: rgba(14, 42, 120, 0.35); cursor: pointer; }
-.name-card:hover { border-color: #fff; background: rgba(14, 42, 120, 0.6); }
-.name-card.is-on { border: 1.5px solid var(--y); }
+.name-card { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch; text-align: left; padding: 0; overflow: hidden; border: 1px solid var(--ln-weak); border-radius: 3px; background: #fff; cursor: pointer; }
+.name-card:hover { border-color: var(--bp); }
+.name-card.is-on { border: 2px solid var(--bp); }
 .nc-open { position: absolute; inset: 0; z-index: 2; border: 0; padding: 0; background: transparent; cursor: pointer; border-radius: 3px; }
-.nc-open:focus-visible { outline: 2px solid var(--y); outline-offset: 2px; }
-.name-card:has(.nc-open:focus-visible) { border-color: #fff; }
+.nc-open:focus-visible { outline: 2px solid var(--bp); outline-offset: 2px; }
+.name-card:has(.nc-open:focus-visible) { border-color: var(--bp); }
 .nc-text { display: flex; flex-direction: column; padding: 10px 12px 12px; }
 /* 小さな見本：実物を縮めて見せる。中は押せず、カード全体で説明を開く */
 .thumb { position: relative; display: block; height: 132px; overflow: hidden; pointer-events: none; border-bottom: 1px solid var(--ln-weak); }
@@ -207,32 +229,32 @@ span.spot { display: inline-flex; }
 .thumb-in > * { flex: none; }
 .thumb .k-replay { display: none; }
 .nc-ja { font-size: 15.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-.nc-ja i { font-style: normal; color: var(--y); font-size: 9px; }
+.nc-ja i { font-style: normal; color: var(--bp); font-size: 9px; }
 .nc-en { font: 500 11px var(--mono); opacity: 0.7; }
 .nc-m { margin-top: 4px; font-size: 12.5px; opacity: 0.88; line-height: 1.55; }
 .none { opacity: 0.85; }
 
 /* ---- 読み物 ---- */
 .info { padding-top: 64px; }
-.info h2 { border-bottom: 1.5px solid #fff; padding-bottom: 12px; }
+.info h2 { border-bottom: 1.5px solid var(--bp); padding-bottom: 12px; }
 .info-lead { margin: 12px 0 18px; opacity: 0.9; max-width: 44em; }
 .confuse-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-.confuse, .how article { border: 1px solid var(--ln-weak); border-radius: 3px; background: rgba(14, 42, 120, 0.45); padding: 16px 18px; }
+.confuse, .how article { border: 1px solid var(--ln-weak); border-radius: 3px; background: #fff; padding: 16px 18px; }
 .confuse h3, .how h3 { margin: 0 0 6px; font-size: 16px; }
 .confuse p { margin: 0; font-size: 14px; opacity: 0.92; }
-.confuse .confuse-names { margin-top: 10px; font: 500 11.5px var(--mono); color: var(--y); opacity: 1; }
+.confuse .confuse-names { margin-top: 10px; font: 500 11.5px var(--mono); color: var(--bp); opacity: 1; }
 .how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
 .how article { display: flex; flex-direction: column; }
 .how p { margin: 0 0 12px; font-size: 14px; opacity: 0.92; flex: 1; }
-.how a { color: var(--y); }
+.how a { color: var(--bp); }
 .how p.how-sub { flex: none; margin: 12px 0 6px; }
-.how pre { margin: 0; padding: 10px 12px; border-radius: 3px; background: var(--bp-ink); border: 1px solid var(--ln-weak); font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
+.how pre { margin: 0; padding: 10px 12px; border-radius: 3px; background: var(--tint); border: 1px solid var(--ln-weak); font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
 .credit { padding: 48px 0 24px; font-size: 13px; opacity: 0.8; max-width: 52em; }
 
 /* ---- 下の帯 ---- */
 .dock {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; min-height: var(--dock-h); display: flex; align-items: center; gap: 16px; justify-content: space-between;
-  padding: 10px max(28px, calc((100vw - 1424px) / 2)); background: #fff; color: var(--bp-ink); border-top: 3px solid var(--y);
+  padding: 10px max(28px, calc((100vw - 1424px) / 2)); background: #fff; color: var(--bp-ink); border-top: 1.5px solid var(--bp); box-shadow: 0 -6px 20px rgba(26, 71, 184, 0.08);
 }
 .dock-picks { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
 .dock-label { font-size: 13px; font-weight: 700; margin-right: 6px; }
@@ -244,7 +266,7 @@ span.spot { display: inline-flex; }
 .dock-go:disabled { opacity: 0.35; cursor: default; }
 
 .sheet-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(8, 24, 70, 0.6); display: grid; place-items: center; padding: 16px; }
-.prompt-sheet { width: min(720px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; color: var(--bp-ink); border-radius: 4px; padding: 20px; border-top: 4px solid var(--y); }
+.prompt-sheet { width: min(720px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; color: var(--bp-ink); border-radius: 4px; padding: 20px; border-top: 4px solid var(--bp); }
 .ps-head { display: flex; justify-content: space-between; align-items: center; }
 .ps-head h2 { margin: 0; font-size: 18px; }
 .ps-x { border: 0; background: transparent; width: 36px; height: 36px; border-radius: 99px; display: grid; place-items: center; cursor: pointer; }
@@ -261,7 +283,7 @@ span.spot { display: inline-flex; }
 /* 1400px 未満では項目を図面の下へ回し、図面の幅を確保して引き出し線を出す */
 
 @media (max-width: 760px) {
-  .drawer { top: auto; left: 0; width: 100%; height: 88vh; border-left: 0; border-top: 1.5px solid #fff; border-radius: 14px 14px 0 0; animation-name: dr-up; }
+  .drawer { top: auto; left: 0; width: 100%; height: 88vh; border-left: 0; border-top: 1.5px solid var(--bp); border-radius: 14px 14px 0 0; animation-name: dr-up; }
   .cat ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .thumb { height: 104px; }
   .thumb-in { transform: translate(-50%, -50%) scale(0.38); }

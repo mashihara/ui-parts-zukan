@@ -115,8 +115,9 @@ test.describe("図面", () => {
 
   test("部品に乗せると、対応する名前と線が光る", async ({ page }) => {
     await page.goto("/");
-    await page.locator(".sheet .k-search").hover();
-    await expect(page.locator(".callout.hot", { hasText: "検索バー" })).toBeVisible();
+    // 目次を出す幅では見本の画面が狭く検索バーを省くので、どの幅でも出ているバッジで確かめる
+    await page.locator(".sheet .k-badge").hover();
+    await expect(page.locator(".callout.hot", { hasText: "バッジ" })).toBeVisible();
   });
 
   test("名前どうしが重ならず、画面からはみ出さない", async ({ page }) => {
@@ -310,3 +311,25 @@ test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 });
 
+
+// 目次（2026-10-19 3列にした）。広いPC幅だけ左に出て、押すと説明が変わり、ページの位置は動かない
+test("広いPC幅：目次から図面に無い部品も開ける", async ({ page }) => {
+  await page.goto("/");
+  const toc = page.getByRole("navigation", { name: "部品の目次" });
+  await expect(toc).toBeVisible();
+  await expect(toc.getByRole("button")).toHaveCount(43);
+  const y = await page.evaluate(() => scrollY);
+  await toc.getByRole("button", { name: "モーダル", exact: true }).click();
+  await expect(entryName(page)).toHaveText("モーダル");
+  await expect(toc.getByRole("button", { name: "モーダル", exact: true })).toHaveAttribute("aria-current", "true");
+  expect(await page.evaluate(() => scrollY)).toBe(y);
+  // 図面は引き出し線で書き込める幅が残っている
+  await expect(page.locator(".drawing.is-wide")).toBeVisible();
+});
+
+test("1280px：目次は出さず、図面に引き出し線を書く", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  await expect(page.getByRole("navigation", { name: "部品の目次" })).toBeHidden();
+  await expect(page.locator(".drawing.is-wide")).toBeVisible();
+});
