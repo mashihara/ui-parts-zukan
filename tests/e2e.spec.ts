@@ -314,6 +314,9 @@ test("スマホ幅：部品は点線で囲むだけで、押すとそばに吹�
   expect(await overlap(page, "toast", "button")).toBe(false);
   expect(await insideSheet(page, "toast")).toBe(true);
   expect(await insideSheet(page, "tooltip")).toBe(true);
+  // 図面の角の外枠の線が、ヘッダーとフッターの四角い角で消えない（2026-10-19 角が切れて見えた）
+  expect(await page.locator(".map-header .k-header").evaluate((e) => getComputedStyle(e).borderTopLeftRadius)).toBe("6px");
+  expect(await page.locator(".map .k-footer").evaluate((e) => getComputedStyle(e).borderBottomRightRadius)).toBe("6px");
   // 右端のアバターが画面に収まる
   const av = await page.locator(".spot[data-part=avatar]").boundingBox();
   expect(av!.x + av!.width).toBeLessThanOrEqual(page.viewportSize()!.width);

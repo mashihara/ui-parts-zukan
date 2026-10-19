@@ -230,6 +230,9 @@ span.spot { display: inline-flex; }
 .drawing.is-narrow .map-hint { display: block; position: absolute; top: 6px; left: 0; margin: 0; font-size: 13px; opacity: 0.85; }
 .drawing.is-narrow .sheet { overflow: visible; }
 .drawing.is-narrow .sheet .map { border-radius: 6px; overflow: clip; overflow-clip-margin: 14px; }
+/* 切り抜きを外へ広げると角が丸く切り抜かれず、ヘッダーとフッターの四角い角が外枠の線の角を消していたので、角を丸めておく */
+.drawing.is-narrow .map-header .k-header { border-radius: 6px 6px 0 0; }
+.drawing.is-narrow .map .k-footer { border-radius: 0 0 6px 6px; }
 
 /* 吹き出し：選んだ部品の上（入らなければ下）に出し、三角で部品を指す */
 .map-bubble { position: absolute; z-index: 20; }
