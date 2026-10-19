@@ -1,7 +1,7 @@
 import { BASE_PATH } from "@/lib/site";
 
-// サイト共通の上の帯。見分け方は別ページ（/confusions/）、ほかはトップの中の見出しへ飛ぶ
-export default function SiteHeader({ current }: { current?: "confusions" }) {
+// サイト共通の上の帯。部品の名前はトップの一覧へ、見分け方（/confusions/）と AI への渡し方（/how-to/）は別ページへ飛ぶ
+export default function SiteHeader({ current }: { current?: "confusions" | "how-to" }) {
   return (
     <header className="top">
       <div className="brand">
@@ -11,7 +11,7 @@ export default function SiteHeader({ current }: { current?: "confusions" }) {
       <nav className="top-links">
         <a href={`${BASE_PATH}/#names`}>部品の名前</a>
         <a className="top-confuse" href={`${BASE_PATH}/confusions/`} aria-current={current === "confusions" ? "page" : undefined}>見分け方</a>
-        <a href={`${BASE_PATH}/#ai`}>AIへの渡し方</a>
+        <a href={`${BASE_PATH}/how-to/`} aria-current={current === "how-to" ? "page" : undefined}>AIへの渡し方</a>
       </nav>
     </header>
   );

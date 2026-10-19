@@ -315,6 +315,17 @@ span.spot { display: inline-flex; }
 .confuse-link > span[aria-hidden] { font-size: 24px; color: var(--bp); }
 .confuse-link:hover { background: var(--tint); }
 .top-links a[aria-current="page"] { opacity: 1; font-weight: 700; color: var(--bp); }
+/* トップの読みものの入口（見分け方・AIへの渡し方） */
+.read-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .read-links { grid-template-columns: 1fr; } }
+/* AIへの渡し方のページ */
+.how-list { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.how-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; padding: 22px; border: 1px solid var(--ln-weak); border-radius: 4px; background: #fff; }
+.how-row pre { margin: 0; padding: 14px 16px; border-radius: 3px; background: var(--tint); border: 1px solid var(--ln-weak); font: 13px/1.75 var(--mono); white-space: pre-wrap; word-break: break-all; }
+.how-row .confuse-text a { color: var(--bp); }
+.how-pres { display: flex; flex-direction: column; gap: 10px; }
+.how-go { display: inline-block; margin-top: 12px; font-weight: 700; }
+@media (max-width: 900px) { .how-row { grid-template-columns: 1fr; } }
 /* 見分け方のページ */
 .confuse-intro { min-height: 0; padding-bottom: 8px; }
 .intro.is-part.confuse-intro .intro-when { display: block; overflow: visible; }

@@ -392,8 +392,9 @@ test("部品のページは、その部品の名前が h1 で、説明が開い�
   await expect(page.locator("h1")).toHaveText("その部品、なんて呼ぶ？");
   await expect(page).not.toHaveURL(/\/parts\//);
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  // トップ・見分け方と、一覧にある全部品のページ
-  expect(sitemap.match(/<loc>/g)?.length).toBe(2 + (await page.locator("#names .name-card").count()));
+  // トップ・見分け方・AIへの渡し方と、一覧にある全部品のページ
+  expect(sitemap.match(/<loc>/g)?.length).toBe(3 + (await page.locator("#names .name-card").count()));
+  expect(sitemap).toContain("/how-to/</loc>");
   expect(sitemap).toContain("/confusions/</loc>");
 });
 
@@ -434,4 +435,19 @@ test("見分け方は別ページにあり、部品のページへ進める", as
   await page.locator(".confuse-row").first().getByRole("link", { name: /^ダイアログ/ }).click();
   await expect(page).toHaveURL(/\/parts\/dialog\/$/);
   await expect(page.locator("h1")).toHaveText(/^ダイアログ/);
+});
+
+// AIへの渡し方も別ページ（2026-10-19）
+test("AIへの渡し方は別ページにあり、3つの方法と一覧のリンクが出る", async ({ page, request }) => {
+  await page.goto("/");
+  await page.getByRole("banner").getByRole("link", { name: "AIへの渡し方" }).click();
+  await expect(page).toHaveURL(/\/how-to\/$/);
+  await expect(page.locator("h1")).toHaveText("AIへの渡し方");
+  await expect(page.locator(".how-row h2")).toHaveText(["名前を入れて頼む", "選んだ名前をまとめて渡す", "名前の一覧ごと読ませる"]);
+  const href = await page.getByRole("link", { name: "llms.txt" }).getAttribute("href");
+  expect((await request.get(href!)).status()).toBe(200);
+  // トップにはもう渡し方の本文は無く、入口だけがある
+  await page.goto("/");
+  await expect(page.locator(".how")).toHaveCount(0);
+  await expect(page.locator(".read-links a")).toHaveCount(2);
 });
