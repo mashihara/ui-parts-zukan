@@ -152,7 +152,12 @@ a { color: inherit; }
 .callout.r small { left: 0; }
 .callout.hot small { opacity: 0.85; color: var(--bp); }
 .callout:hover, .callout.hot { color: var(--bp); background: var(--mark); }
-.callout.sel { color: var(--bp); background: var(--mark); }
+/* 選んだ名前は青い札にして大きくする（蛍光ペンだけでは目立たなかった 2026-10-19） */
+.callout.sel { z-index: 4; color: #fff; background: var(--bp); font-size: 15px; padding: 4px 10px; margin-top: -4px; border-radius: 3px; box-shadow: 0 4px 12px rgba(14, 42, 120, 0.25); }
+.callout.l.sel { margin-right: -10px; }
+.callout.r.sel { margin-left: -10px; }
+/* 札にした名前の英語は下の名前と重なるので出さない（英語名は上の帯と右の欄に出ている） */
+.callout.sel small { display: none; }
 .callout:focus-visible { outline: 2px solid var(--bp); outline-offset: 4px; }
 
 /* 見本の画面の中身 */
