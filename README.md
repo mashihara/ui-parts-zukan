@@ -11,6 +11,8 @@ https://mashiharalab.dev/ui-parts-zukan/
 
 考え方は大滝昇平さんの [Motion Prompt](https://showheyohtaki.github.io/motion-prompt/)（動きの名前のライブラリ）から学びました。
 
+スマホアプリの部品（タブバー・ボトムシート・スナックバーなど）は、姉妹サイトの [アプリ部品図鑑](https://mashiharalab.dev/app-parts-zukan/)（リポジトリ mashihara/app-parts-zukan）で調べられます。2つの図鑑は同じ形で、上の帯の「Web／アプリ」の切り替えで行き来できます。
+
 ## AIに読ませる
 
 | 物 | 中身 |

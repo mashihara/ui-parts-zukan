@@ -6,6 +6,7 @@ import { CONFUSIONS, PART_MAP, shortEn } from "@/lib/parts";
 import { BASE_PATH, partPath } from "@/lib/site";
 import { DEFAULT_TOKENS, cssVars } from "@/lib/tokens";
 import LabCredit from "./LabCredit";
+import SisterCredit from "./SisterCredit";
 
 const VARS = cssVars(DEFAULT_TOKENS) as CSSProperties;
 
@@ -55,6 +56,7 @@ export default function Confusions() {
       </ol>
       <footer className="credit">
         <p><a href={`${BASE_PATH}/`}>UI部品図鑑のトップへ戻る</a></p>
+        <SisterCredit />
         <LabCredit />
       </footer>
     </div>

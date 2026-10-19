@@ -344,6 +344,20 @@ span.spot { display: inline-flex; }
 .confuse-link small { font-size: 14px; opacity: 0.8; }
 .confuse-link > span[aria-hidden] { font-size: 24px; color: var(--bp); }
 .confuse-link:hover { background: var(--tint); }
+/* 図鑑の切り替え（Web＝この図鑑／アプリ＝アプリ部品図鑑）。今いる方をインクで塗る */
+.zukan-switch { display: inline-flex; margin-left: 6px; border: 1.5px solid var(--bp); border-radius: 99px; overflow: hidden; font-size: 12px; font-weight: 700; line-height: 1; }
+.zukan-switch > * { padding: 5px 10px; text-decoration: none; }
+.zukan-switch a { color: var(--bp); }
+.zukan-switch a:hover { background: var(--tint); }
+.zukan-switch [aria-current="page"] { background: var(--bp); color: #fff; }
+.confuse-link.is-sister { grid-column: 1 / -1; border-width: 1px; }
+.confuse-link.is-sister b { font-size: 17px; }
+.entry-sister { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding: 10px 14px; border: 1px solid var(--ln-weak); border-radius: 4px; text-decoration: none; }
+.entry-sister span:first-child { display: flex; flex-direction: column; }
+.entry-sister small { font-size: 12px; opacity: 0.75; }
+.entry-sister b { font-size: 15px; }
+.entry-sister:hover { border-color: var(--bp); }
+.credit .sister-credit { margin-top: 12px; }
 .top-links a[aria-current="page"] { opacity: 1; font-weight: 700; color: var(--bp); }
 /* トップの読みものの入口（見分け方・AIへの渡し方） */
 .read-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -428,6 +442,12 @@ span.spot { display: inline-flex; }
   /* 見分け方は別ページになったので、スマホでも3つとも出す */
   .top-links { gap: 12px; font-size: 12.5px; }
   .brand { font-size: 16px; }
+  /* スマホ幅は横に入りきらないので、名前の下に図鑑の切り替えを置く */
+  .brand { flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1.2; }
+  .zukan-switch { font-size: 10.5px; margin-left: 0; }
+  .zukan-switch > * { padding: 3px 9px; }
+  .brand-mark { display: none; }
+  .top-links { white-space: nowrap; }
   .intro.is-part .intro-meaning { font-size: 18px; }
   .map-cols { grid-template-columns: 1fr; }
   .spot.map-search { display: none; }

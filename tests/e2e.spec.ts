@@ -519,7 +519,36 @@ test("AIへの渡し方は別ページにあり、3つの方法と一覧のリ�
   // トップにはもう渡し方の本文は無く、入口だけがある
   await page.goto("/");
   await expect(page.locator(".how")).toHaveCount(0);
-  await expect(page.locator(".read-links a")).toHaveCount(2);
+  // 見分け方・AIへの渡し方と、姉妹サイト（アプリ部品図鑑）の入口
+  await expect(page.locator(".read-links a")).toHaveCount(3);
+});
+
+// 姉妹サイト（アプリ部品図鑑）への入口。上の帯の切り替え・トップの入口・各ページのフッター・部品の説明から行ける（2026-10-19）
+test("アプリ部品図鑑へ、上の帯・トップ・フッター・部品の説明から移れる", async ({ page }) => {
+  const SISTER = "https://mashiharalab.dev/app-parts-zukan/";
+  for (const path of ["/", "/confusions/", "/how-to/", "/parts/header/"]) {
+    await page.goto(path);
+    const sw = page.getByRole("navigation", { name: "図鑑の切り替え" });
+    await expect(sw.getByRole("link", { name: "アプリ" })).toHaveAttribute("href", SISTER);
+    await expect(sw.locator("[aria-current=page]")).toHaveText("Web");
+    await expect(page.locator(".sister-credit a")).toHaveAttribute("href", SISTER);
+  }
+  await page.goto("/");
+  await expect(page.locator(".confuse-link.is-sister")).toHaveAttribute("href", SISTER);
+  // アプリに同じ・近い部品がある物だけ、説明からアプリ部品図鑑の部品のページへ
+  await page.goto("/parts/bottom-nav/");
+  await expect(page.locator(".entry-sister:visible")).toHaveAttribute("href", `${SISTER}parts/tab-bar/`);
+  await page.goto("/parts/breadcrumb/");
+  await expect(page.locator(".entry-sister")).toHaveCount(0);
+});
+
+test("スマホ幅：上の帯に図鑑の切り替えを足しても折り返さず、横にはみ出さない @mobile", async ({ page }) => {
+  await page.goto("/");
+  const top = (await page.getByRole("banner").boundingBox())!;
+  expect(top.height).toBeLessThanOrEqual(64);
+  for (const l of await page.locator(".top-links a").all()) expect((await l.boundingBox())!.height).toBeLessThan(26);
+  await expect(page.getByRole("navigation", { name: "図鑑の切り替え" }).getByRole("link", { name: "アプリ" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 });
 
 // 上の帯は画面上部に固定し、スクロールしても見えている（2026-10-19）

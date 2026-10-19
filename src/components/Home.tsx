@@ -3,6 +3,8 @@ import SiteHeader from "@/components/SiteHeader";
 import { CONFUSIONS } from "@/lib/parts";
 import { BASE_PATH } from "@/lib/site";
 import LabCredit from "@/components/LabCredit";
+import SisterCredit from "./SisterCredit";
+import { SISTER } from "@/lib/sister";
 
 // トップと部品ごとのページで共通の中身。initialPart があれば、その部品を選んだ状態で書き出す
 export default function Home({ initialPart }: { initialPart?: string }) {
@@ -27,6 +29,14 @@ export default function Home({ initialPart }: { initialPart?: string }) {
             </span>
             <span aria-hidden="true">→</span>
           </a>
+          {/* 姉妹サイト。スマホアプリの部品はアプリ部品図鑑で調べる */}
+          <a className="confuse-link is-sister" href={SISTER.url}>
+            <span>
+              <b>{SISTER.what}は {SISTER.name} へ</b>
+              <small>{SISTER.examples}、iOS・Androidアプリの部品の名前を同じ図面の形で調べられます</small>
+            </span>
+            <span aria-hidden="true">↗</span>
+          </a>
         </section>
 
         <footer className="credit">
@@ -35,7 +45,8 @@ export default function Home({ initialPart }: { initialPart?: string }) {
             <a href="https://showheyohtaki.github.io/motion-prompt/" target="_blank" rel="noreferrer"> Motion Prompt </a>
             から学びました。動きの名前はそちらで調べられます。
           </p>
-          <LabCredit />
+          <SisterCredit />
+        <LabCredit />
         </footer>
       </Dictionary>
 

@@ -8,6 +8,7 @@ import { CATEGORIES, CONFUSIONS, PARTS, PART_MAP, shortEn, type Part } from "@/l
 import { fromQuery, toQuery, type AppState } from "@/lib/state";
 import { buildPrompt } from "@/lib/prompt";
 import { BASE_PATH, SITE_NAME, TOP_TITLE, catLabel, partPath, partTitle } from "@/lib/site";
+import { SISTER, SISTER_PARTS, sisterPart } from "@/lib/sister";
 
 const VARS = cssVars(DEFAULT_TOKENS) as CSSProperties;
 
@@ -276,6 +277,13 @@ export default function Dictionary({ children, initialPart }: { children?: React
                   </div>
                 </div>
               ))}
+              {/* スマホアプリで同じ・近い部品は、姉妹サイトのアプリ部品図鑑へ */}
+              {SISTER_PARTS[p.id] && (
+                <a className="entry-sister" href={sisterPart(SISTER_PARTS[p.id].id)}>
+                  <span><small>スマホアプリでは</small><b>{SISTER_PARTS[p.id].ja}</b><small>{SISTER.name}で見る</small></span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              )}
     </>
   );
 
