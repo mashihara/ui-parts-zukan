@@ -64,10 +64,11 @@ a { color: inherit; }
 .focus-back { display: inline-flex; align-items: center; gap: 4px; height: 38px; padding: 0 14px 0 8px; border: 1.5px solid var(--bp); border-radius: 3px; background: #fff; color: var(--bp); font-weight: 700; cursor: pointer; }
 .focus-back:hover { background: var(--tint); }
 .focus-bar span { opacity: 0.75; }
-.focus-sheet { flex: 1; display: flex; flex-direction: column; position: relative; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1.5px var(--bp), 8px 8px 0 rgba(26, 71, 184, 0.12); padding: 18px; }
+.focus-sheet { position: relative; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1.5px var(--bp), 8px 8px 0 rgba(26, 71, 184, 0.12); padding: 18px; }
 .focus-name { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: var(--bp); }
 .focus-name small { margin-left: 10px; font: 500 12px var(--mono); }
-.focus-stage { flex: 1; min-height: 460px; border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 32px 20px; overflow: hidden; }
+/* 枠は見本の大きさに合わせる（全体図と同じ高さに伸ばすと、見本が下へ沈んで見えなかった） */
+.focus-stage { min-height: 460px; border-radius: 4px; display: flex; align-items: center; justify-content: center; padding: 32px 20px; overflow: hidden; }
 
 /* ---- 図面と項目 ---- */
 /* PC幅：左に図面・一覧・読み物、右に説明の列（sticky でずっと出す） */
@@ -104,7 +105,7 @@ a { color: inherit; }
 .toc-cat.is-open .toc-head svg { transform: rotate(180deg); }
 .toc-head:hover { color: var(--bp); }
 .toc ul { list-style: none; margin: 0; padding: 0 0 10px; }
-.toc li button { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 14px; line-height: 1.45; white-space: nowrap; }
+.toc li button { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 14px; line-height: 1.45; word-break: keep-all; overflow-wrap: anywhere; }
 .toc li button:hover { background: var(--tint); }
 .toc li button[aria-current="true"] { background: var(--bp); color: #fff; font-weight: 700; }
 .toc li button i { font-style: normal; font-size: 8px; margin-left: 4px; vertical-align: 2px; }
@@ -209,7 +210,7 @@ span.spot { display: inline-flex; }
 .dh-count { font: 500 12px var(--mono); opacity: 0.8; min-width: 54px; text-align: center; }
 .dh-nav .dh-x { margin-left: 6px; border: 1px solid var(--ln-weak); }
 .drawer-body { flex: 1; overflow: auto; overscroll-behavior: contain; padding: 18px 18px 28px; }
-.drawer-body h2 { margin: 0; font-size: 34px; line-height: 1.25; }
+.drawer-body h2 { margin: 0; font-size: 34px; line-height: 1.25; word-break: keep-all; overflow-wrap: anywhere; }
 .entry-en { margin: 2px 0 0; font: 500 12px var(--mono); opacity: 0.8; }
 .entry-aka { margin: 2px 0 0; font-size: 12.5px; opacity: 0.8; }
 .entry-meaning { margin: 8px 0 16px; font-size: 16px; font-weight: 500; }

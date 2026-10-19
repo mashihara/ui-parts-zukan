@@ -396,6 +396,8 @@ test("全体図に無い部品は真ん中を単体表示にし、全体図へ�
   await toc.getByRole("button", { name: /^画面の骨組み/ }).click();
   await toc.getByRole("button", { name: "サイドバー", exact: true }).click();
   await expect(page.locator(".focus-name")).toHaveText(/^サイドバー/);
+  // 見本は図面の枠の上の方に出て、画面の中に見えている（余白の見本が下へ沈んで見えなかった 2026-10-19）
+  await expect(page.locator(".focus-stage > *").first()).toBeInViewport();
   await expect(page.locator(".drawing")).toHaveCount(0);
   await page.getByRole("button", { name: "画面の全体図に戻る" }).click();
   await expect(page.locator(".drawing.is-wide")).toBeVisible();
