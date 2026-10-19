@@ -329,6 +329,15 @@ test("広いPC幅：目次から図面に無い部品も開ける", async ({ pag
   await expect(entryName(page)).toHaveText("モーダル");
   await expect(toc.getByRole("button", { name: "モーダル", exact: true })).toHaveAttribute("aria-current", "true");
   expect(await page.evaluate(() => scrollY)).toBe(y);
+  // 図面にある部品を目次で選ぶと、図面のその部品が見えるところまでページが動く（2026-10-19）
+  await toc.getByRole("button", { name: /^画面の骨組み/ }).click();
+  await toc.getByRole("button", { name: "フッター", exact: true }).click();
+  await expect(entryName(page)).toHaveText("フッター");
+  await expect.poll(async () => {
+    const r = (await page.locator('.sheet [data-part="footer"]').boundingBox())!;
+    const vh = page.viewportSize()!.height - 72;
+    return r.y >= 0 && r.y + r.height <= vh;
+  }).toBe(true);
   // 図面で別の分類の部品を選ぶと、その分類だけが開く
   await page.locator(".callout", { hasText: "アラート" }).click();
   await expect(toc.getByRole("button", { name: /^状態を伝える/ })).toHaveAttribute("aria-expanded", "true");

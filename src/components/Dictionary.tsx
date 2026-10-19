@@ -130,6 +130,21 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
     if (!s.part && !side) opener.current = document.activeElement as HTMLElement | null;
     setS((cur) => ({ ...cur, part: id }));
   };
+  // 目次から選んだときは、図面のその部品が見えるところまでページを動かす。
+  // 図面に無い部品（重なって出る窓など）や、狭い見本で省いた部品では動かさない
+  const openFromToc = (id: string) => {
+    open(id);
+    const el = document.querySelector<HTMLElement>(`.sheet [data-part="${id}"]`);
+    const r = el?.getBoundingClientRect();
+    if (!r || !r.width || !r.height) return;
+    const dock = document.querySelector<HTMLElement>(".dock")?.offsetHeight ?? 0;
+    const viewH = window.innerHeight - dock;
+    // すでに全体が見えていれば動かさない
+    if (r.top >= 12 && r.bottom <= viewH - 12) return;
+    const top = window.scrollY + r.top - Math.max(24, (viewH - r.height) / 2);
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" });
+  };
   // 何も選んでいないときは、次＝最初、前＝最後の部品を開く
   const step = (d: number) => open(PARTS[index < 0 ? (d > 0 ? 0 : PARTS.length - 1) : (index + d + PARTS.length) % PARTS.length].id);
   const togglePick = (id: string) => setS((cur) => ({ ...cur, picks: cur.picks.includes(id) ? cur.picks.filter((x) => x !== id) : [...cur.picks, id] }));
@@ -213,7 +228,7 @@ export default function Dictionary({ children }: { children?: ReactNode }) {
                 <ul id={`toc-${c.id}`}>
                   {items.map((p) => (
                     <li key={p.id}>
-                      <button type="button" aria-current={s.part === p.id} onClick={() => open(p.id)}>
+                      <button type="button" aria-current={s.part === p.id} onClick={() => openFromToc(p.id)}>
                         {p.ja}{s.picks.includes(p.id) && <i aria-label="AIに渡す名前に入れた">●</i>}
                       </button>
                     </li>
