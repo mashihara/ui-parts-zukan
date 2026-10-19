@@ -1,0 +1,47 @@
+<!doctype html><html lang="ja"><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f7f9fe;--bp:#1a47b8;--ink:#0e2a78;--y:#ffd84a;--amber-line:#d99500;--amber-tag:#ffc21a;--amber-ink:#3a2a00;--amber-fill:rgba(255,194,26,.28)}
+*{box-sizing:border-box}
+body{margin:0;width:1200px;background:var(--paper);background-image:linear-gradient(rgba(26,71,184,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(26,71,184,.07) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font-family:"IBM Plex Sans JP","Hiragino Sans",sans-serif;padding:44px 48px 40px}
+h1{margin:0;font-size:40px;font-weight:700;letter-spacing:.02em}
+h1 em{font-style:normal;background:linear-gradient(transparent 60%,var(--y) 60%)}
+.lead{margin:8px 0 28px;font-size:18px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.col{background:#fff;border:1.5px solid var(--bp);border-radius:10px;padding:22px 20px 24px}
+.tag{display:inline-block;font-size:15px;font-weight:700;padding:2px 10px;border:1.5px solid var(--bp);border-radius:999px}
+.col.good .tag{background:var(--bp);color:#fff}
+.prompt{margin:12px 0 18px;font-size:15.5px;line-height:1.75;}
+.prompt b{background:linear-gradient(transparent 60%,var(--y) 60%);font-weight:700}
+.shot{position:relative;width:470px;margin:0 auto;border:1px solid rgba(26,71,184,.3);border-radius:6px;overflow:hidden}
+.shot img{display:block;width:470px}
+.mk{position:absolute;border:2.5px solid var(--amber-line);background:var(--amber-fill);border-radius:6px}
+.mk i{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;background:var(--amber-tag);color:var(--amber-ink);font:700 16px/28px "IBM Plex Sans JP";text-align:center;font-style:normal;border:2px solid var(--amber-line)}
+table{width:100%;margin-top:28px;border-collapse:collapse;background:#fff;border:1.5px solid var(--bp);border-radius:10px;font-size:17px}
+th,td{padding:11px 18px;border-top:1px solid rgba(26,71,184,.25);text-align:left}
+tr:first-child th,tr:first-child td{border-top:0}
+thead th{font-size:14px;font-weight:500;color:#4a5f9c}
+td.n{width:52px;text-align:center;font-weight:700}
+td.ok{font-weight:700}
+.foot{margin-top:18px;display:flex;justify-content:space-between;font-size:15px}
+.foot b{font-size:17px}
+</style>
+<h1>同じAIに、同じ画面を<em>2通りで</em>頼んだ</h1>
+<p class="lead">カフェの席の予約画面。ちがうのは、頼み方に部品の名前が入っているかどうかだけ。</p>
+<div class="cols">
+ <div class="col"><span class="tag">名前を知らない頼み方</span>
+  <p class="prompt">「上に帯があって、今いくつめの手順か分かるようにして。名前と人数と受け取り方（店内・持ち帰り・配達）を入れられて、禁煙席がいいかどうかと、前の日にお知らせするかどうかも選べるようにして。最後に進むボタン」</p>
+  <div class="shot"><img src="vague.png"><span class="mk" style="left:67px;top:45px;width:347px;height:69px"><i>1</i></span><span class="mk" style="left:20px;top:304px;width:430px;height:50px"><i>2</i></span><span class="mk" style="left:20px;top:397px;width:430px;height:60px"><i>3</i></span><span class="mk" style="left:16px;top:499px;width:439px;height:65px"><i>4</i></span></div></div>
+ <div class="col good"><span class="tag">名前を入れた頼み方</span>
+  <p class="prompt">「上にヘッダー、その下に<b>ステップ表示</b>（入力→確認→完了、今は入力）。名前はテキストフィールド、人数は<b>セレクトボックス</b>、受け取り方は<b>ラジオボタン</b>、禁煙席の希望は<b>チェックボックス</b>、前日のお知らせはトグルスイッチ。最後に『予約内容を確認する』のボタン」</p>
+  <div class="shot"><img src="named.png"><span class="mk" style="left:45px;top:110px;width:386px;height:65px"><i>1</i></span><span class="mk" style="left:41px;top:339px;width:387px;height:53px"><i>2</i></span><span class="mk" style="left:41px;top:436px;width:387px;height:177px"><i>3</i></span><span class="mk" style="left:41px;top:627px;width:246px;height:40px"><i>4</i></span></div></div>
+</div>
+<table>
+ <thead><tr><th></th><th>名前を知らない頼み方</th><th>名前を入れた頼み方</th></tr></thead>
+ <tr><td class="n">①</td><td>手順を「日時→内容入力→確認」と勝手に作り、今は2つめ</td><td class="ok">入力→確認→完了の、今は1つめ</td></tr>
+ <tr><td class="n">②</td><td>人数は、数字を打ち込む欄</td><td class="ok">人数はセレクトボックスで選ぶ</td></tr>
+ <tr><td class="n">③</td><td>受け取り方は、横に並んだボタン</td><td class="ok">ラジオボタンで1つ選ぶ</td></tr>
+ <tr><td class="n">④</td><td>禁煙席はオン・オフのスイッチ</td><td class="ok">チェックボックスで印を付ける</td></tr>
+</table>
+<div class="foot"><span>部品の名前は「UI部品図鑑」で調べられます</span><b>mashiharalab.dev/ui-parts-zukan</b></div>
+</html>

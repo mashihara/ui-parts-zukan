@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カフェ席予約</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: #f4efe9;
+    color: #3a2e26;
+    display: flex;
+    justify-content: center;
+  }
+  .screen {
+    width: 420px;
+    min-height: 100vh;
+    background: #fffaf5;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 上の帯：手順表示 */
+  .steps {
+    background: #6b4226;
+    color: #fff;
+    padding: 14px 16px 16px;
+  }
+  .steps h1 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .step-track {
+    display: flex;
+    align-items: center;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+  .step-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    border: 2px solid rgba(255,255,255,0.4);
+  }
+  .step.active .step-circle {
+    background: #e8a33d;
+    border-color: #e8a33d;
+    color: #4a2e10;
+  }
+  .step.done .step-circle {
+    background: #fff;
+    border-color: #fff;
+    color: #6b4226;
+  }
+  .step-label {
+    margin-top: 4px;
+    font-size: 10px;
+    opacity: 0.85;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .step-line {
+    position: absolute;
+    top: 13px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.3);
+    z-index: 0;
+  }
+  .step:first-child .step-line { display: none; }
+  .step.done .step-line, .step.active .step-line { background: #e8a33d; }
+
+  /* フォーム本体 */
+  form {
+    flex: 1;
+    padding: 20px 18px 100px;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    color: #6b4226;
+  }
+  .field {
+    margin-bottom: 18px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #4a3b30;
+  }
+  .field input[type="text"],
+  .field input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d8c8b8;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fff;
+  }
+  .field input:focus {
+    outline: 2px solid #e8a33d;
+    outline-offset: 1px;
+  }
+
+  /* 受け取り方：ピル選択 */
+  .pill-group {
+    display: flex;
+    gap: 8px;
+  }
+  .pill {
+    flex: 1;
+    text-align: center;
+    padding: 10px 6px;
+    border: 1.5px solid #d8c8b8;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    background: #fff;
+    color: #4a3b30;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .pill input {
+    display: none;
+  }
+  .pill.selected {
+    background: #6b4226;
+    border-color: #6b4226;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* トグル行 */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #efe4d8;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a3b30;
+  }
+  .toggle-sub {
+    font-size: 11px;
+    color: #8a7a6b;
+    margin-top: 2px;
+  }
+  .switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .switch .track {
+    position: absolute;
+    inset: 0;
+    background: #d8c8b8;
+    border-radius: 999px;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .switch .track::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .switch input:checked + .track {
+    background: #e8a33d;
+  }
+  .switch input:checked + .track::before {
+    transform: translateX(20px);
+  }
+
+  .divider {
+    height: 1px;
+    background: #efe4d8;
+    margin: 22px 0;
+  }
+
+  /* 下固定の進むボタン */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 420px;
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(255,250,245,0) 0%, #fffaf5 30%);
+  }
+  .next-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #6b4226;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .next-btn:active {
+    background: #553420;
+  }
+
+  @media (max-width: 440px) {
+    .screen, .bottom-bar { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <div class="steps">
+    <h1>カフェ席予約</h1>
+    <div class="step-track">
+      <div class="step done">
+        <div class="step-circle">✓</div>
+        <div class="step-label">日時</div>
+      </div>
+      <div class="step active">
+        <div class="step-line"></div>
+        <div class="step-circle">2</div>
+        <div class="step-label">内容入力</div>
+      </div>
+      <div class="step">
+        <div class="step-line"></div>
+        <div class="step-circle">3</div>
+        <div class="step-label">確認</div>
+      </div>
+    </div>
+  </div>
+
+  <form onsubmit="return false;">
+    <div class="section-title">予約内容を入力してください</div>
+
+    <div class="field">
+      <label for="name">お名前</label>
+      <input type="text" id="name" placeholder="例：山田 花子">
+    </div>
+
+    <div class="field">
+      <label for="count">人数</label>
+      <input type="number" id="count" min="1" value="2">
+    </div>
+
+    <div class="field">
+      <label>受け取り方</label>
+      <div class="pill-group" id="receiveGroup">
+        <label class="pill selected">
+          <input type="radio" name="receive" value="instore" checked>
+          店内
+        </label>
+        <label class="pill">
+          <input type="radio" name="receive" value="takeout">
+          持ち帰り
+        </label>
+        <label class="pill">
+          <input type="radio" name="receive" value="delivery">
+          配達
+        </label>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-text">禁煙席を希望する</div>
+        <div class="toggle-sub">空きが無い場合は喫煙席になります</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="nonSmoking" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-text">前日にお知らせする</div>
+        <div class="toggle-sub">予約の前日にリマインドを送ります</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="remind">
+        <span class="track"></span>
+      </label>
+    </div>
+  </form>
+
+  <div class="bottom-bar">
+    <button type="button" class="next-btn">進む</button>
+  </div>
+</div>
+
+<script>
+  // ピル選択の見た目切り替え
+  document.querySelectorAll('.pill-group .pill').forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      document.querySelectorAll('.pill-group .pill').forEach(function (p) {
+        p.classList.remove('selected');
+      });
+      pill.classList.add('selected');
+      pill.querySelector('input').checked = true;
+    });
+  });
+</script>
+</body>
+</html>

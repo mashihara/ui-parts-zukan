@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カフェ座席予約</title>
+<style>
+  :root {
+    --primary: #6b4226;
+    --primary-light: #8a5a3a;
+    --accent: #c98a4b;
+    --bg: #faf6f1;
+    --card-bg: #ffffff;
+    --border: #e6ddd3;
+    --text: #3a2e26;
+    --text-sub: #8a7b6c;
+    --success: #4caf7d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+  }
+  .screen {
+    width: 420px;
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ヘッダー */
+  header {
+    background: var(--primary);
+    color: #fff;
+    padding: 18px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  header p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #e8d9c8;
+  }
+
+  /* ステップ表示 */
+  .steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 16px 10px;
+    background: var(--bg);
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+  .step .circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    background: #e6ddd3;
+    color: var(--text-sub);
+  }
+  .step.active .circle {
+    background: var(--accent);
+    color: #fff;
+  }
+  .step .label {
+    font-size: 11px;
+    color: var(--text-sub);
+  }
+  .step.active .label {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .step-line {
+    flex: 0.6;
+    height: 2px;
+    background: #e6ddd3;
+    margin-top: -18px;
+  }
+
+  /* フォーム本体 */
+  main {
+    flex: 1;
+    padding: 8px 20px 24px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(107, 66, 38, 0.05);
+  }
+  .field {
+    margin-bottom: 18px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .field-label .required {
+    color: #c0564a;
+    font-size: 11px;
+    margin-left: 4px;
+    font-weight: 500;
+  }
+  .field-hint {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 6px;
+  }
+
+  /* テキスト入力 */
+  input[type="text"] {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fdfbf9;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  /* セレクトボックス */
+  select {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fdfbf9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="%238a7b6c" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 14px center;
+    color: var(--text);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select:focus {
+    border-color: var(--accent);
+  }
+
+  /* ラジオボタン */
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .radio-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fdfbf9;
+    cursor: pointer;
+  }
+  .radio-item input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .radio-item label {
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    flex: 1;
+  }
+  .radio-item:has(input:checked) {
+    border-color: var(--accent);
+    background: #fcf1e4;
+  }
+
+  /* チェックボックス */
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .checkbox-item input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .checkbox-item label {
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* トグルスイッチ */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .toggle-text {
+    flex: 1;
+    padding-right: 12px;
+  }
+  .toggle-title {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .toggle-sub {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 3px;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #d8cfc3;
+    border-radius: 26px;
+    transition: 0.2s;
+  }
+  .slider::before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .switch input:checked + .slider {
+    background-color: var(--accent);
+  }
+  .switch input:checked + .slider::before {
+    transform: translateX(20px);
+  }
+
+  /* フッターのボタン */
+  footer {
+    padding: 14px 20px 22px;
+    background: var(--bg);
+    position: sticky;
+    bottom: 0;
+  }
+  .btn-confirm {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--primary);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    box-shadow: 0 3px 8px rgba(107, 66, 38, 0.25);
+  }
+  .btn-confirm:active {
+    background: var(--primary-light);
+  }
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <header>
+    <h1>カフェ座席予約</h1>
+    <p>Cafe Mocha Leaf</p>
+  </header>
+
+  <div class="steps">
+    <div class="step active">
+      <div class="circle">1</div>
+      <div class="label">入力</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="circle">2</div>
+      <div class="label">確認</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="circle">3</div>
+      <div class="label">完了</div>
+    </div>
+  </div>
+
+  <main>
+    <div class="card">
+      <div class="field">
+        <label class="field-label" for="name">お名前<span class="required">必須</span></label>
+        <input type="text" id="name" placeholder="例）山田 太郎">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="count">人数<span class="required">必須</span></label>
+        <select id="count">
+          <option value="1">1名</option>
+          <option value="2" selected>2名</option>
+          <option value="3">3名</option>
+          <option value="4">4名</option>
+          <option value="5">5名</option>
+          <option value="6">6名以上</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">受け取り方<span class="required">必須</span></label>
+        <div class="radio-group">
+          <div class="radio-item">
+            <input type="radio" id="dine-in" name="receive" value="dine-in" checked>
+            <label for="dine-in">店内でお召し上がり</label>
+          </div>
+          <div class="radio-item">
+            <input type="radio" id="take-out" name="receive" value="take-out">
+            <label for="take-out">持ち帰り</label>
+          </div>
+          <div class="radio-item">
+            <input type="radio" id="delivery" name="receive" value="delivery">
+            <label for="delivery">配達</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="checkbox-item">
+          <input type="checkbox" id="non-smoking">
+          <label for="non-smoking">禁煙席を希望する</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="toggle-row">
+          <div class="toggle-text">
+            <div class="toggle-title">前日のお知らせ</div>
+            <div class="toggle-sub">来店前日にメールで通知します</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="notify" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <button class="btn-confirm" type="button">予約内容を確認する</button>
+  </footer>
+
+</div>
+</body>
+</html>
