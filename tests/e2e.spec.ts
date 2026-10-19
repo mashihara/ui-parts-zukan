@@ -461,6 +461,8 @@ test("部品のページは、その部品の名前が h1 で、説明が開い�
   await page.locator(".crumbs a").click();
   await expect(page.locator("h1")).toHaveText("その部品、なんて呼ぶ？");
   await expect(page).not.toHaveURL(/\/parts\//);
+  // トップにも favicon.ico の指定がある（サブパスの書き出しでトップだけ抜けていた 2026-10-20）
+  expect(await (await request.get("/")).text()).toMatch(/<link rel="icon" href="[^"]*\/favicon\.ico"/);
   const sitemap = await (await request.get("/sitemap.xml")).text();
   // トップ・見分け方・AIへの渡し方と、一覧にある全部品のページ
   expect(sitemap.match(/<loc>/g)?.length).toBe(3 + (await page.locator("#names .name-card").count()));
