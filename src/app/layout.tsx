@@ -9,6 +9,9 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL;
 // 配信の実体は GitHub Pages のままで、mashiharalab.dev/ui-parts-zukan/ から中継している（検索の評価を本体のドメインにまとめるため）
 const CANONICAL_ORIGIN = new URL(SITE_URL).origin;
 const MOVE_TO_CANONICAL = `if(location.hostname.endsWith(".github.io")&&location.origin!==${JSON.stringify(CANONICAL_ORIGIN)})location.replace(${JSON.stringify(CANONICAL_ORIGIN)}+location.pathname+location.search+location.hash)`;
+// 閲覧数の計測。ましはらラボ（Vercel）の Web Analytics を、中継先のドメインで開かれたときだけ読む。
+// スクリプトは mashiharalab.dev の直下（/_vercel/insights/）にあり、github.io や手元（http）では 404 になるため読まない
+const ANALYTICS = `if(location.protocol==="https:"&&location.origin===${JSON.stringify(CANONICAL_ORIGIN)}){window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s)}`;
 
 export const metadata: Metadata = {
   title: TOP_TITLE,
@@ -28,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ja">
       <head>
         <script dangerouslySetInnerHTML={{ __html: MOVE_TO_CANONICAL }} />
+        <script dangerouslySetInnerHTML={{ __html: ANALYTICS }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
