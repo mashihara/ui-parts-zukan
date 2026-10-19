@@ -381,6 +381,7 @@ span.spot { display: inline-flex; }
 .how p.how-sub { flex: none; margin: 12px 0 6px; }
 .how pre { margin: 0; padding: 10px 12px; border-radius: 3px; background: var(--tint); border: 1px solid var(--ln-weak); font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
 .credit { padding: 48px 0 24px; font-size: 13px; opacity: 0.8; max-width: 52em; }
+.credit .lab-credit { margin-top: 12px; }
 
 /* ---- 下の帯 ---- */
 .dock {

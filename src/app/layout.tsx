@@ -5,6 +5,10 @@ import { SITE_NAME, SITE_URL, TOP_DESCRIPTION, TOP_TITLE } from "@/lib/site";
 
 // 共有画像の絶対URLの土台（ドメインだけ。サブパスは next.config の basePath から Next.js が足す）
 const SITE = process.env.NEXT_PUBLIC_SITE_URL;
+// 正規の公開先（ましはらラボのドメイン）。GitHub Pages（*.github.io）で直接開かれたら、こちらの同じページへ移す。
+// 配信の実体は GitHub Pages のままで、mashiharalab.dev/ui-parts-zukan/ から中継している（検索の評価を本体のドメインにまとめるため）
+const CANONICAL_ORIGIN = new URL(SITE_URL).origin;
+const MOVE_TO_CANONICAL = `if(location.hostname.endsWith(".github.io")&&location.origin!==${JSON.stringify(CANONICAL_ORIGIN)})location.replace(${JSON.stringify(CANONICAL_ORIGIN)}+location.pathname+location.search+location.hash)`;
 
 export const metadata: Metadata = {
   title: TOP_TITLE,
@@ -23,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: MOVE_TO_CANONICAL }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}

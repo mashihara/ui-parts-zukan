@@ -1,6 +1,6 @@
 # UI部品図鑑
 
-https://mashihara.github.io/ui-parts-zukan/
+https://mashiharalab.dev/ui-parts-zukan/
 
 **その部品、なんて呼ぶ？** UI部品の正式な名前が分かる、図面の形をした辞書です。
 

@@ -2,6 +2,7 @@
 import SiteHeader from "./SiteHeader";
 import { PARTS } from "@/lib/parts";
 import { BASE_PATH, SITE_URL } from "@/lib/site";
+import LabCredit from "./LabCredit";
 
 export default function HowTo() {
   return (
@@ -50,6 +51,7 @@ export default function HowTo() {
       </ol>
       <footer className="credit">
         <p><a href={`${BASE_PATH}/`}>UI部品図鑑のトップへ戻る</a></p>
+        <LabCredit />
       </footer>
     </div>
   );

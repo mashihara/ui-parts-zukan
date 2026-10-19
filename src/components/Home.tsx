@@ -2,6 +2,7 @@ import Dictionary from "@/components/Dictionary";
 import SiteHeader from "@/components/SiteHeader";
 import { CONFUSIONS } from "@/lib/parts";
 import { BASE_PATH } from "@/lib/site";
+import LabCredit from "@/components/LabCredit";
 
 // トップと部品ごとのページで共通の中身。initialPart があれば、その部品を選んだ状態で書き出す
 export default function Home({ initialPart }: { initialPart?: string }) {
@@ -34,6 +35,7 @@ export default function Home({ initialPart }: { initialPart?: string }) {
             <a href="https://showheyohtaki.github.io/motion-prompt/" target="_blank" rel="noreferrer"> Motion Prompt </a>
             から学びました。動きの名前はそちらで調べられます。
           </p>
+          <LabCredit />
         </footer>
       </Dictionary>
 

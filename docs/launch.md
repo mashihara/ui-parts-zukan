@@ -2,7 +2,8 @@
 
 ## 公開の残り作業
 
-- 公開先: GitHub Pages（リポジトリ mashihara/ui-parts-zukan）。main へ push すると `.github/workflows/pages.yml` が自動でビルドして公開する
+- 公開URL: https://mashiharalab.dev/ui-parts-zukan/ （2026-10-19 から。ましはらラボのドメインに評価をまとめるため）
+- 配信の実体: GitHub Pages（リポジトリ mashihara/ui-parts-zukan）。main へ push すると `.github/workflows/pages.yml` が自動でビルドして公開し、mashiharalab（~/work/mashiharalab の `next.config.ts` の rewrites）が /ui-parts-zukan/ で中継する。github.io で直接開かれたら mashiharalab.dev の同じページへ移す（`src/app/layout.tsx`）
 - 残り: `web-seo-setup` スキルで Search Console に登録する
 
 ## X の記事（長文）の下書き
@@ -24,7 +25,7 @@ AIに画面を作ってもらうとき、こんな頼み方をしていません
 
 そこで、画面に図面のように名前を書き込んだサイトを作りました。
 
-https://mashihara.github.io/ui-parts-zukan/
+https://mashiharalab.dev/ui-parts-zukan/
 
 ---
 
@@ -75,7 +76,7 @@ AIに「上の帯をおしゃれに」と頼んでも伝わらないのは、部
 
 このサイトがあれば、AIでのデザインがうんとよくなる。
 
-https://mashihara.github.io/ui-parts-zukan/
+https://mashiharalab.dev/ui-parts-zukan/
 
 ### 添える画像
 

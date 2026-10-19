@@ -25,9 +25,10 @@ jobs:
         env:
           # サブパス（/リポジトリ名）で配信するための設定と、llms.txt に書く絶対URL
           NEXT_PUBLIC_BASE_PATH: /ui-parts-zukan
-          # 共有画像の絶対URLの土台。Next.js がサブパスを足すので、ここはドメインだけにする
-          NEXT_PUBLIC_SITE_URL: https://mashihara.github.io
-          SITE_URL: https://mashihara.github.io/ui-parts-zukan
+          # 公開URLは ましはらラボのドメイン（mashiharalab.dev の next.config.ts が /ui-parts-zukan/ をこの GitHub Pages へ中継する）。
+          # canonical・サイトマップ・共有画像はこちらを指す。共有画像の土台は Next.js がサブパスを足すので、ドメインだけにする
+          NEXT_PUBLIC_SITE_URL: https://mashiharalab.dev
+          SITE_URL: https://mashiharalab.dev/ui-parts-zukan
       - uses: actions/upload-pages-artifact@v5
         with:
           path: out
