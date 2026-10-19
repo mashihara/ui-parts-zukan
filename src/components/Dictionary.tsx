@@ -121,7 +121,34 @@ export default function Dictionary({ children, initialPart }: { children?: React
     if (on.offsetTop < nav.scrollTop || on.offsetTop + on.offsetHeight > nav.scrollTop + nav.clientHeight) nav.scrollTop = on.offsetTop - nav.clientHeight / 2;
   }, [part]);
 
+  // 狭い幅で説明を開いたら履歴を1つ積み、ブラウザの「戻る」で閉じられるようにする。
+  // from は戻った先（吹き出しから開いたら吹き出しへ、一覧などから開いたら何も選んでいない状態へ）
+  const partNow = useRef(s.part);
+  useEffect(() => {
+    partNow.current = s.part;
+  }, [s.part]);
+  const pushed = useRef<{ from: "bubble" | "page"; id: string } | null>(null);
+  const pushDetail = (from: "bubble" | "page", id: string) => {
+    window.history.pushState(null, "", window.location.href);
+    pushed.current = { from, id };
+  };
+  useEffect(() => {
+    const onPop = () => {
+      const p = pushed.current;
+      if (!p) return;
+      pushed.current = null;
+      // 説明の中で別の部品へ移っていたら、吹き出しには戻らず閉じる
+      if (p.from === "bubble" && partNow.current === p.id) setInline(true);
+      else setS((cur) => ({ ...cur, part: null }));
+      opener.current?.focus({ preventScroll: true });
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   const close = () => {
+    // 履歴を積んで開いたときは、戻る操作と同じにする（閉じたあとに「戻る」を押しても説明が開き直さないように）
+    if (pushed.current) return window.history.back();
     setS((cur) => ({ ...cur, part: null }));
     // 開いたボタンへ戻る（ページの位置は動かさない）
     opener.current?.focus({ preventScroll: true });
@@ -134,10 +161,10 @@ export default function Dictionary({ children, initialPart }: { children?: React
     document.body.style.overflow = "hidden";
     closeBtn.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setS((cur) => ({ ...cur, part: null }));
-        opener.current?.focus({ preventScroll: true });
-      }
+      if (e.key !== "Escape") return;
+      if (pushed.current) return window.history.back();
+      setS((cur) => ({ ...cur, part: null }));
+      opener.current?.focus({ preventScroll: true });
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -172,6 +199,8 @@ export default function Dictionary({ children, initialPart }: { children?: React
   };
   const open = (id: string, inl = false) => {
     if (!s.part && !side) opener.current = document.activeElement as HTMLElement | null;
+    // 狭い幅で説明の欄を新しく開くときだけ履歴を積む（説明の中で前後の部品へ移るときは積まない）
+    if (ready && !side && !inl && !isOpen && !pushed.current) pushDetail("page", id);
     setInline(inl);
     setS((cur) => ({ ...cur, part: id }));
   };
@@ -276,7 +305,7 @@ export default function Dictionary({ children, initialPart }: { children?: React
       <p className="mb-name"><b>{part.ja}</b><small>{shortEn(part)}</small></p>
       <p className="mb-meaning">{part.meaning}</p>
       <div className="mb-actions">
-        <button type="button" className="mb-more" onClick={() => setInline(false)}>詳しく</button>
+        <button type="button" className="mb-more" onClick={() => { pushDetail("bubble", part.id); setInline(false); }}>詳しく</button>
         <button type="button" className={`mb-pick ${s.picks.includes(part.id) ? "is-on" : ""}`} aria-pressed={s.picks.includes(part.id)} onClick={() => togglePick(part.id)}>
           <Icon name={s.picks.includes(part.id) ? "check" : "plus"} size={16} />
           {s.picks.includes(part.id) ? "入れました" : "AIに渡す"}

@@ -351,19 +351,39 @@ test("スマホ幅：部品は点線で囲むだけで、押すとそばに吹�
   await page.locator(".intro h1").click();
   await expect(page.locator(".map-bubble")).toHaveCount(0);
 
-  // 「詳しく」で、今までの説明の欄が開く
+  // 「詳しく」で、画面全体に説明が開く。ブラウザの「戻る」で吹き出しに戻る（2026-10-19 本人指示）
   await page.locator(".sheet [data-part=text-field]").click({ position: { x: 4, y: 4 } });
+  const y0 = await page.evaluate(() => scrollY);
   await page.locator(".mb-more").click();
   await expect(entryName(page)).toHaveText("テキストフィールド");
   await expect(page.locator(".map-bubble")).toHaveCount(0);
   await page.waitForTimeout(800);
+  const dr = (await page.locator(".drawer").boundingBox())!;
+  expect(dr.y).toBe(0);
+  expect(dr.height).toBeGreaterThanOrEqual(page.viewportSize()!.height - 1);
   await shot(page, "sp-entry");
-  await closeEntry(page);
+  await page.goBack();
+  await expect(page.locator(".drawer")).toHaveCount(0);
+  await expect(page.locator(".map-bubble .mb-name b")).toHaveText("テキストフィールド");
+  await expect(page).toHaveURL(/\/parts\/text-field\/(\?|$)/);
+  expect(await page.evaluate(() => scrollY)).toBe(y0);
+  // ✕で閉じても同じく吹き出しへ戻り、そのあと「戻る」を押しても説明は開き直さない
+  await page.locator(".mb-more").click();
+  await page.getByRole("button", { name: "閉じる", exact: true }).click();
+  await expect(page.locator(".drawer")).toHaveCount(0);
+  await expect(page.locator(".map-bubble")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".map-bubble")).toHaveCount(0);
 
-  // 一覧のカードからは、今までどおり説明の欄が開く
+  // 一覧のカードからも画面全体に開き、「戻る」で元の画面に戻る
+  await card(page, "モーダル").scrollIntoViewIfNeeded();
+  const y1 = await page.evaluate(() => scrollY);
   await card(page, "モーダル").click();
   await expect(entryName(page)).toHaveText("モーダル");
-  await closeEntry(page);
+  await page.goBack();
+  await expect(page.locator(".drawer")).toHaveCount(0);
+  await expect(page).not.toHaveURL(/\/parts\//);
+  expect(await page.evaluate(() => scrollY)).toBe(y1);
   // Esc でも吹き出しが閉じる
   await page.locator(".sheet [data-part=button]").click({ position: { x: 4, y: 4 } });
   await expect(page.locator(".map-bubble")).toBeVisible();

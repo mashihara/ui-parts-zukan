@@ -408,7 +408,8 @@ span.spot { display: inline-flex; }
 /* 1400px 未満では項目を図面の下へ回し、図面の幅を確保して引き出し線を出す */
 
 @media (max-width: 760px) {
-  .drawer { top: auto; left: 0; width: 100%; height: 88vh; border-left: 0; border-top: 1.5px solid var(--bp); border-radius: 14px 14px 0 0; animation-name: dr-up; }
+  /* スマホ幅は画面全体に出す（下から少し重ねる形では、ブラウザの「戻る」で閉じたくなる別の画面に見えなかった） */
+  .drawer { top: 0; left: 0; width: 100%; height: 100%; border-left: 0; animation-name: dr-up; }
   .cat ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .thumb { height: 104px; }
   .thumb-in { transform: translate(-50%, -50%) scale(0.38); }
