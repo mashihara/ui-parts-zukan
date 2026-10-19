@@ -670,6 +670,195 @@ function FirstView() {
   );
 }
 
+// ===== 追加の15語 =====
+function FormDemo() {
+  return (
+    <form className="x-form" onSubmit={(e) => e.preventDefault()}>
+      <b>お問い合わせ</b>
+      <Field label="お名前" value="森 はな" />
+      <Field label="メールアドレス" />
+      <Check label="利用規約に同意する" init />
+      <Btn o={{ variant: "filled", size: "md", width: "full" }}>送信する</Btn>
+    </form>
+  );
+}
+
+const STATIONS = ["渋谷", "渋谷区役所前", "渋沢", "新宿", "新橋", "品川"];
+function Autocomplete() {
+  const [v, setV] = useState("渋");
+  const hits = v ? STATIONS.filter((s) => s.startsWith(v)).slice(0, 5) : [];
+  return (
+    <div className="x-ac">
+      <label className="k-field s-outline">
+        <span className="k-field-label">駅名</span>
+        <span className="k-field-box"><Icon name="search" size={16} /><input value={v} onChange={(e) => setV(e.target.value)} aria-label="駅名" style={{ marginLeft: 8 }} /></span>
+      </label>
+      {hits.length > 0 && (
+        <div className="k-menu static" role="listbox">
+          {hits.map((h, i) => <div key={h} role="option" aria-selected={i === 0} className={`k-opt ${i === 0 ? "is-on" : ""}`}><span><b>{v}</b>{h.slice(v.length)}</span></div>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DatePicker() {
+  const [day, setDay] = useState(18);
+  const first = 3; // 10月1日は水曜（日曜はじまり）
+  const cells = [...Array(first).fill(0), ...Array.from({ length: 31 }, (_, i) => i + 1)];
+  return (
+    <div className="x-dp">
+      <div className="k-field-box x-dp-field"><Icon name="calendar" size={16} />2026年10月{day}日</div>
+      <div className="x-cal">
+        <div className="x-cal-head"><Icon name="chevronLeft" size={16} /><b>2026年10月</b><Icon name="chevronRight" size={16} /></div>
+        <div className="x-cal-grid">
+          {["日", "月", "火", "水", "木", "金", "土"].map((d) => <span key={d} className="x-wd">{d}</span>)}
+          {cells.map((d, i) => d === 0 ? <span key={i} /> : (
+            <button key={i} type="button" className={`${d === day ? "is-on" : ""} ${d < 16 ? "is-past" : ""}`} disabled={d < 16} onClick={() => setDay(d)}>{d}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FileUpload() {
+  return (
+    <div className="x-up">
+      <div className="x-drop"><Icon name="upload" size={28} /><b>ここにファイルをドラッグ</b><span>または <u>ファイルを選ぶ</u>（10MBまで）</span></div>
+      <div className="x-file"><Icon name="image" size={18} /><span>店内の写真.jpg<small>2.4MB</small></span><div className="k-progress" style={{ height: 4 }}><span style={{ width: "64%" }} /></div></div>
+    </div>
+  );
+}
+
+function Rating() {
+  const [v, setV] = useState(4);
+  return (
+    <div className="x-rate" role="radiogroup" aria-label="評価">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button key={n} type="button" role="radio" aria-checked={v === n} aria-label={`${n}つ星`} className={n <= v ? "is-on" : ""} onClick={() => setV(n)}>
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="m12 3.5 2.6 5.4 5.9.7-4.4 4 1.2 5.8L12 16.5l-5.3 2.9 1.2-5.8-4.4-4 5.9-.7L12 3.5Z" /></svg>
+        </button>
+      ))}
+      <span className="x-rate-num">{v.toFixed(1)}</span>
+    </div>
+  );
+}
+
+const SLIDES = ["季節のブレンド", "自家製プリン", "厚切りトースト"];
+function Carousel() {
+  const [i, setI] = useState(0);
+  const go = (d: number) => setI((i + d + SLIDES.length) % SLIDES.length);
+  return (
+    <div className="x-car">
+      <div className="x-car-track" style={{ transform: `translateX(-${i * 100}%)` }}>
+        {SLIDES.map((t) => <div key={t} className="x-slide"><Icon name="coffee" size={34} stroke={1.4} /><b>{t}</b></div>)}
+      </div>
+      <button type="button" className="x-car-btn l" onClick={() => go(-1)} aria-label="前へ"><Icon name="chevronLeft" size={18} /></button>
+      <button type="button" className="x-car-btn r" onClick={() => go(1)} aria-label="次へ"><Icon name="chevronRight" size={18} /></button>
+      <div className="x-dots">{SLIDES.map((t, j) => <button key={t} type="button" aria-label={`${j + 1}枚目`} className={j === i ? "is-on" : ""} onClick={() => setI(j)} />)}</div>
+    </div>
+  );
+}
+
+function Timeline() {
+  const ev = [["10/18 14:02", "配達が完了しました"], ["10/18 09:30", "配達に出発しました"], ["10/17 21:10", "店舗を出発しました"], ["10/17 18:45", "ご注文を受け付けました"]];
+  return (
+    <ol className="x-tl">
+      {ev.map(([t, d], i) => <li key={t} className={i === 0 ? "is-now" : ""}><time>{t}</time><span>{d}</span></li>)}
+    </ol>
+  );
+}
+
+function Icons() {
+  const list: [string, string][] = [["home", "ホーム"], ["search", "さがす"], ["calendar", "予約"], ["heart", "お気に入り"], ["bell", "お知らせ"], ["user", "会員"], ["mail", "メール"], ["gear", "設定"]];
+  return (
+    <div className="x-icons">
+      {list.map(([ic, t]) => <span key={ic}><Icon name={ic} size={24} /><small>{t}</small></span>)}
+    </div>
+  );
+}
+
+function InfiniteScroll() {
+  const [n, setN] = useState(6);
+  const [loading, setLoading] = useState(false);
+  const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    if (loading || n >= 30 || el.scrollTop + el.clientHeight < el.scrollHeight - 40) return;
+    setLoading(true);
+    setTimeout(() => { setN((x) => x + 6); setLoading(false); }, 700);
+  };
+  return (
+    <div className="sc-wrap">
+      <div className="sc-scroll x-inf" onScroll={onScroll} tabIndex={0} aria-label="下までスクロールすると続きが出る見本">
+        {Array.from({ length: n }).map((_, i) => <div key={i} className="x-inf-row"><span className="k-avatar sh-circle" style={{ width: 28, height: 28 }} /><span>投稿 {i + 1}</span></div>)}
+        <div className="x-inf-foot">{loading ? <span className="k-spinner" role="status" aria-label="読み込み中" /> : n >= 30 ? "すべて表示しました" : "下まで来ると続きを読み込みます"}</div>
+      </div>
+      <p className="sc-hint">下までスクロールすると、続きが自動で出ます</p>
+    </div>
+  );
+}
+
+function Chart() {
+  const data: [string, number][] = [["6月", 42], ["7月", 58], ["8月", 71], ["9月", 49], ["10月", 86]];
+  return (
+    <div className="x-chart" role="img" aria-label="月ごとの予約数の棒グラフ">
+      <b>月ごとの予約数</b>
+      <div className="x-bars">
+        {data.map(([m, v]) => <div key={m} className="x-bar"><small>{v}</small><span style={{ height: `${v}%` }} /><em>{m}</em></div>)}
+      </div>
+    </div>
+  );
+}
+
+function Flexbox() {
+  return (
+    <div className="x-flexes">
+      <figure><div className="x-flex row">{[1, 2, 3].map((n) => <span key={n}>{n}</span>)}</div><figcaption>横に並べる（row）</figcaption></figure>
+      <figure><div className="x-flex col">{[1, 2, 3].map((n) => <span key={n}>{n}</span>)}</div><figcaption>縦に並べる（column）</figcaption></figure>
+    </div>
+  );
+}
+
+function Gap() {
+  return (
+    <figure className="x-gap-fig">
+      <div className="x-gap">{[1, 2, 3].map((n) => <span key={n}>{n}</span>)}</div>
+      <figcaption>しま模様が「ギャップ」（間だけ。端には付かない）</figcaption>
+    </figure>
+  );
+}
+
+function Alignment() {
+  const rows: [string, string][] = [["start", "左寄せ"], ["center", "中央揃え"], ["end", "右寄せ"], ["space-between", "両端揃え"]];
+  return (
+    <div className="x-align">
+      {rows.map(([j, t]) => <div key={j} className="x-al-row"><small>{t}</small><div className="x-al-track" style={{ justifyContent: j }}>{[1, 2, 3].map((n) => <span key={n} />)}</div></div>)}
+    </div>
+  );
+}
+
+function ZIndex() {
+  return (
+    <figure className="x-z-fig">
+      <div className="x-z">
+        {[1, 2, 3].map((n) => <span key={n} className={`z${n}`}>z-index: {n}</span>)}
+      </div>
+      <figcaption>数が大きいほど手前に出る</figcaption>
+    </figure>
+  );
+}
+
+function AspectRatio() {
+  return (
+    <div className="x-ar">
+      {[["1 / 1", "1:1（正方形）"], ["4 / 3", "4:3"], ["16 / 9", "16:9（動画）"]].map(([r, t]) => (
+        <figure key={r}><span style={{ aspectRatio: r }}><Icon name="image" size={20} /></span><figcaption>{t}</figcaption></figure>
+      ))}
+    </div>
+  );
+}
+
 export function PartPreview({ id, o }: { id: string; o: O }) {
   switch (id) {
     case "header": return <Header o={o} />;
@@ -709,6 +898,21 @@ export function PartPreview({ id, o }: { id: string; o: O }) {
     case "overlay": return <Overlay />;
     case "scroll": return <HScroll />;
     case "first-view": return <FirstView />;
+    case "form": return <FormDemo />;
+    case "autocomplete": return <Autocomplete />;
+    case "date-picker": return <DatePicker />;
+    case "file-upload": return <FileUpload />;
+    case "rating": return <Rating />;
+    case "carousel": return <Carousel />;
+    case "timeline": return <Timeline />;
+    case "icon": return <Icons />;
+    case "infinite-scroll": return <InfiniteScroll />;
+    case "chart": return <Chart />;
+    case "flexbox": return <Flexbox />;
+    case "gap": return <Gap />;
+    case "alignment": return <Alignment />;
+    case "z-index": return <ZIndex />;
+    case "aspect-ratio": return <AspectRatio />;
     case "modal": return <Modal o={o} />;
     case "dialog": return <Dialog o={o} />;
     case "drawer": return <Drawer o={o} />;

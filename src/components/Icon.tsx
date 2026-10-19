@@ -24,6 +24,10 @@ const PATHS: Record<string, string> = {
   coffee: "M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9Zm11 1h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5c0 1.5 1 1.5 1 3M12 3.5c0 1.5 1 1.5 1 3",
   inbox: "M4 13l2.5-7.5h11L20 13v6H4v-6Zm0 0h4.5l1 2h5l1-2H20",
   star: "m12 4 2.4 5 5.4.6-4 3.7 1.1 5.4L12 16l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6L12 4Z",
+  upload: "M12 16V5m0 0-4 4m4-4 4 4M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15",
+  image: "M4.5 5h15v14h-15zM4.5 16l4.5-4.5 3.5 3.5 2.5-2.5 4.5 4.5M15.5 9.5h.01",
+  mail: "M4 6h16v12H4zM4 7l8 6 8-6",
+  chart: "M5 19V9m5 10V5m5 14v-7m5 7v-4M3 19.5h18",
 };
 
 export default function Icon({ name, size = 20, stroke = 1.8 }: { name: string; size?: number; stroke?: number }) {

@@ -266,7 +266,7 @@ test("全部の部品の見本がエラーなく出る", async ({ page }) => {
   await page.goto("/");
   const cards = page.locator(".name-card");
   const n = await cards.count();
-  expect(n).toBe(53);
+  expect(n).toBe(68);
   // 一覧の小さな見本も全部描かれている
   const empty = await page.locator(".thumb-in").evaluateAll((els) => els.filter((e) => ((e.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0) < 10).length);
   expect(empty, "小さな見本が空のカード").toBe(0);
