@@ -9,6 +9,12 @@
   --tint: #eef2fb; /* 淡い面 */
   --y: #ffd84a; /* 蛍光ペンの黄（地に敷くだけで、文字色には使わない） */
   --mark: linear-gradient(transparent 60%, var(--y) 60%);
+  /* 選んだ部品の色（山吹）。青の図面の中で選んだ物が浮くよう、選択は黄を地にする（2026-10-19 B-2 案） */
+  --amber: #f2a900;
+  --amber-line: #d99500;
+  --amber-tag: #ffc21a;
+  --amber-ink: #3a2a00;
+  --amber-fill: rgba(255, 194, 26, 0.35);
   --font: "IBM Plex Sans JP", "Hiragino Sans", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
   --dock-h: 72px;
@@ -138,9 +144,9 @@ a { color: inherit; }
 .leaders path { fill: none; stroke: var(--ln-weak); stroke-width: 1.2; }
 .leaders path.halo { stroke: var(--paper); stroke-width: 3.6; }
 .leaders circle { fill: var(--bp); stroke: #fff; stroke-width: 1.5; }
-.leaders .hot path { stroke: var(--bp); stroke-width: 2; }
+.leaders .hot path { stroke: var(--amber-line); stroke-width: 2.4; }
 .leaders .hot path.halo { stroke: var(--paper); stroke-width: 4.4; }
-.leaders .hot circle { fill: var(--y); stroke: var(--bp); }
+.leaders .hot circle { fill: var(--amber-tag); stroke: var(--amber); }
 .callout {
   position: absolute; z-index: 3; border: 0; background: transparent; padding: 0; cursor: pointer; white-space: nowrap;
   font-size: 13px; font-weight: 700; line-height: 1.25; text-align: left; color: var(--bp-ink);
@@ -153,7 +159,7 @@ a { color: inherit; }
 .callout.hot small { opacity: 0.85; color: var(--bp); }
 .callout:hover, .callout.hot { color: var(--bp); background: var(--mark); }
 /* 選んだ名前は青い札にして大きくする（蛍光ペンだけでは目立たなかった 2026-10-19） */
-.callout.sel { z-index: 4; color: #fff; background: var(--bp); font-size: 15px; padding: 4px 10px; margin-top: -4px; border-radius: 3px; box-shadow: 0 4px 12px rgba(14, 42, 120, 0.25); }
+.callout.sel { z-index: 4; color: var(--amber-ink); background: var(--amber-tag); font-size: 15px; padding: 4px 10px; margin-top: -4px; border-radius: 3px; box-shadow: 0 0 0 1.5px var(--amber), 0 4px 12px rgba(14, 42, 120, 0.2); }
 .callout.l.sel { margin-right: -10px; }
 .callout.r.sel { margin-left: -10px; }
 /* 札にした名前の英語は下の名前と重なるので出さない（英語名は上の帯と右の欄に出ている） */
@@ -197,8 +203,17 @@ a { color: inherit; }
 span.spot { display: inline-flex; }
 .spot::after { content: ""; position: absolute; inset: -3px; border-radius: 8px; border: 2px solid transparent; pointer-events: none; z-index: 5; transition: border-color 0.12s; }
 .spot.is-hover::after { border: 2px dashed var(--bp); background: rgba(26, 71, 184, 0.05); }
-/* 選んだ部品は太い枠で囲み、それ以外を暗くする（全体図の中で何を指しているか分かるように） */
-.spot.is-sel::after { border: 3px solid var(--bp); background: transparent; box-shadow: 0 0 0 4000px rgba(14, 42, 120, 0.22); }
+/* 選んだ部品は、設計図の角の印（山吹のL字）で四隅を押さえ、薄い山吹を敷く。
+   周りを暗くすると図面がごちゃごちゃして見えた。黄は乗算で重ね、部品の文字を薄くしない */
+.spot.is-sel::after {
+  inset: -8px; border: 0; border-radius: 0; mix-blend-mode: multiply;
+  background:
+    linear-gradient(var(--amber), var(--amber)) left top / 16px 4px no-repeat, linear-gradient(var(--amber), var(--amber)) left top / 4px 16px no-repeat,
+    linear-gradient(var(--amber), var(--amber)) right top / 16px 4px no-repeat, linear-gradient(var(--amber), var(--amber)) right top / 4px 16px no-repeat,
+    linear-gradient(var(--amber), var(--amber)) left bottom / 16px 4px no-repeat, linear-gradient(var(--amber), var(--amber)) left bottom / 4px 16px no-repeat,
+    linear-gradient(var(--amber), var(--amber)) right bottom / 16px 4px no-repeat, linear-gradient(var(--amber), var(--amber)) right bottom / 4px 16px no-repeat,
+    var(--amber-fill);
+}
 .spot-tag {
   display: none; position: absolute; z-index: 6; top: -10px; left: 4px; padding: 0 7px; border-radius: 3px; white-space: nowrap; pointer-events: none;
   background: var(--bp-ink); color: #fff; font: 700 11px/1.7 var(--font); box-shadow: 0 0 0 1px #fff;
@@ -212,7 +227,7 @@ span.spot { display: inline-flex; }
 .drawing.is-narrow .spot[data-part="tooltip"] > .spot-tag { top: 50%; left: calc(100% + 6px); transform: translateY(-50%); }
 .drawing.is-narrow .spot[data-part="icon-button"] > .spot-tag { top: calc(100% + 3px); left: 0; }
 .drawing.is-narrow .map-row { margin-bottom: 22px; }
-.drawing.is-narrow .spot.is-sel > .spot-tag { background: var(--y); color: var(--bp-ink); }
+.drawing.is-narrow .spot.is-sel > .spot-tag { background: var(--amber-tag); color: var(--amber-ink); }
 
 /* 部品の項目 */
 /* 部品の説明：ページの上に重ねて、右から引き出す（スマホは下から） */
