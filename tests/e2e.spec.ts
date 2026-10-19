@@ -25,7 +25,7 @@ const overflowing = (page: Page) =>
   page.locator(".sheet").evaluate((sheet) => {
     const s = sheet.getBoundingClientRect();
     return [...sheet.querySelectorAll<HTMLElement>(".map *")]
-      .filter((e) => e.offsetParent && !e.closest(".spot-tag") && e.getBoundingClientRect().width > 0)
+      .filter((e) => e.offsetParent && e.getBoundingClientRect().width > 0)
       .filter((e) => { const r = e.getBoundingClientRect(); return r.right > s.right + 1 || r.left < s.left - 1; })
       .map((e) => e.textContent?.trim().slice(0, 12) || e.className);
   });
@@ -292,29 +292,15 @@ test("全部の部品の見本がエラーなく出る", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @mobile", async ({ page }) => {
+// スマホ幅（2026-10-19 A3案）。名前の札を部品に重ねると見本の文字が隠れたので、点線で囲み、押した部品のそばに吹き出しで名前を出す
+test("スマホ幅：部品は点線で囲むだけで、押すとそばに吹き出しで名前が出る @mobile", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".drawing.is-narrow")).toBeVisible();
-  await expect(page.locator(".spot-tag", { hasText: "ラジオボタン" })).toBeVisible();
-  // 紙の上端にある部品の札も切れずに見える
-  const tag = await page.locator(".spot[data-part=header] > .spot-tag").boundingBox();
-  const sheet = await page.locator(".sheet").boundingBox();
-  expect(tag!.y).toBeLessThan(sheet!.y);
-  // 名前の札どうしが重ならない
-  const tags = await page.locator(".drawing.is-narrow .spot-tag").evaluateAll((els) =>
-    els.filter((e) => getComputedStyle(e).display !== "none" && (e as HTMLElement).offsetParent).map((e) => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, s: e.textContent }; }),
-  );
-  for (let i = 0; i < tags.length; i++)
-    for (let j = i + 1; j < tags.length; j++) {
-      const a = tags[i], c = tags[j];
-      expect(a.l < c.r && c.l < a.r && a.t < c.b && c.t < a.b, `${a.s} と ${c.s} の札が重なる`).toBe(false);
-    }
-  // ツールチップの名前の札が、ツールチップの文字を隠さない
-  const tipText = (await page.locator(".sheet .k-tooltip").boundingBox())!;
-  const tipTag = (await page.locator(".spot[data-part=tooltip] > .spot-tag").boundingBox())!;
-  expect(tipTag.x).toBeGreaterThanOrEqual(tipText.x + tipText.width);
-  // ツールチップの札が画面の右で切れない
-  expect(await insideSheet(page, "tooltip")).toBe(true);
+  await expect(page.locator(".map-hint")).toBeVisible();
+  // 名前の札は無く、押せる部品は点線で囲む
+  expect(await page.locator(".sheet [data-part=radio]").evaluate((e) => getComputedStyle(e, "::after").borderTopStyle)).toBe("dashed");
+  // 名前を1つも入れていないときは下の帯を出さない
+  await expect(page.locator(".dock")).toBeHidden();
   // 一覧の小さな見本も左右が切れない
   const cut = await page.locator(".thumb").evaluateAll((els) => els.filter((t) => { const a = t.getBoundingClientRect(), b = t.querySelector(".thumb-in")!.getBoundingClientRect(); return b.left < a.left - 2 || b.right > a.right + 2; }).length);
   expect(cut, "見本の左右が切れるカード").toBe(0);
@@ -323,16 +309,66 @@ test("スマホ幅：部品の上に名前が出て、押すと説明へ進む @
   expect(await overlap(page, "toast", "footer")).toBe(false);
   expect(await overlap(page, "toast", "button")).toBe(false);
   expect(await insideSheet(page, "toast")).toBe(true);
+  expect(await insideSheet(page, "tooltip")).toBe(true);
   // 右端のアバターが画面に収まる
   const av = await page.locator(".spot[data-part=avatar]").boundingBox();
   expect(av!.x + av!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
   await shot(page, "sp-top");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
-  await page.locator(".sheet .k-toggle").click();
-  await expect(entryName(page)).toHaveText("トグルスイッチ");
+
+  // 部品を押すと、重ねて開く欄ではなく、部品のそばに吹き出しが出る。ページの位置は動かない
+  const bubbleFits = async (id: string) => {
+    const b = (await page.locator(".map-bubble").boundingBox())!;
+    const r = (await page.locator(`.sheet [data-part=${id}]`).boundingBox())!;
+    const vw = page.viewportSize()!.width;
+    expect(b.x, "吹き出しが左で切れる").toBeGreaterThanOrEqual(0);
+    expect(b.x + b.width, "吹き出しが右で切れる").toBeLessThanOrEqual(vw);
+    // 吹き出しは選んだ部品を隠さない（上か下に出る）
+    expect(b.y + b.height <= r.y + 1 || b.y >= r.y + r.height - 1, `吹き出しが${id}に重なる`).toBe(true);
+  };
+  for (const [id, name] of [["toggle", "トグルスイッチ"], ["header", "ヘッダー"], ["avatar", "アバター"], ["alert", "アラート"]] as const) {
+    await page.locator(`.sheet [data-part=${id}]`).scrollIntoViewIfNeeded();
+    const y = await page.evaluate(() => scrollY);
+    await page.locator(`.sheet [data-part=${id}]`).click({ position: { x: 4, y: 4 } });
+    await expect(page.locator(".map-bubble .mb-name b")).toHaveText(name);
+    await expect(page.locator(".drawer")).toHaveCount(0);
+    await expect(page.locator(".map-bubble")).toBeInViewport();
+    expect(await page.evaluate(() => scrollY)).toBe(y);
+    await bubbleFits(id);
+    if (id === "toggle") await shot(page, "sp-bubble");
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+
+  // AIに渡すと、下の帯が件数つきで出る。吹き出しは開いたまま
+  await page.locator(".mb-pick").click();
+  await expect(page.locator(".mb-pick")).toHaveText("入れました");
+  await expect(page.locator(".dock")).toBeVisible();
+  await expect(page.locator(".dock-go")).toHaveText("AIに渡す文を見る（1件）");
+  await expect(page.locator(".map-bubble")).toBeVisible();
+  await shot(page, "sp-picked");
+
+  // 外を押すと閉じる
+  await page.locator(".intro h1").click();
+  await expect(page.locator(".map-bubble")).toHaveCount(0);
+
+  // 「詳しく」で、今までの説明の欄が開く
+  await page.locator(".sheet [data-part=text-field]").click({ position: { x: 4, y: 4 } });
+  await page.locator(".mb-more").click();
+  await expect(entryName(page)).toHaveText("テキストフィールド");
+  await expect(page.locator(".map-bubble")).toHaveCount(0);
   await page.waitForTimeout(800);
   await shot(page, "sp-entry");
-  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  await closeEntry(page);
+
+  // 一覧のカードからは、今までどおり説明の欄が開く
+  await card(page, "モーダル").click();
+  await expect(entryName(page)).toHaveText("モーダル");
+  await closeEntry(page);
+  // Esc でも吹き出しが閉じる
+  await page.locator(".sheet [data-part=button]").click({ position: { x: 4, y: 4 } });
+  await expect(page.locator(".map-bubble")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".map-bubble")).toHaveCount(0);
 });
 
 

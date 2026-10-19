@@ -1,7 +1,8 @@
 "use client";
 // 図面：見本の画面の部品に、図面の引き出し線で名前を書き込む。
-// 広い幅では左右の余白に名前を並べて線でつなぎ、狭い幅では部品の上に札を出す。
-import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+// 広い幅では左右の余白に名前を並べて線でつなぐ。狭い幅では部品を点線で囲むだけにし（札を重ねると見本の文字が隠れた）、
+// 押した部品のそばに吹き出しで名前を出す。
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Icon from "./Icon";
 import { Screen } from "./previews";
 import { PART_MAP, shortEn } from "@/lib/parts";
@@ -33,7 +34,6 @@ function Spot({ id, children, className = "", as = "div" }: { id: string; childr
       }}
     >
       {children}
-      <span className="spot-tag" aria-hidden="true">{PART_MAP[id].ja}</span>
     </Tag>
   );
 }
@@ -50,8 +50,13 @@ type Callout = { id: string; side: "l" | "r"; ex: number; ey: number; y: number 
 const WIDE = 780; // これより広ければ引き出し線で書き込む（PC幅で右の列を出しても、幅1280pxで線が出るようにする）
 const GAP = 36; // 名前どうしの最小の縦の間隔
 
-export default function ScreenMap({ onPick, selected }: { onPick: (id: string) => void; selected: string }) {
+const BUBBLE_W = 280; // 吹き出しの幅
+
+// onPick の inline は、狭い幅で図面から選んだとき（説明を重ねて開かず、吹き出しで名前を出す）
+export default function ScreenMap({ onPick, selected, bubble }: { onPick: (id: string, inline: boolean) => void; selected: string; bubble?: ReactNode }) {
   const [hover, setHover] = useState<string | null>(null);
+  const [tip, setTip] = useState<{ left: number; top: number; width: number; arrow: number; below: boolean } | null>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<{ wide: boolean; items: Callout[]; sl: number; sr: number; h: number }>({ wide: false, items: [], sl: 0, sr: 0, h: 0 });
   const wrap = useRef<HTMLDivElement>(null);
   const { Btn, Field, Toggle, Check, Radios, Tabs, Card, Accordion, Alert, Stepper } = Screen;
@@ -100,11 +105,50 @@ export default function ScreenMap({ onPick, selected }: { onPick: (id: string) =
     return () => ro.disconnect();
   }, [layout]);
 
+  // 吹き出しを選んだ部品のそばに置く。画面に収まる側（上を優先）に出し、部品そのものは隠さない
+  const place = useCallback(() => {
+    const el = wrap.current;
+    const t = tipRef.current;
+    const node = el?.querySelector<HTMLElement>(`.sheet [data-part="${selected}"]`);
+    if (!el || !t || !node) return setTip(null);
+    const W = el.getBoundingClientRect();
+    const r = node.getBoundingClientRect();
+    const h = t.offsetHeight;
+    const w = Math.min(BUBBLE_W, W.width - 8);
+    const below = r.top - h - 14 < 8;
+    const left = Math.max(4, Math.min(r.left - W.left + r.width / 2 - w / 2, W.width - w - 4));
+    const top = below ? r.bottom - W.top + 12 : r.top - W.top - h - 12;
+    // 三角は部品の真ん中を指す（吹き出しの端の角丸にはかからない）
+    const arrow = Math.max(16, Math.min(r.left - W.left + r.width / 2 - left, w - 16));
+    setTip((cur) => (cur && cur.left === left && cur.top === top && cur.width === w && cur.arrow === arrow && cur.below === below ? cur : { left, top, width: w, arrow, below }));
+  }, [selected]);
+  useLayoutEffect(() => {
+    // 閉じたときの位置は残してよい（次に開くときは描く前に測り直す）
+    if (bubble) place();
+  }, [bubble, place, lines]);
+  useEffect(() => {
+    if (!bubble) return;
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [bubble, place]);
+
   const hot = (id: string) => id === selected || id === hover;
+  const pick = (id: string) => onPick(id, !lines.wide);
 
   return (
-    <MapCtx.Provider value={{ hover, setHover, onPick, selected }}>
+    <MapCtx.Provider value={{ hover, setHover, onPick: pick, selected }}>
       <div ref={wrap} className={`drawing ${lines.wide ? "is-wide" : "is-narrow"}`}>
+        {/* 狭い幅の見方。名前は書き込まず、押した部品だけ吹き出しで名前を出す */}
+        <p className="map-hint">点線で囲んだ部品を押すと、名前が出ます</p>
+        {bubble && !lines.wide && (
+          <div
+            ref={tipRef}
+            className={`map-bubble ${tip?.below ? "below" : "above"}`}
+            style={{ left: tip?.left ?? 0, top: tip?.top ?? 0, width: tip?.width ?? BUBBLE_W, visibility: tip ? "visible" : "hidden", ["--arrow" as string]: `${tip?.arrow ?? 24}px` }}
+          >
+            {bubble}
+          </div>
+        )}
         {lines.wide && (
           <svg className="leaders" aria-hidden="true" width="100%" height={lines.h}>
             {lines.items.map((c) => {
@@ -133,7 +177,7 @@ export default function ScreenMap({ onPick, selected }: { onPick: (id: string) =
                 style={style}
                 onMouseEnter={() => setHover(c.id)}
                 onMouseLeave={() => setHover(null)}
-                onClick={() => onPick(c.id)}
+                onClick={() => onPick(c.id, false)}
               >
                 {p.ja}
                 <small>{shortEn(p)}</small>

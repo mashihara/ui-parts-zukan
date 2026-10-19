@@ -140,7 +140,7 @@ a { color: inherit; }
 
 .drawing { position: relative; }
 .drawing.is-wide { padding: 26px 150px; }
-.drawing.is-narrow { padding: 16px 0; }
+.drawing.is-narrow { padding: 34px 0 16px; }
 .sheet { container-type: inline-size; position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1.5px var(--bp), 8px 8px 0 rgba(26, 71, 184, 0.12); }
 .leaders { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 2; }
 .leaders path { fill: none; stroke: var(--ln-weak); stroke-width: 1.2; }
@@ -216,20 +216,35 @@ span.spot { display: inline-flex; }
     linear-gradient(var(--amber), var(--amber)) right bottom / 16px 4px no-repeat, linear-gradient(var(--amber), var(--amber)) right bottom / 4px 16px no-repeat,
     var(--amber-fill);
 }
-.spot-tag {
-  display: none; position: absolute; z-index: 6; top: -10px; left: 4px; padding: 0 7px; border-radius: 3px; white-space: nowrap; pointer-events: none;
-  background: var(--bp-ink); color: #fff; font: 700 11px/1.7 var(--font); box-shadow: 0 0 0 1px #fff;
-}
-.drawing.is-narrow .spot-tag { display: block; }
-/* 狭い幅では札が紙の外（上）にはみ出すので、紙で切らず、青地の上でも見える縁を付ける */
-.drawing.is-narrow { padding-top: 22px; }
+/* 狭い幅：名前の札を部品に重ねると見本の文字が隠れたので、押せる部品を点線で囲むだけにする。
+   押した部品のそばに吹き出しで名前を出す（2026-10-19 A3案） */
+.map-hint { display: none; }
+.drawing.is-narrow .map-hint { display: flex; align-items: center; gap: 6px; position: absolute; top: 6px; left: 0; margin: 0; font-size: 13px; opacity: 0.85; }
+.drawing.is-narrow .map-hint::before { content: ""; width: 12px; height: 12px; border: 1.5px dashed var(--bp); border-radius: 3px; }
 .drawing.is-narrow .sheet { overflow: visible; }
 .drawing.is-narrow .sheet .map { border-radius: 6px; overflow: clip; overflow-clip-margin: 14px; }
-/* 狭い幅：小さな部品が並ぶ行は札がぶつかるので、ツールチップは札の右、アイコンボタンは下に名前を出す */
-.drawing.is-narrow .spot[data-part="tooltip"] > .spot-tag { top: 50%; left: calc(100% + 6px); transform: translateY(-50%); }
-.drawing.is-narrow .spot[data-part="icon-button"] > .spot-tag { top: calc(100% + 3px); left: 0; }
-.drawing.is-narrow .map-row { margin-bottom: 22px; }
-.drawing.is-narrow .spot.is-sel > .spot-tag { background: var(--amber-tag); color: var(--amber-ink); }
+.drawing.is-narrow .spot::after { border: 1.5px dashed rgba(26, 71, 184, 0.5); }
+.drawing.is-narrow .spot.is-sel::after { border: 0; }
+
+/* 吹き出し：選んだ部品の上（入らなければ下）に出し、三角で部品を指す */
+.map-bubble { position: absolute; z-index: 20; }
+.mb { position: relative; padding: 12px 14px; border: 1.5px solid var(--bp); border-radius: 6px; background: #fff; box-shadow: 0 10px 28px rgba(14, 42, 120, 0.2); }
+.mb::before {
+  content: ""; position: absolute; left: calc(var(--arrow) - 7px); width: 12px; height: 12px; background: #fff;
+  border: 1.5px solid var(--bp); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+}
+.map-bubble.above .mb::before { bottom: -8px; }
+.map-bubble.below .mb::before { top: -8px; transform: rotate(225deg); }
+.mb-x { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border: 0; border-radius: 3px; background: transparent; display: grid; place-items: center; cursor: pointer; opacity: 0.6; }
+.mb-name { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 8px; margin: 0 28px 0 0; }
+.mb-name b { font-size: 19px; line-height: 1.35; color: var(--bp-ink); }
+.mb-name small { font: 500 11.5px var(--mono); color: var(--bp); }
+.mb-meaning { margin: 4px 0 10px; font-size: 14px; line-height: 1.55; }
+.mb-actions { display: flex; gap: 8px; }
+.mb-actions button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 40px; border-radius: 3px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.mb-more { border: 1.5px solid var(--bp); background: #fff; color: var(--bp); }
+.mb-pick { border: 1.5px solid var(--bp-ink); background: var(--bp-ink); color: #fff; }
+.mb-pick.is-on { border-color: var(--amber); background: var(--amber-tag); color: var(--amber-ink); }
 
 /* 部品の項目 */
 /* 部品の説明：ページの上に重ねて、右から引き出す（スマホは下から） */
@@ -365,6 +380,9 @@ span.spot { display: inline-flex; }
 .dock-chip button + button { padding: 2px 6px 2px 0; }
 .dock-go { flex: none; height: 46px; padding: 0 22px; border: 0; border-radius: 3px; background: var(--bp-ink); color: #fff; font-weight: 700; cursor: pointer; }
 .dock-go:disabled { opacity: 0.35; cursor: default; }
+/* 件数はスマホ幅だけ（PC幅は名前の札が並ぶので要らない） */
+.dock-n { display: none; }
+@media (max-width: 760px) { .dock-n { display: inline; } }
 
 .sheet-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(8, 24, 70, 0.6); display: grid; place-items: center; padding: 16px; }
 .prompt-sheet { width: min(720px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; color: var(--bp-ink); border-radius: 4px; padding: 20px; border-top: 4px solid var(--bp); }
@@ -404,4 +422,5 @@ span.spot { display: inline-flex; }
   .dock { padding: 10px 16px; }
   .dock-picks { display: none; }
   .dock-go { flex: 1; }
+  .dock.is-empty { display: none; }
 }

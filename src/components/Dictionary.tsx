@@ -49,6 +49,8 @@ export default function Dictionary({ children, initialPart }: { children?: React
   const [filter, setFilter] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
+  // 狭い幅で図面の部品を押したときは、説明を重ねて開かず、部品のそばの吹き出しで名前を出す（「詳しく」で開く）
+  const [inline, setInline] = useState(false);
   const loaded = useRef(false);
   const opener = useRef<HTMLElement | null>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
@@ -89,8 +91,9 @@ export default function Dictionary({ children, initialPart }: { children?: React
 
   const part = s.part ? PART_MAP[s.part] : null;
   const index = part ? PARTS.findIndex((p) => p.id === part.id) : -1;
-  // 重ねて開く欄が出ているのは、狭い幅で部品を選んでいるときだけ
-  const isOpen = !!part && ready && !side;
+  // 重ねて開く欄が出ているのは、狭い幅で部品を選んでいるときだけ（図面の吹き出しで見ているときは開かない）
+  const isOpen = !!part && ready && !side && !inline;
+  const isBubble = !!part && ready && !side && inline;
   // 全体図に無い部品（重なって出る窓など）は、真ん中を単体の見本に切り替える
   const focus = part && !MAP_PARTS.has(part.id) && mapFor !== part.id ? part : null;
   // 単体表示に切り替えても下の一覧の位置が動かないよう、全体図の高さを覚えて同じ高さにする
@@ -143,6 +146,22 @@ export default function Dictionary({ children, initialPart }: { children?: React
     };
   }, [isOpen]);
 
+  // 吹き出しは、外を押すか Esc で閉じる（部品・下の帯・吹き出しの中を押したときは閉じない）
+  useEffect(() => {
+    if (!isBubble) return;
+    const off = () => setS((cur) => ({ ...cur, part: null }));
+    const onDown = (e: PointerEvent) => {
+      if (!(e.target as HTMLElement).closest(".map-bubble, .spot, .dock, .sheet-backdrop, .flash")) off();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && off();
+    document.addEventListener("pointerdown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isBubble]);
+
   // 共有リンクはトップに pick を付けた形（どの部品のページからでも同じ）
   const base = typeof window === "undefined" ? "" : `${window.location.origin}${BASE_PATH}/`;
   const link = s.picks.length ? `${base}?pick=${s.picks.join(",")}` : base;
@@ -151,8 +170,9 @@ export default function Dictionary({ children, initialPart }: { children?: React
     setFlash(msg);
     setTimeout(() => setFlash(null), 1800);
   };
-  const open = (id: string) => {
+  const open = (id: string, inl = false) => {
     if (!s.part && !side) opener.current = document.activeElement as HTMLElement | null;
+    setInline(inl);
     setS((cur) => ({ ...cur, part: id }));
   };
   // 目次から選んだときは、図面のその部品が見えるところまでページを動かす。
@@ -245,6 +265,22 @@ export default function Dictionary({ children, initialPart }: { children?: React
     </div>
   );
 
+  // 狭い幅で図面の部品を押したときの吹き出し（名前・意味と、詳しい説明・AIに渡す名前への入口）
+  const bubble = isBubble && part && (
+    <div className="mb" role="region" aria-label={`${part.ja}の名前`} aria-live="polite">
+      <button type="button" className="mb-x" aria-label="閉じる" onClick={() => setS((cur) => ({ ...cur, part: null }))}><Icon name="x" size={16} /></button>
+      <p className="mb-name"><b>{part.ja}</b><small>{shortEn(part)}</small></p>
+      <p className="mb-meaning">{part.meaning}</p>
+      <div className="mb-actions">
+        <button type="button" className="mb-more" onClick={() => setInline(false)}>詳しく</button>
+        <button type="button" className={`mb-pick ${s.picks.includes(part.id) ? "is-on" : ""}`} aria-pressed={s.picks.includes(part.id)} onClick={() => togglePick(part.id)}>
+          <Icon name={s.picks.includes(part.id) ? "check" : "plus"} size={16} />
+          {s.picks.includes(part.id) ? "入れました" : "AIに渡す"}
+        </button>
+      </div>
+    </div>
+  );
+
   const stepper = (
     <>
       <button type="button" onClick={() => step(-1)} aria-label="前の部品"><Icon name="chevronLeft" size={18} /></button>
@@ -283,7 +319,8 @@ export default function Dictionary({ children, initialPart }: { children?: React
             <span>その部品、</span>
             <em>なんて呼ぶ？</em>
           </h1>
-          <p>「上の帯」「出てくる窓」では、AIに伝わりません。見本の画面に、図面のように部品の名前を書き込みました。名前を押すと、意味とAIへの頼み方が分かります。</p>
+          {/* スマホ幅では名前を書き込まず点線で囲むので、どちらの幅でも当てはまる言い方にする */}
+          <p>「上の帯」「出てくる窓」では、AIに伝わりません。下の見本の画面で部品を押すと、正式な名前と意味、AIへの頼み方が分かります。</p>
         </section>
       )}
       <div className="split">
@@ -355,7 +392,7 @@ export default function Dictionary({ children, initialPart }: { children?: React
             </section>
           </div>
         ) : (
-          <ScreenMap onPick={open} selected={s.part ?? ""} />
+          <ScreenMap onPick={open} selected={s.part ?? ""} bubble={bubble || null} />
         )}
         <p className="board-note">
           モーダル・ダイアログなど<b>画面に重なって出る窓</b>は、図面ではなく下の「部品の名前」にあります。
@@ -431,7 +468,8 @@ export default function Dictionary({ children, initialPart }: { children?: React
         </div>
       )}
 
-      <div className="dock" role="region" aria-label="AIに渡す名前">
+      {/* スマホ幅では、名前を1つも入れていないときは出さない（意味の分からない帯が図面を隠していた） */}
+      <div className={`dock ${s.picks.length ? "" : "is-empty"}`} role="region" aria-label="AIに渡す名前">
         <div className="dock-picks">
           <span className="dock-label">AIに渡す名前</span>
           {s.picks.length === 0 ? (
@@ -445,7 +483,7 @@ export default function Dictionary({ children, initialPart }: { children?: React
             ))
           )}
         </div>
-        <button type="button" className="dock-go" disabled={!s.picks.length} onClick={() => setSheetOpen(true)}>{s.picks.length ? "AIに渡す文を見る" : "名前を選ぶと渡せます"}</button>
+        <button type="button" className="dock-go" disabled={!s.picks.length} onClick={() => setSheetOpen(true)}>{s.picks.length ? <>AIに渡す文を見る<span className="dock-n">（{s.picks.length}件）</span></> : "名前を選ぶと渡せます"}</button>
       </div>
 
       {sheetOpen && (
